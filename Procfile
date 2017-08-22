@@ -1,1 +1,1 @@
-web: gunicorn sfdoc.wsgi
+web: gunicorn config.wsgi:application
