@@ -59,3 +59,7 @@ TEMPLATES[0]['OPTIONS']['loaders'] = [
         'django.template.loaders.app_directories.Loader',
     ], ],
 ]
+
+EASYDITA_INSTANCE_URL = 'https://test.easydita.com'
+EASYDITA_USERNAME = 'testuser'
+EASYDITA_PASSWORD = 'testpass'
