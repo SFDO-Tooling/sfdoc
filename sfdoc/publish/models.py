@@ -6,6 +6,15 @@ from django.db import models
 import requests
 
 
+class Article(models.Model):
+    body = models.TextField()
+    html = models.TextField()
+    salesforce_id = models.CharField(max_length=255, unique=True)
+    time_created = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=255)
+    url_name = models.CharField(max_length=255)
+
+
 class EasyditaBundle(models.Model):
     easydita_id = models.CharField(max_length=255, unique=True)
     time_created = models.DateTimeField(auto_now_add=True)
