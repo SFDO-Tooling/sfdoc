@@ -44,8 +44,8 @@ pytz==2017.2
 django-redis==4.8.0
 redis>=2.10.5
 
+# Salesforce
+simple-salesforce==0.73.0
 
-
-
-
-# Your custom requirements go here
+# JWT
+PyJWT==1.5.3
