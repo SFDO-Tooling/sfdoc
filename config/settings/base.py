@@ -49,6 +49,7 @@ THIRD_PARTY_APPS = [
     'allauth',  # registration
     'allauth.account',  # registration
     'allauth.socialaccount',  # registration
+    'storages',  # django-storages
 ]
 
 # Apps specific for this project go here.

@@ -49,3 +49,6 @@ simple-salesforce==0.73.0
 
 # JWT
 PyJWT==1.5.3
+
+# django-storages
+django-storages==1.6.5

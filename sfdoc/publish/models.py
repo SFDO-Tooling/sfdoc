@@ -15,6 +15,12 @@ class Article(models.Model):
     url_name = models.CharField(max_length=255)
 
 
+class Image(models.Model):
+    time_created = models.DateTimeField(auto_now_add=True)
+    image_file = models.ImageField()
+    image_hash = models.CharField(max_length=255, unique=True)
+
+
 class EasyditaBundle(models.Model):
     easydita_id = models.CharField(max_length=255, unique=True)
     time_created = models.DateTimeField(auto_now_add=True)
