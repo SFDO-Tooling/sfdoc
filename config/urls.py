@@ -16,7 +16,10 @@ urlpatterns = [
     url(r'^users/', include('sfdoc.users.urls', namespace='users')),
     url(r'^accounts/', include('allauth.urls')),
 
-    # Your stuff: custom urls includes go here
+    # Django-RQ
+    url(r'^django-rq/', include('django_rq.urls')),
+
+    # publish app
     url(r'^publish/', include('sfdoc.publish.urls', namespace='publish')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
