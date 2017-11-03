@@ -35,8 +35,8 @@ class Article(models.Model):
             elif meta_name == 'UrlName':
                 self.url_name = meta_content
         for div in soup('div'):
-            if div.get('class') == 'row-fluid':
-                self.body = div.prettify()
+            if 'row-fluid' in div.get('class'):
+                self.body = div.string
 
     def scrub(self):
         """Scrub the article body for security."""

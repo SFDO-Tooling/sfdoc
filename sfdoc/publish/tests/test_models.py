@@ -13,14 +13,32 @@ from .utils import gen_zip_file
 class TestArticle(TestCase):
 
     def setUp(self):
+        html_str = (
+            '<html>'
+            '<head>'
+            '<meta name="Title" content="{}">'
+            '<meta name="UrlName" content="{}">'
+            '</head>'
+            '<body>'
+            '<div class="row-fluid">{}</div>'
+            '</body>'
+            '</html>'
+        )
+        self.body = 'Example article content'
+        self.title = 'Test Title'
         self.url_name = 'test-url-name'
+        self.html = html_str.format(self.title, self.url_name, self.body)
 
     def test_get_url_name(self):
-        html = '<html><head><meta name="UrlName" content="{}"></head></html>'.format(
-            self.url_name,
-        )
-        url_name = Article.get_url_name(html)
+        url_name = Article.get_url_name(self.html)
         self.assertEqual(url_name, self.url_name)
+
+    def test_parse(self):
+        article = Article(html=self.html)
+        article.parse()
+        self.assertEqual(article.body, self.body)
+        self.assertEqual(article.title, self.title)
+        self.assertEqual(article.url_name, self.url_name)
 
 
 class TestEasyditaBundle(TestCase):
