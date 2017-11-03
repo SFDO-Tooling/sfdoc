@@ -1,7 +1,7 @@
 import responses
 from test_plus.test import TestCase
 
-from ..handlers import handle_easydita_bundle_create
+from ..signals import handle_easydita_bundle_create
 from ..models import EasyditaBundle
 
 
