@@ -6,6 +6,7 @@ import django_rq
 
 from .models import Article
 from .models import EasyditaBundle
+from .models import Image
 
 
 @django_rq.job
