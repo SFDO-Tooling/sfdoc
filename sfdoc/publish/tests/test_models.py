@@ -5,8 +5,22 @@ from django.conf import settings
 import responses
 from test_plus.test import TestCase
 
+from ..models import Article
 from ..models import EasyditaBundle
 from .utils import gen_zip_file
+
+
+class TestArticle(TestCase):
+
+    def setUp(self):
+        self.url_name = 'test-url-name'
+
+    def test_get_url_name(self):
+        html = '<html><head><meta name="UrlName" content="{}"></head></html>'.format(
+            self.url_name,
+        )
+        url_name = Article.get_url_name(html)
+        self.assertEqual(url_name, self.url_name)
 
 
 class TestEasyditaBundle(TestCase):
