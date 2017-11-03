@@ -8,13 +8,13 @@ import requests
 
 
 class Article(models.Model):
-    body = models.TextField()
-    html = models.TextField()
-    html_hash = models.CharField(max_length=255)
-    salesforce_id = models.CharField(max_length=255, unique=True)
-    time_created = models.DateTimeField(auto_now_add=True)
-    title = models.CharField(max_length=255)
-    url_name = models.CharField(max_length=255, unique=True)
+    body = models.TextField(null=True)
+    html = models.TextField(null=True)
+    html_hash = models.CharField(max_length=255, null=True)
+    salesforce_id = models.CharField(max_length=255, null=True, unique=True)
+    time_created = models.DateTimeField(auto_now_add=True, null=True)
+    title = models.CharField(max_length=255, null=True)
+    url_name = models.CharField(max_length=255, null=True, unique=True)
 
     @staticmethod
     def get_url_name(html):
