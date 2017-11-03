@@ -2,14 +2,14 @@ import os
 from tempfile import TemporaryDirectory
 
 from django.core.files import File
-import django_rq
+from django_rq import job
 
 from .models import Article
 from .models import EasyditaBundle
 from .models import Image
 
 
-@django_rq.job
+@job
 def process_easydita_bundle(pk):
     easydita_bundle = EasyditaBundle.objects.get(pk=pk)
     with TemporaryDirectory() as d:
