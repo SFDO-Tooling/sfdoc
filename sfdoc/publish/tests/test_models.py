@@ -40,6 +40,11 @@ class TestArticle(TestCase):
         self.assertEqual(article.title, self.title)
         self.assertEqual(article.url_name, self.url_name)
 
+    def test_scrub(self):
+        article = Article(body=self.body)
+        article.scrub()
+        self.assertEqual(article.body, self.body + '\n')
+
 
 class TestEasyditaBundle(TestCase):
 
