@@ -45,6 +45,11 @@ class TestArticle(TestCase):
         article.scrub()
         self.assertEqual(article.body, self.body + '\n')
 
+    def test_update_html_hash(self):
+        article = Article(html=self.html)
+        article.update_html_hash()
+        self.assertEqual(article.html_hash, hash(self.html))
+
 
 class TestEasyditaBundle(TestCase):
 
