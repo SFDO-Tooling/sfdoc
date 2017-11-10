@@ -62,10 +62,10 @@ class Article(models.Model):
     def update_image_links(self):
         """Replace the image URL placeholder."""
         soup = BeautifulSoup(self.body, 'html.parser')
-        for a in soup('a'):
-            link = a.get('href')
-            if link and settings.IMAGES_URL_PLACEHOLDER in link:
-                a['href'] = link.replace(
+        for img in soup('img'):
+            src = img.get('src')
+            if src and settings.IMAGES_URL_PLACEHOLDER in src:
+                img['src'] = src.replace(
                     settings.IMAGES_URL_PLACEHOLDER,
                     settings.IMAGES_URL_ROOT,
                 )

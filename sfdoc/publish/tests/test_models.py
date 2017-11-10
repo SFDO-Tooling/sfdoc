@@ -25,9 +25,7 @@ class TestArticle(TestCase):
         )
         body_str = (
             '<div class="row-fluid">'
-            '<a href="{}/test-image.png">'
-            'Example link text'
-            '</a>'
+            '<img src="{}/test-image.png">'
             'Example article content'
             '</div>'
         )
