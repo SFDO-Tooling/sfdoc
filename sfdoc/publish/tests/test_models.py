@@ -1,6 +1,7 @@
 import os
 from tempfile import TemporaryDirectory
 
+from bs4 import BeautifulSoup
 from django.conf import settings
 import responses
 from test_plus.test import TestCase
@@ -19,12 +20,18 @@ class TestArticle(TestCase):
             '<meta name="Title" content="{}">'
             '<meta name="UrlName" content="{}">'
             '</head>'
-            '<body>'
-            '<div class="row-fluid">{}</div>'
-            '</body>'
+            '<body>{}</body>'
             '</html>'
         )
-        self.body = 'Example article content'
+        body_str = (
+            '<div class="row-fluid">'
+            '<a href="{}/test-image.png">'
+            'Example link text'
+            '</a>'
+            'Example article content'
+            '</div>'
+        )
+        self.body = body_str.format(settings.IMAGES_URL_PLACEHOLDER)
         self.title = 'Test Title'
         self.url_name = 'test-url-name'
         self.html = html_str.format(self.title, self.url_name, self.body)
@@ -36,19 +43,27 @@ class TestArticle(TestCase):
     def test_parse(self):
         article = Article(html=self.html)
         article.parse()
-        self.assertEqual(article.body, self.body)
+        soup = BeautifulSoup(self.body, 'html.parser')
+        self.assertEqual(article.body, soup.prettify())
         self.assertEqual(article.title, self.title)
         self.assertEqual(article.url_name, self.url_name)
 
     def test_scrub(self):
         article = Article(body=self.body)
         article.scrub()
-        self.assertEqual(article.body, self.body + '\n')
+        soup = BeautifulSoup(self.body, 'html.parser')
+        self.assertEqual(article.body, soup.prettify())
 
     def test_update_html_hash(self):
         article = Article(html=self.html)
         article.update_html_hash()
         self.assertEqual(article.html_hash, hash(self.html))
+
+    def test_update_image_links(self):
+        article = Article(body=self.body)
+        article.update_image_links()
+        self.assertIn(settings.IMAGES_URL_ROOT, article.body)
+        self.assertNotIn(settings.IMAGES_URL_PLACEHOLDER, article.body)
 
 
 class TestEasyditaBundle(TestCase):

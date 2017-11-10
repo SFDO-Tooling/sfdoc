@@ -63,3 +63,6 @@ TEMPLATES[0]['OPTIONS']['loaders'] = [
 EASYDITA_INSTANCE_URL = 'https://test.easydita.com'
 EASYDITA_USERNAME = 'testuser'
 EASYDITA_PASSWORD = 'testpass'
+
+IMAGES_URL_PLACEHOLDER = 'ARTICLE_IMAGES_URL'
+IMAGES_URL_ROOT = 'http://example.com/images'

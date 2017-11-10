@@ -35,8 +35,9 @@ class Article(models.Model):
             elif meta_name == 'UrlName':
                 self.url_name = meta_content
         for div in soup('div'):
-            if 'row-fluid' in div.get('class'):
-                self.body = div.string
+            div_class = div.get('class')
+            if div_class and 'row-fluid' in div_class:
+                self.body = div.prettify()
 
     def scrub(self):
         """Scrub the article body for security."""
@@ -62,9 +63,9 @@ class Article(models.Model):
         """Replace the image URL placeholder."""
         soup = BeautifulSoup(self.body, 'html.parser')
         for a in soup('a'):
-            href = a.get('href')
-            if settings.IMAGES_URL_PLACEHOLDER in href:
-                href.string = href.string.replace(
+            link = a.get('href')
+            if link and settings.IMAGES_URL_PLACEHOLDER in link:
+                a['href'] = link.replace(
                     settings.IMAGES_URL_PLACEHOLDER,
                     settings.IMAGES_URL_ROOT,
                 )
