@@ -284,3 +284,5 @@ RQ_QUEUES = {
         'AUTOCOMMIT': False,
     },
 }
+
+HTML_WHITELIST = env('HTML_WHITELIST')

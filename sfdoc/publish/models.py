@@ -7,6 +7,22 @@ from django.db import models
 import requests
 
 
+def get_whitelist():
+    """Build whitelist dict from env var."""
+    whitelist = {}
+    for item in settings.HTML_WHITELIST.split(';'):
+        x = item.split(':')
+        assert(len(x) in (1, 2))
+        tag = x[0].lower()
+        if tag not in whitelist:
+            whitelist[tag] = []
+        if len(x) == 2:
+            attrs = x[1].lower()
+            for attr in attrs.split(','):
+                whitelist[tag].append(attr)
+    return whitelist
+
+
 class Article(models.Model):
     body = models.TextField(null=True)
     html = models.TextField(null=True)
@@ -41,8 +57,29 @@ class Article(models.Model):
 
     def scrub(self):
         """Scrub the article body for security."""
+        whitelist = get_whitelist()
+
         soup = BeautifulSoup(self.body, 'html.parser')
-        # TODO: do some scrubbin'
+        assert(len(soup.contents) == 1)
+        assert(soup.contents[0].name == 'div')
+
+        root = soup.contents[0]
+        assert(len(root.attrs) == 1)
+        assert('class' in root.attrs)
+        assert(root['class'] == ['row-fluid'])
+
+        def process_tree(tree):
+            for child in tree.children:
+                if hasattr(child, 'contents'):
+                    assert(child.name in whitelist)
+                    for attr in child.attrs:
+                        assert(attr in whitelist[child.name])
+                    process_tree(child)
+                else:
+                    # string
+                    pass
+
+        process_tree(root)
         self.body = soup.prettify()
         self.save()
 

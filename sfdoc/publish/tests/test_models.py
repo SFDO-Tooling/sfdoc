@@ -26,7 +26,7 @@ class TestArticle(TestCase):
         body_str = (
             '<div class="row-fluid">'
             '<img src="{}/test-image.png">'
-            'Example article content'
+            '<p>Example article content</p>'
             '</div>'
         )
         self.body = body_str.format(settings.IMAGES_URL_PLACEHOLDER)
