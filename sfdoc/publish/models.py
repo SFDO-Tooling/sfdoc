@@ -7,22 +7,6 @@ from django.db import models
 import requests
 
 
-def get_whitelist():
-    """Build whitelist dict from env var."""
-    whitelist = {}
-    for item in settings.HTML_WHITELIST.split(';'):
-        x = item.split(':')
-        assert(len(x) in (1, 2))
-        tag = x[0].lower()
-        if tag not in whitelist:
-            whitelist[tag] = []
-        if len(x) == 2:
-            attrs = x[1].lower()
-            for attr in attrs.split(','):
-                whitelist[tag].append(attr)
-    return whitelist
-
-
 class Article(models.Model):
     body = models.TextField(null=True)
     html = models.TextField(null=True)
@@ -39,6 +23,22 @@ class Article(models.Model):
         for meta in soup.find_all('meta'):
             if meta.get('name') == 'UrlName':
                 return meta.get('content')
+
+    @staticmethod
+    def get_whitelist():
+        """Build whitelist dict from env var."""
+        whitelist = {}
+        for item in settings.HTML_WHITELIST.split(';'):
+            x = item.split(':')
+            assert(len(x) in (1, 2))
+            tag = x[0].lower()
+            if tag not in whitelist:
+                whitelist[tag] = []
+            if len(x) == 2:
+                attrs = x[1].lower()
+                for attr in attrs.split(','):
+                    whitelist[tag].append(attr)
+        return whitelist
 
     def parse(self):
         """Parse raw HTML into model fields."""
@@ -57,7 +57,7 @@ class Article(models.Model):
 
     def scrub(self):
         """Scrub the article body for security."""
-        whitelist = get_whitelist()
+        whitelist = self.get_whitelist()
 
         soup = BeautifulSoup(self.body, 'html.parser')
         assert(len(soup.contents) == 1)
