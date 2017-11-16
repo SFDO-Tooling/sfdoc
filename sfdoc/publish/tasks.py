@@ -20,7 +20,7 @@ def process_easydita_bundle(pk):
                 if ext.lower() in ('.htm', '.html'):
                     with open(os.path.join(dirpath, filename), 'r') as f:
                         html = f.read()
-                    article, created = Article.objects.get_or_create(
+                    article, created = Article.objects.update_or_create(
                         url_name=Article.get_url_name(html),
                         defaults={'html': html},
                     )
@@ -30,7 +30,7 @@ def process_easydita_bundle(pk):
                     with open(os.path.join(dirpath, filename), 'rb') as f:
                         image_data = f.read()
                         image_file = File(f)
-                    image, created = Image.objects.get_or_create(
+                    image, created = Image.objects.update_or_create(
                         image_hash=hash(image_data),
                         defaults={'image_file': image_file},
                     )
