@@ -6,6 +6,8 @@ from django.conf import settings
 from django.db import models
 import requests
 
+from .exceptions import HtmlError
+
 
 class Article(models.Model):
     body = models.TextField(null=True)
@@ -24,22 +26,6 @@ class Article(models.Model):
             if meta.get('name') == 'UrlName':
                 return meta.get('content')
 
-    @staticmethod
-    def get_whitelist():
-        """Build whitelist dict from env var."""
-        whitelist = {}
-        for item in settings.HTML_WHITELIST.split(';'):
-            x = item.split(':')
-            assert(len(x) in (1, 2))
-            tag = x[0].lower()
-            if tag not in whitelist:
-                whitelist[tag] = []
-            if len(x) == 2:
-                attrs = x[1].lower()
-                for attr in attrs.split(','):
-                    whitelist[tag].append(attr)
-        return whitelist
-
     def parse(self):
         """Parse raw HTML into model fields."""
         soup = BeautifulSoup(self.html, 'html.parser')
@@ -55,39 +41,26 @@ class Article(models.Model):
             if div_class and 'row-fluid' in div_class:
                 self.body = div.prettify()
 
-    def scrub(self):
-        """Scrub the article body for security."""
-        whitelist = self.get_whitelist()
-
-        soup = BeautifulSoup(self.body, 'html.parser')
-        assert(len(soup.contents) == 1)
-        assert(soup.contents[0].name == 'div')
-
-        root = soup.contents[0]
-        assert(len(root.attrs) == 1)
-        assert('class' in root.attrs)
-        assert(root['class'] == ['row-fluid'])
-
-        def process_tree(tree):
+    @staticmethod
+    def scrub(html):
+        """Scrub the HTML file for security."""
+        # build the whitelist
+        soup = BeautifulSoup(html, 'html.parser')
+        def scrub_tree(tree):
             for child in tree.children:
                 if hasattr(child, 'contents'):
-                    assert(child.name in whitelist)
+                    if child.name not in settings.HTML_WHITELIST:
+                        raise HtmlError('Tag "{}" not in whitelist'.format(child.name))
                     for attr in child.attrs:
-                        assert(attr in whitelist[child.name])
-                    process_tree(child)
-                else:
-                    # string
-                    pass
-
-        process_tree(root)
-        self.body = soup.prettify()
-        self.save()
+                        if attr not in settings.HTML_WHITELIST[child.name]:
+                            raise HtmlError('Tag "{}" attribute "{}" not in whitelist'.format(child.name, attr))
+                    scrub_tree(child)
+        scrub_tree(soup)
 
     def update(self):
         """Process HTML and update the Knowledge Article."""
         self.parse()
         self.update_image_links()
-        self.scrub()
         self.upload()
         self.update_html_hash()
 

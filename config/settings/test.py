@@ -66,3 +66,5 @@ EASYDITA_PASSWORD = 'testpass'
 
 IMAGES_URL_PLACEHOLDER = 'ARTICLE_IMAGES_URL'
 IMAGES_URL_ROOT = 'http://example.com/images'
+
+TO_EMAILS = ['beatrice@example.com', 'john@example.com', 'susan@example.com']

@@ -47,10 +47,7 @@ class TestArticle(TestCase):
         self.assertEqual(article.url_name, self.url_name)
 
     def test_scrub(self):
-        article = Article(body=self.body)
-        article.scrub()
-        soup = BeautifulSoup(self.body, 'html.parser')
-        self.assertEqual(article.body, soup.prettify())
+        Article.scrub(self.html)
 
     def test_update_html_hash(self):
         article = Article(html=self.html)

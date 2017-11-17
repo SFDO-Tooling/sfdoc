@@ -285,4 +285,24 @@ RQ_QUEUES = {
     },
 }
 
-HTML_WHITELIST = env('HTML_WHITELIST')
+HTML_WHITELIST = {
+    'a': ['href'],
+    'body': [],
+    'div': ['class'],
+    'h1': [],
+    'h2': [],
+    'h3': [],
+    'h4': [],
+    'h5': [],
+    'h6': [],
+    'head': [],
+    'html': [],
+    'img': ['src'],
+    'li': [],
+    'meta': ['content', 'name'],
+    'p': [],
+    'ul': [],
+}
+
+HTML_EXTENSIONS = ('.htm', '.html')
+IMAGE_EXTENSIONS = ('.jpg', '.png')

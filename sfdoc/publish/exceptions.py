@@ -1,0 +1,3 @@
+
+class HtmlError(Exception):
+    pass
