@@ -56,9 +56,7 @@ def process_easydita_bundle(pk):
                         defaults={'html': html},
                     )
                     if article.html_hash != hash(html):
-                        article.update()
-                        article.last_updated_by = easydita_bundle
-                        article.save()
+                        update_article.delay(article.pk, easydita_bundle.pk)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     with open(os.path.join(dirpath, filename), 'rb') as f:
                         image_data = f.read()
@@ -68,3 +66,11 @@ def process_easydita_bundle(pk):
                         defaults={'image_file': image_file},
                     )
     return 'Processed easyDITA bundle pk={}'.format(pk)
+
+@job
+def update_article(article_pk, easydita_bundle_pk):
+    article = Article.objects.get(pk=article_pk)
+    easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
+    article.update()
+    article.last_updated_by = easydita_bundle
+    article.save()
