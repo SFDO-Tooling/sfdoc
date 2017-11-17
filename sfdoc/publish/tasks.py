@@ -66,6 +66,7 @@ def process_easydita_bundle(pk):
                     )
     return 'Processed easyDITA bundle pk={}'.format(pk)
 
+
 @job
 def update_article(article_pk, easydita_bundle_pk):
     article = Article.objects.get(pk=article_pk)

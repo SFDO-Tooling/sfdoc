@@ -47,14 +47,22 @@ class Article(models.Model):
         """Scrub the HTML file for security."""
         # build the whitelist
         soup = BeautifulSoup(html, 'html.parser')
+
         def scrub_tree(tree):
             for child in tree.children:
                 if hasattr(child, 'contents'):
                     if child.name not in settings.HTML_WHITELIST:
-                        raise HtmlError('Tag "{}" not in whitelist'.format(child.name))
+                        raise HtmlError(
+                            'Tag "{}" not in whitelist'.format(child.name)
+                        )
                     for attr in child.attrs:
                         if attr not in settings.HTML_WHITELIST[child.name]:
-                            raise HtmlError('Tag "{}" attribute "{}" not in whitelist'.format(child.name, attr))
+                            raise HtmlError(
+                                'Tag "{}" attribute "{}" not in whitelist'.format(
+                                    child.name,
+                                    attr,
+                                )
+                            )
                     scrub_tree(child)
         scrub_tree(soup)
 
