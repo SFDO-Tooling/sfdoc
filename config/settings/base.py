@@ -285,25 +285,7 @@ RQ_QUEUES = {
     },
 }
 
-default_html_whitelist = {
-    'a': ['href'],
-    'body': [],
-    'div': ['class'],
-    'h1': [],
-    'h2': [],
-    'h3': [],
-    'h4': [],
-    'h5': [],
-    'h6': [],
-    'head': [],
-    'html': [],
-    'img': ['src'],
-    'li': [],
-    'meta': ['content', 'name'],
-    'p': [],
-    'ul': []
-}
-HTML_WHITELIST = env.json('HTML_WHITELIST', default=default_html_whitelist)
+HTML_WHITELIST = env.json('HTML_WHITELIST', default={})
 LINK_WHITELIST = env.json('LINK_WHITELIST', default=[])
 
 HTML_EXTENSIONS = ('.htm', '.html')
