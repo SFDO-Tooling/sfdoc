@@ -2,6 +2,7 @@ from io import BytesIO
 from zipfile import ZipFile
 
 from bs4 import BeautifulSoup
+from bs4 import Comment
 from django.conf import settings
 from django.db import models
 import requests
@@ -30,6 +31,10 @@ class Article(models.Model):
     def parse(self):
         """Parse raw HTML into model fields."""
         soup = BeautifulSoup(self.html, 'html.parser')
+        # remove all comments (scripts can be run from comments)
+        comments = soup.findAll(text=lambda text:isinstance(text, Comment))
+        for comment in comments:
+            comment.extract()
         for meta in soup('meta'):
             meta_name = meta.get('name')
             meta_content = meta.get('content')
