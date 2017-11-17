@@ -13,6 +13,7 @@ class Article(models.Model):
     body = models.TextField(null=True)
     html = models.TextField(null=True)
     html_hash = models.CharField(max_length=255, null=True)
+    last_updated_by = models.ForeignKey('EasyditaBundle', null=True)
     salesforce_id = models.CharField(max_length=255, null=True, unique=True)
     time_created = models.DateTimeField(auto_now_add=True, null=True)
     title = models.CharField(max_length=255, null=True)

@@ -57,6 +57,8 @@ def process_easydita_bundle(pk):
                     )
                     if article.html_hash != hash(html):
                         article.update()
+                        article.last_updated_by = easydita_bundle
+                        article.save()
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     with open(os.path.join(dirpath, filename), 'rb') as f:
                         image_data = f.read()
