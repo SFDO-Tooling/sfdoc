@@ -63,6 +63,14 @@ class Article(models.Model):
                                     attr,
                                 )
                             )
+                        if attr == 'href':
+                            o = urlparse(child['href'])
+                            if o.hostname not in settings.LINK_WHITELIST:
+                                raise HtmlError(
+                                    'Link {} not in whitelist'.format(
+                                        child['href']
+                                    )
+                                )
                     scrub_tree(child)
         scrub_tree(soup)
 
