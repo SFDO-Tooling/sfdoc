@@ -59,10 +59,9 @@ def process_easydita_bundle(pk):
                         update_article.delay(article.pk, easydita_bundle.pk)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     with open(os.path.join(dirpath, filename), 'rb') as f:
-                        image_data = f.read()
                         image_file = File(f)
                     image, created = Image.objects.update_or_create(
-                        image_hash=hash(image_data),
+                        image_hash=hash(image_file.read()),
                         defaults={'image_file': image_file},
                     )
     return 'Processed easyDITA bundle pk={}'.format(pk)
