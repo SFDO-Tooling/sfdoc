@@ -292,8 +292,17 @@ HTML_EXTENSIONS = ('.htm', '.html')
 IMAGE_EXTENSIONS = ('.jpg', '.png')
 
 # Salesforce
-SALESFORCE_AUTH_SITE = env('SALESFORCE_AUTH_SITE')
+SALESFORCE_LOGIN_URL = 'https://login.salesforce.com'
 SALESFORCE_CLIENT_ID = env('SALESFORCE_CLIENT_ID')
-SALESFORCE_JWT_PRIVATE_KEY = env('SALESFORCE_JWT_PRIVATE_KEY')
+def process_key(key):
+    """Ensure key string uses newlines instead of spaces."""
+    KEY_BEGIN = '-----BEGIN RSA PRIVATE KEY-----'
+    KEY_END = '-----END RSA PRIVATE KEY-----'
+    key_out = KEY_BEGIN + '\n'
+    for item in key.replace(KEY_BEGIN, '').replace(KEY_END, '').split():
+        key_out += item + '\n'
+    key_out += KEY_END
+    return key_out
+SALESFORCE_JWT_PRIVATE_KEY = process_key(env('SALESFORCE_JWT_PRIVATE_KEY'))
 SALESFORCE_SANDBOX = env.bool('SALESFORCE_SANDBOX', False)
 SALESFORCE_USERNAME = env('SALESFORCE_USERNAME')
