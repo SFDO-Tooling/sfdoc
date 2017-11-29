@@ -31,7 +31,11 @@ def get_salesforce_api():
     response = requests.post(url, data=data, headers=headers)
     response.raise_for_status()
     response_data = json.loads(response.text)
-    return Salesforce(
-        instance_url=response_data['instance_url'],
-        session_id=response_data['access_token'],
-    )
+    kwargs = {
+        'client_id': 'sfdoc',
+        'instance_url': response_data['instance_url'],
+        'session_id': response_data['access_token'],
+    }
+    if settings.SALESFORCE_SANDBOX:
+        kwargs['sandbox'] = True
+    return Salesforce(**kwargs)
