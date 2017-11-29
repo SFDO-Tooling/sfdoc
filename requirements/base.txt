@@ -58,3 +58,6 @@ django-storages==1.6.5
 
 # Beautiful Soup
 beautifulsoup4==4.6.0
+
+# cryptography
+cryptography==2.1.3
