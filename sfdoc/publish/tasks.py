@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import os
 from tempfile import TemporaryDirectory
 
@@ -7,9 +8,11 @@ from django.core.mail import send_mail
 from django_rq import job
 
 from .exceptions import HtmlError
+from .exceptions import PublishError
 from .models import Article
 from .models import EasyditaBundle
 from .models import Image
+from .salesforce import get_salesforce_api
 
 
 @job
@@ -53,9 +56,9 @@ def process_easydita_bundle(pk):
                         html = f.read()
                     article, created = Article.objects.update_or_create(
                         url_name=Article.get_url_name(html),
-                        defaults={'html': html},
+                        defaults={'html_new': html},
                     )
-                    if article.html_hash != hash(html):
+                    if article.changed:
                         update_article.delay(article.pk, easydita_bundle.pk)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     with open(os.path.join(dirpath, filename), 'rb') as f:
@@ -68,9 +71,46 @@ def process_easydita_bundle(pk):
 
 
 @job
+def publish(easydita_bundle_pk):
+    easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
+    # wait until all articles have been processed
+    for article in easydita_bundle.article_set.all():
+        if article.changed and not article.ready_to_publish:
+            return
+    # publish all article drafts
+    sf = get_salesforce_api()
+    for article in easydita_bundle.article_set.all():
+        if not article.changed:
+            continue
+        url = (
+            sf.base_url +
+            'knowledgeManagement/articleVersions/masterVersions/{}'.format(
+                article.salesforce_kav_id,
+            )
+        )
+        data = {'publishStatus': 'online'}  # increment minor version
+        result = sf._call_salesforce('PATCH', url, json=data)
+        if result.status_code != HTTPStatus.NO_CONTENT:
+            article.reset_fields()
+            raise PublishError(
+                'Failed to publish KnowledgeArticleVersion {}: {}'.format(
+                    article.salesforce_kav_id,
+                    result,
+                )
+            )
+        # update article fields
+        article.html = article.html_new
+        article.html_hash = hash(article.html_new)
+        article.title = article.title_new
+        article.summary = article.summary_new
+        article.body = article.body_new
+        article.last_updated_by = easydita_bundle
+        article.ready_to_publish = False
+        article.save()
+
+
+@job
 def update_article(article_pk, easydita_bundle_pk):
     article = Article.objects.get(pk=article_pk)
-    easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
     article.update()
-    article.last_updated_by = easydita_bundle
-    article.save()
+    publish.delay(easydita_bundle_pk)

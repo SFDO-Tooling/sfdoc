@@ -39,26 +39,20 @@ class TestArticle(TestCase):
         self.assertEqual(url_name, self.url_name)
 
     def test_parse(self):
-        article = Article(html=self.html)
+        article = Article(html_new=self.html)
         article.parse()
         soup = BeautifulSoup(self.body, 'html.parser')
-        self.assertEqual(article.body, soup.prettify())
-        self.assertEqual(article.title, self.title)
-        self.assertEqual(article.url_name, self.url_name)
+        self.assertEqual(article.body_new, soup.prettify())
+        self.assertEqual(article.title_new, self.title)
 
     def test_scrub(self):
         Article.scrub(self.html)
 
-    def test_update_html_hash(self):
-        article = Article(html=self.html)
-        article.update_html_hash()
-        self.assertEqual(article.html_hash, hash(self.html))
-
     def test_update_image_links(self):
-        article = Article(body=self.body)
+        article = Article(body_new=self.body)
         article.update_image_links()
-        self.assertIn(settings.IMAGES_URL_ROOT, article.body)
-        self.assertNotIn(settings.IMAGES_URL_PLACEHOLDER, article.body)
+        self.assertIn(settings.IMAGES_URL_ROOT, article.body_new)
+        self.assertNotIn(settings.IMAGES_URL_PLACEHOLDER, article.body_new)
 
 
 class TestEasyditaBundle(TestCase):

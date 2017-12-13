@@ -6,19 +6,34 @@ from bs4 import Comment
 from django.conf import settings
 from django.db import models
 import requests
+from simple_salesforce.exceptions import SalesforceGeneralError
 
 from .exceptions import HtmlError
+from .exceptions import KnowledgeError
+from .salesforce import get_salesforce_api
 
 
 class Article(models.Model):
     body = models.TextField(null=True)
+    body_new = models.TextField(null=True)
     html = models.TextField(null=True)
     html_hash = models.CharField(max_length=255, null=True)
+    html_new = models.TextField(null=True)
     last_updated_by = models.ForeignKey('EasyditaBundle', null=True)
+    ready_to_publish = models.BooleanField(default=False)
     salesforce_id = models.CharField(max_length=255, null=True, unique=True)
+    salesforce_kav_id = models.CharField(max_length=255, null=True, unique=True)
+    summary = models.TextField(null=True)
+    summary_new = models.TextField(null=True)
     time_created = models.DateTimeField(auto_now_add=True, null=True)
     title = models.CharField(max_length=255, null=True)
+    title_new = models.CharField(max_length=255, null=True)
     url_name = models.CharField(max_length=255, null=True, unique=True)
+
+    @property
+    def changed(self):
+        """Check if HTML has changed."""
+        return False if self.html_hash == hash(self.html_new) else True
 
     @staticmethod
     def get_url_name(html):
@@ -30,22 +45,28 @@ class Article(models.Model):
 
     def parse(self):
         """Parse raw HTML into model fields."""
-        soup = BeautifulSoup(self.html, 'html.parser')
+        soup = BeautifulSoup(self.html_new, 'html.parser')
         # remove all comments (scripts can be run from comments)
         comments = soup.findAll(text=lambda text:isinstance(text, Comment))
         for comment in comments:
             comment.extract()
         for meta in soup('meta'):
-            meta_name = meta.get('name')
-            meta_content = meta.get('content')
-            if meta_name == 'Title':
-                self.title = meta_content
-            elif meta_name == 'UrlName':
-                self.url_name = meta_content
+            if meta['name'] == 'Summary':
+                self.title_new = meta['content']
+            elif meta['name'] == 'Title':
+                self.title_new = meta['content']
         for div in soup('div'):
             div_class = div.get('class')
             if div_class and 'row-fluid' in div_class:
-                self.body = div.prettify()
+                self.body_new = div.prettify()
+
+    def reset_fields(self):
+        """Set the 'new' fields back to original values for next comparison."""
+        self.html_new = self.html
+        self.title_new = self.title
+        self.summary_new = self.summary
+        self.body_new = self.body
+        self.save()
 
     @staticmethod
     def scrub(html):
@@ -80,20 +101,14 @@ class Article(models.Model):
         scrub_tree(soup)
 
     def update(self):
-        """Process HTML and update the Knowledge Article."""
+        """Process HTML and upload a new draft KnowledgeArticleVersion."""
         self.parse()
         self.update_image_links()
         self.upload()
-        self.update_html_hash()
-
-    def update_html_hash(self):
-        """Set the html_hash field."""
-        self.html_hash = hash(self.html)
-        self.save()
 
     def update_image_links(self):
         """Replace the image URL placeholder."""
-        soup = BeautifulSoup(self.body, 'html.parser')
+        soup = BeautifulSoup(self.body_new, 'html.parser')
         for img in soup('img'):
             src = img.get('src')
             if src and settings.IMAGES_URL_PLACEHOLDER in src:
@@ -101,18 +116,75 @@ class Article(models.Model):
                     settings.IMAGES_URL_PLACEHOLDER,
                     settings.IMAGES_URL_ROOT,
                 )
-        self.body = soup.prettify()
+        self.body_new = soup.prettify()
         self.save()
 
     def upload(self):
-        """Upload the article to the Salesforce org."""
+        """Upload the article to the Salesforce org as a draft."""
+        sf = get_salesforce_api()
+        kav_api = getattr(sf, settings.SALESFORCE_ARTICLE_TYPE)
         if self.salesforce_id:
-            # article already exists, just add a new KAV
-            pass
+            # new version of existing article
+            url = (
+                sf.base_url +
+                'knowledgeManagement/articleVersions/masterVersions'
+            )
+            data = {'articleId': self.salesforce_id}
+            try:
+                result = sf._call_salesforce('POST', url, json=data)
+            except SalesforceGeneralError as e:
+                if e.status == HTTPStatus.CONFLICT:
+                    # draft already exists
+                    raise KnowledgeError(
+                        'Could not create new version of existing article:\n' +
+                        'URL Name: {}\n'.format(self.url_name) +
+                        'Title: {}\n'.format(self.title_new) +
+                        'Summary: {}\n'.format(self.summary_new) +
+                        'Body: {}\n'.format(self.body_new) +
+                        'Status: {}\n'.format(e.status) +
+                        'Error Code: {}\n'.format(e.content[0]['errorCode']) +
+                        'Message: {}\n'.format(e.content[0]['message'])
+                    )
+            if result.status_code != HTTPStatus.CREATED:
+                raise KnowledgeError(
+                    'Could not create new version of existing article:\n' +
+                    'URL Name: {}\n'.format(self.url_name) +
+                    'Title: {}\n'.format(self.title_new) +
+                    'Summary: {}\n'.format(self.summary_new) +
+                    'Body: {}\n'.format(self.body_new) +
+                    'Errors: {}\n'.format(result['errors'])
+                )
+            kav_id = result.json()['id']
+            result = kav_api.update(kav_id, {
+                'Title': self.title_new,
+                'Summary': self.summary_new,
+                settings.SALESFORCE_ARTICLE_BODY_FIELD: self.body_new,
+            })
+            if result != HTTPStatus.NO_CONTENT:
+                raise KnowledgeError('Could not edit article draft')
         else:
-            # create a new KA in addition to the KAV
-            # set the salesforce_id using new KA when done
-            pass
+            # new article
+            result = kav_api.create(data={
+                'UrlName': self.url_name,
+                'Title': self.title_new,
+                'Summary': self.summary_new,
+                settings.SALESFORCE_ARTICLE_BODY_FIELD: self.body_new,
+            })
+            if not result['success']:
+                raise KnowledgeError(
+                    'Could not create new article:\n' +
+                    'URL Name: {}\n'.format(self.url_name) +
+                    'Title: {}\n'.format(self.title_new) +
+                    'Summary: {}\n'.format(self.summary_new) +
+                    'Body: {}\n'.format(self.body_new) +
+                    'Errors: {}\n'.format(result['errors'])
+                )
+            kav_id = result['id']
+            kav = kav_api.get(kav_id)
+            self.salesforce_id = kav['KnowledgeArticleId']
+        self.salesforce_kav_id = kav_id
+        self.ready_to_publish = True
+        self.save()
 
 
 class Image(models.Model):
@@ -126,6 +198,7 @@ class EasyditaBundle(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
 
     def download(self, path):
+        """Download bundle ZIP and extract to given directory."""
         auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
         response = requests.get(self.url, auth=auth)
         zip_file = BytesIO(response.content)
@@ -134,6 +207,7 @@ class EasyditaBundle(models.Model):
 
     @property
     def url(self):
+        """The easyDITA URL for the bundle."""
         return '{}/rest/all-files/{}/bundle'.format(
             settings.EASYDITA_INSTANCE_URL,
             self.easydita_id,

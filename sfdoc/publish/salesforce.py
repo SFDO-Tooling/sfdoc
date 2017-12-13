@@ -8,7 +8,7 @@ import requests
 from simple_salesforce import Salesforce
 
 
-def get_salesforce_api():
+def get_salesforce_api(base_url=None):
     """Get an instance of the Salesforce REST API."""
     url = settings.SALESFORCE_LOGIN_URL
     if settings.SALESFORCE_SANDBOX:
