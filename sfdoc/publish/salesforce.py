@@ -2,7 +2,6 @@ from calendar import timegm
 from datetime import datetime
 
 from django.conf import settings
-import json
 import jwt
 import requests
 from simple_salesforce import Salesforce
@@ -33,10 +32,11 @@ def get_salesforce_api(base_url=None):
     auth_url = url + '/services/oauth2/token'
     response = requests.post(url=auth_url, data=data, headers=headers)
     response.raise_for_status()
-    response_data = json.loads(response.text)
+    response_data = response.json()
     return Salesforce(
         instance_url=response_data['instance_url'],
         session_id=response_data['access_token'],
         sandbox=settings.SALESFORCE_SANDBOX,
+        version=settings.SALESFORCE_API_VERSION,
         client_id='sfdoc',
     )

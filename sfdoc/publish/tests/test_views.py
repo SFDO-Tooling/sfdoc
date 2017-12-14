@@ -25,4 +25,4 @@ class TestWebhookView(BaseViewTestCase):
         request.user = self.user
         response = views.webhook(request)
         self.response_200(response)
-        self.assertEqual(EasyditaBundle.objects.all().count(), 1)
+        self.assertEqual(EasyditaBundle.objects.count(), 1)

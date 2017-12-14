@@ -5,7 +5,3 @@ class HtmlError(Exception):
 
 class KnowledgeError(Exception):
     pass
-
-
-class PublishError(Exception):
-    pass
