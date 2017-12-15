@@ -3,11 +3,14 @@ from zipfile import ZipFile
 
 from django.conf import settings
 from django.db import models
+from django.utils.timezone import now
 import requests
 
 
 class EasyditaBundle(models.Model):
     easydita_id = models.CharField(max_length=255, unique=True)
+    time_created = models.DateTimeField(auto_now_add=True)
+    time_last_received = models.DateTimeField(default=now)
 
     def download(self, path):
         """Download bundle ZIP and extract to given directory."""
