@@ -66,7 +66,7 @@ def publish_kav(kav_id, sf):
         raise KnowledgeError(msg)
 
 
-def query_kav(url_name, publish_status):
+def query_kav(sf, url_name, publish_status):
     query_str = (
         "SELECT Id,KnowledgeArticleId,Title,Summary,{} FROM {} "
         "WHERE UrlName='{}' AND PublishStatus='{}' AND language='en_US'"
@@ -142,14 +142,14 @@ def upload_draft(filename, sf):
     body = replace_image_links(body)
 
     # search for existing draft. if found, update fields and return
-    result = query_kav(url_name, 'draft')
+    result = query_kav(sf, url_name, 'draft')
     if result['totalSize'] == 1:  # cannot be > 1
         kav_id = result['records'][0]['id']
         update_draft(kav_api, kav_id, title, summary, body)
         return kav_id
 
     # no drafts found. search for published article
-    result = query_kav(url_name, 'online')
+    result = query_kav(sf, url_name, 'online')
     if result['totalSize'] == 0:
         # new article
         data = {
