@@ -53,8 +53,8 @@ simple-salesforce==0.73.0
 # JWT
 PyJWT==1.5.3
 
-# django-storages
-django-storages==1.6.5
+# Amazon Web Services
+boto3==1.4.8
 
 # Beautiful Soup
 beautifulsoup4==4.6.0

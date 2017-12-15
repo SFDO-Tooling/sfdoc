@@ -1,13 +1,18 @@
+import filecmp
 from http import HTTPStatus
+import os
+from tempfile import TemporaryDirectory
 
+import boto3
+import botocore
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.core.files import File
 from django.core.mail import send_mail
 
 from .exceptions import HtmlError
+from .exceptions import ImageError
 from .exceptions import KnowledgeError
-from .models import Image
 
 
 def check_html(filename, sf):
@@ -193,11 +198,38 @@ def upload_draft(filename, sf):
     return kav_id
 
 
-def upload_image(filename):
+def handle_image(filename):
     """Save image file to image server."""
+    basename = os.path.basename(filename)
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
+    with TemporaryDirectory() as d:
+        # try to download the image to see if it exists
+        localname = os.path.join(d, basename)
+        try:
+            bucket.download_file(basename, localname)
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == '404':
+                # upload new image
+                upload_image(s3, bucket, filename, basename)
+                return
+            else:
+                raise
+        # image exists, see if it needs update
+        if not filecmp.cmp(filename, localname):
+            # files differ, update the image
+            upload_image(s3, bucket, filename, basename)
+
+
+def upload_image(s3, bucket, filename, key):
+    """Upload image to S3."""
+    # create / overwrite
     with open(filename, 'rb') as f:
-        image_file = File(f)
-    Image.objects.update_or_create(
-        image_hash=hash(image_file.read()),
-        defaults={'image_file': image_file},
-    )
+        bucket.put_object(Key=key, Body=f)
+    # set public read permission
+    object_acl = s3.ObjectAcl(settings.AWS_STORAGE_BUCKET_NAME, key)
+    response = object_acl.put(ACL='public-read')
+    if response['ResponseMetadata']['HTTPStatusCode'] != HTTPStatus.OK:
+        raise ImageError(
+            'Failed to set public read permission on S3 file {}'.format(key)
+        )

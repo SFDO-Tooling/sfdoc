@@ -27,9 +27,3 @@ class EasyditaBundle(models.Model):
             settings.EASYDITA_INSTANCE_URL,
             self.easydita_id,
         )
-
-
-class Image(models.Model):
-    image_file = models.ImageField()
-    image_hash = models.CharField(max_length=255, unique=True)
-    time_created = models.DateTimeField(auto_now_add=True)

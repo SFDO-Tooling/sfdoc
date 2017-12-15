@@ -10,10 +10,10 @@ from .exceptions import KnowledgeError
 from .models import EasyditaBundle
 from .salesforce import get_salesforce_api
 from .utils import check_html
+from .utils import handle_image
 from .utils import mail_error
 from .utils import publish_kav
 from .utils import upload_draft
-from .utils import upload_image
 
 
 @job
@@ -67,7 +67,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                     if kav_id:
                         publish_queue.append(kav_id)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
-                    upload_image(filename_full)
+                    handle_image(filename_full)
 
         # publish article drafts
         for kav_id in publish_queue:
