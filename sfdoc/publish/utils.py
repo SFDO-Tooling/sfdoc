@@ -15,31 +15,6 @@ from .exceptions import ImageError
 from .exceptions import KnowledgeError
 
 
-def check_html(filename, sf):
-    """
-    Check HTML using tag/attribute whitelist and ensure there are no existing
-    drafts with the same URL name.
-    """
-    with open(filename, 'r') as f:
-        html = f.read()
-    # scrub HTML using tag/attr whitelist
-    scrub(html)
-    # parse article fields from HTML
-    url_name, title, summary, body = parse(html)
-    # search for existing drafts
-    query_str = (
-        "SELECT Id FROM {} WHERE UrlName='{}' "
-        "AND PublishStatus='draft' AND language='en_US'"
-    ).format(settings.SALESFORCE_ARTICLE_TYPE, url_name)
-    result = sf.query(query_str)
-    if result['totalSize'] > 0:
-        msg = (
-            'Found draft article with URL name "{}" (ID={}). '
-            'Publish or delete this draft and try again.'
-        ).format(url_name, result['records'][0]['id'])
-        raise KnowledgeError(msg)
-
-
 def mail_error(message, e, easydita_bundle):
     """Send email on error."""
     subject = '[sfdoc] Error processing easyDITA bundle {}'.format(
@@ -91,6 +66,20 @@ def publish_kav(kav_id, sf):
         raise KnowledgeError(msg)
 
 
+def query_kav(url_name, publish_status):
+    query_str = (
+        "SELECT Id,KnowledgeArticleId,Title,Summary,{} FROM {} "
+        "WHERE UrlName='{}' AND PublishStatus='{}' AND language='en_US'"
+    ).format(
+        settings.SALESFORCE_ARTICLE_BODY_FIELD,
+        settings.SALESFORCE_ARTICLE_TYPE,
+        url_name,
+        publish_status,
+    )
+    result = sf.query(query_str)
+    return result
+
+
 def replace_image_links(html_body):
     """Replace the image URL placeholder."""
     soup = BeautifulSoup(html_body, 'html.parser')
@@ -103,7 +92,7 @@ def replace_image_links(html_body):
 
 
 def scrub(html):
-    """Scrub the HTML file for security."""
+    """Scrub HTML using whitelists for tags/attributes and links."""
     soup = BeautifulSoup(html, 'html.parser')
 
     def scrub_tree(tree):
@@ -129,24 +118,40 @@ def scrub(html):
     scrub_tree(soup)
 
 
+def update_draft(kav_api, kav_id, title, summary, body):
+    """Update the fields of an existing draft."""
+    data = {
+        'Title': title,
+        'Summary': summary,
+        settings.SALESFORCE_ARTICLE_BODY_FIELD: body,
+    }
+    result = kav_api.update(kav_id, data)
+    if result != HTTPStatus.NO_CONTENT:
+        msg = 'Error updating draft KnowledgeArticleVersion (ID={})'.format(
+            kav_id,
+        )
+        raise KnowlegeError(msg)
+
+
 def upload_draft(filename, sf):
     """Create a draft KnowledgeArticleVersion."""
+    kav_api = getattr(sf, settings.SALESFORCE_ARTICLE_TYPE)
     with open(filename, 'r') as f:
         html = f.read()
     url_name, title, summary, body = parse(html)
     body = replace_image_links(body)
-    query_str = (
-        "SELECT Id,KnowledgeArticleId,Title,Summary,{} FROM {} "
-        "WHERE UrlName='{}' AND PublishStatus='online' AND language='en_US'"
-    ).format(
-        settings.SALESFORCE_ARTICLE_BODY_FIELD,
-        settings.SALESFORCE_ARTICLE_TYPE,
-        url_name,
-    )
-    result = sf.query(query_str)
-    kav_api = getattr(sf, settings.SALESFORCE_ARTICLE_TYPE)
+
+    # search for existing draft. if found, update fields and return
+    result = query_kav(url_name, 'draft')
+    if result['totalSize'] == 1:  # cannot be > 1
+        kav_id = result['records'][0]['id']
+        update_draft(kav_api, kav_id, title, summary, body)
+        return kav_id
+
+    # no drafts found. search for published article
+    result = query_kav(url_name, 'online')
     if result['totalSize'] == 0:
-        # new URL name --> new article
+        # new article
         data = {
             'UrlName': url_name,
             'Title': title,
@@ -156,7 +161,7 @@ def upload_draft(filename, sf):
         result = kav_api.create(data=data)
         kav_id = result['id']
     elif result['totalSize'] == 1:
-        # existing URL name --> new version of existing article
+        # new draft of existing article
         record = result['records'][0]
 
         # check for changes in article fields
@@ -181,19 +186,7 @@ def upload_draft(filename, sf):
             ).format(record['KnowledgeArticleId'])
             raise KnowlegeError(msg)
         kav_id = result.json()['id']
-
-        # update draft fields
-        data = {
-            'Title': title,
-            'Summary': summary,
-            settings.SALESFORCE_ARTICLE_BODY_FIELD: body,
-        }
-        result = kav_api.update(kav_id, data)
-        if result != HTTPStatus.NO_CONTENT:
-            msg = 'Error updating KnowledgeArticleVersion (ID={})'.format(
-                kav_id,
-            )
-            raise KnowlegeError(msg)
+        update_draft(kav_api, kav_id, title, summary, body)
 
     return kav_id
 

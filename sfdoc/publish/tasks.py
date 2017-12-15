@@ -9,10 +9,10 @@ from .exceptions import HtmlError
 from .exceptions import KnowledgeError
 from .models import EasyditaBundle
 from .salesforce import get_salesforce_api
-from .utils import check_html
 from .utils import handle_image
 from .utils import mail_error
 from .utils import publish_kav
+from .utils import scrub
 from .utils import upload_draft
 
 
@@ -36,8 +36,10 @@ def process_easydita_bundle(easydita_bundle_pk):
                 name, ext = os.path.splitext(filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     filename_full = os.path.join(dirpath, filename)
+                    with open(filename_full, 'r') as f:
+                        html = f.read()
                     try:
-                        check_html(filename_full, sf)
+                        scrub(html)
                     except (
                         HtmlError,
                         KnowledgeError,
