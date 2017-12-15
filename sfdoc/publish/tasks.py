@@ -47,7 +47,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                             filename_full,
                         )
                         mail_error(msg, e, easydita_bundle)
-                        raise(e)
+                        raise
 
         # upload article drafts and images
         publish_queue = []
@@ -63,11 +63,18 @@ def process_easydita_bundle(easydita_bundle_pk):
                             filename_full,
                         )
                         mail_error(msg, e, easydita_bundle)
-                        raise(e)
+                        raise
                     if kav_id:
                         publish_queue.append(kav_id)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
-                    handle_image(filename_full)
+                    try:
+                        handle_image(filename_full)
+                    except ImageError as e:
+                        msg = 'Error updating image file {}'.format(
+                            filename_full,
+                        )
+                        mail_error(msg, e, easydita_bundle)
+                        raise
 
         # publish article drafts
         for kav_id in publish_queue:
@@ -78,6 +85,6 @@ def process_easydita_bundle(easydita_bundle_pk):
                     'Error publishing draft KnowledgeArticleVersion (ID={})'
                 ).format(kav_id)
                 mail_error(msg, e, easydita_bundle)
-                raise(e)
+                raise
 
     return 'Processed easyDITA bundle {}'.format(easydita_bundle.easydita_id)
