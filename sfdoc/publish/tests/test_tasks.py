@@ -39,16 +39,6 @@ class TestProcessEasyditaBundle(TestCase):
         mock_salesforce_auth(self.instance_url)
 
         # query for drafts matching URL name
-        for a in self.articles:
-            mock_query(
-                self.instance_url,
-                a['url_name'],
-                'draft',
-                return_val={'totalSize': 0},
-            )
-
-        # query for online (published) articles matching URL name
-        # article 1, no hits
         fields = [
             'Id',
             'KnowledgeArticleId',
@@ -56,6 +46,17 @@ class TestProcessEasyditaBundle(TestCase):
             'Summary',
             settings.SALESFORCE_ARTICLE_BODY_FIELD,
         ]
+        for a in self.articles:
+            mock_query(
+                self.instance_url,
+                a['url_name'],
+                'draft',
+                fields=fields,
+                return_val={'totalSize': 0},
+            )
+
+        # query for online (published) articles matching URL name
+        # article 1, no hits
         mock_query(
             self.instance_url,
             self.articles[0]['url_name'],
@@ -99,3 +100,5 @@ class TestProcessEasyditaBundle(TestCase):
             mock_publish_draft(self.instance_url, a['id'])
 
         process_easydita_bundle(easydita_bundle.pk)
+
+        self.assertEqual(len(responses.calls), 11)
