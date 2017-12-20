@@ -33,7 +33,7 @@ class TestEasyditaBundle(TestCase):
         )
         with TemporaryDirectory() as d:
             easydita_bundle.download(d)
-            items = os.listdir(d)
+            items = sorted(os.listdir(d))
             self.assertEqual(len(items), len(self.articles))
             for article, item in zip(self.articles, items):
                 self.assertEqual(item, article['filename'])
