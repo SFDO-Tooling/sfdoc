@@ -70,3 +70,8 @@ IMAGES_URL_ROOT = 'http://example.com/images'
 TO_EMAILS = ['beatrice@example.com', 'john@example.com', 'susan@example.com']
 
 SALESFORCE_SANDBOX = False
+
+# AWS
+AWS_ACCESS_KEY_ID = 'ABC123'
+AWS_SECRET_ACCESS_KEY = 'XYZ789'
+AWS_STORAGE_BUCKET_NAME = 'sfdoc-test'

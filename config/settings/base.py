@@ -291,9 +291,6 @@ LINK_WHITELIST = env.json('LINK_WHITELIST', default=[])
 HTML_EXTENSIONS = ('.htm', '.html')
 IMAGE_EXTENSIONS = ('.jpg', '.png')
 
-# Amazon Web Services
-AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
-
 # Salesforce
 SALESFORCE_LOGIN_URL = 'https://login.salesforce.com'
 SALESFORCE_CLIENT_ID = env('SALESFORCE_CLIENT_ID')
