@@ -1,0 +1,50 @@
+{
+  "name": "sfdoc",
+  "description": "Publish easyDITA Docs to Salesforce Knowledge",
+  "image": "heroku/python",
+  "buildpacks": [
+     {"url": "heroku/python"}
+  ],
+  "repository": "https://github.com/SalesforceFoundation/sfdoc",
+  "keywords": [
+      "python",
+      "django",
+      "salesforce",
+      "easydita"
+  ],
+  "addons": [
+    "heroku-postgresql",
+    "heroku-redis"
+  ],
+  "env": {
+    "SECRET_KEY": {
+      "description": "The secret key for the Django application.",
+      "generator": "secret"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    },
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "scripts": {
+    "postdeploy": "python manage.py migrate --noinput"
+  },
+  "environments": {
+    "test": {
+      "scripts": {
+        "test-setup": "pip install --upgrade -r requirements/test.txt",
+        "test": "python manage.py test"
+      },
+      "env": {
+        "DJANGO_SETTINGS_MODULE": "config.settings.test",
+        "DATABASE_URL": "sqlite:///test.db"
+      }
+    }
+  }
+}
