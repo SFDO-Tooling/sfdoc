@@ -5,6 +5,7 @@ Test settings
 '''
 
 from .base import *  # noqa
+from .utils import gen_private_key
 
 
 # DEBUG
@@ -69,7 +70,14 @@ IMAGES_URL_ROOT = 'http://example.com/images'
 
 TO_EMAILS = ['beatrice@example.com', 'john@example.com', 'susan@example.com']
 
+# Salesforce
+SALESFORCE_CLIENT_ID = 'abc123'
 SALESFORCE_SANDBOX = False
+SALESFORCE_JWT_PRIVATE_KEY = gen_private_key()
+SALESFORCE_USERNAME = 'test@example.com'
+SALESFORCE_ARTICLE_TYPE = 'Knowledge__kav'
+SALESFORCE_ARTICLE_BODY_FIELD = 'ArticleBody__c'
+SALESFORCE_API_VERSION = '41.0'
 
 # AWS
 AWS_ACCESS_KEY_ID = 'ABC123'
