@@ -86,24 +86,23 @@ AWS_ACCESS_KEY_ID = 'ABC123'
 AWS_SECRET_ACCESS_KEY = 'XYZ789'
 AWS_STORAGE_BUCKET_NAME = 'sfdoc-test'
 
-HTML_WHITELIST = '''
-{
-    "a": ["href"],
-    "body": [],
-    "br": [],
-    "div": ["class"],
-    "h1": [],
-    "h2": [],
-    "h3": [],
-    "h4": [],
-    "h5": [],
-    "h6": [],
-    "head": [],
-    "html": [],
-    "img": ["src"],
-    "li": [],
-    "meta": ["content", "name"],
-    "p": [],
-    "ul": []
+HTML_WHITELIST = {
+    'a': ['href'],
+    'body': [],
+    'br': [],
+    'div': ['class'],
+    'h1': [],
+    'h2': [],
+    'h3': [],
+    'h4': [],
+    'h5': [],
+    'h6': [],
+    'head': [],
+    'html': [],
+    'img': ['src'],
+    'li': [],
+    'meta': ['content', 'name'],
+    'p': [],
+    'ul': []
 }
-'''
+LINK_WHITELIST = []

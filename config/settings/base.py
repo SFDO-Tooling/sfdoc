@@ -284,9 +284,6 @@ RQ_QUEUES = {
     },
 }
 
-HTML_WHITELIST = env.json('HTML_WHITELIST', default={})
-LINK_WHITELIST = env.json('LINK_WHITELIST', default=[])
-
 HTML_EXTENSIONS = ('.htm', '.html')
 IMAGE_EXTENSIONS = ('.jpg', '.png')
 
