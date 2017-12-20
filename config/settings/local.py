@@ -65,3 +65,7 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 # Your local stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
+
+# image links
+IMAGES_URL_PLACEHOLDER = env('IMAGES_URL_PLACEHOLDER')
+IMAGES_URL_ROOT = env('IMAGES_URL_ROOT')

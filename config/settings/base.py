@@ -291,10 +291,6 @@ LINK_WHITELIST = env.json('LINK_WHITELIST', default=[])
 HTML_EXTENSIONS = ('.htm', '.html')
 IMAGE_EXTENSIONS = ('.jpg', '.png')
 
-# image links
-IMAGES_URL_PLACEHOLDER = env('IMAGES_URL_PLACEHOLDER')
-IMAGES_URL_ROOT = env('IMAGES_URL_ROOT')
-
 # Amazon Web Services
 AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
 
