@@ -20,9 +20,7 @@ class TestEasyditaBundle(TestCase):
             settings.EASYDITA_INSTANCE_URL,
             self.easydita_bundle_id,
         )
-        self.articles = []
-        for n in range(1, 3):
-            self.articles.append(gen_article(n))
+        self.articles = [gen_article(n) for n in range(1, 3)]
 
     @responses.activate
     def test_download(self):
@@ -37,13 +35,13 @@ class TestEasyditaBundle(TestCase):
             easydita_bundle.download(d)
             items = os.listdir(d)
             self.assertEqual(len(items), len(self.articles))
-            for n, item in enumerate(items):
-                self.assertEqual(item, self.articles[n]['filename'])
+            for article, item in zip(self.articles, items):
+                self.assertEqual(item, article['filename'])
                 content = create_test_html(
-                    self.articles[n]['url_name'],
-                    self.articles[n]['title'],
-                    self.articles[n]['summary'],
-                    self.articles[n]['body'],
+                    article['url_name'],
+                    article['title'],
+                    article['summary'],
+                    article['body'],
                 )
                 with open(os.path.join(d, item)) as f:
                     self.assertEqual(f.read(), content)
