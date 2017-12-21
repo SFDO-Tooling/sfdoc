@@ -140,7 +140,7 @@ def mock_salesforce_auth(instance_url):
     """Mock auth for Salesforce API."""
     responses.add(
         'POST',
-        url=urljoin(settings.SALESFORCE_LOGIN_URL, 'services/oauth2/token'),
+        url='https://test.salesforce.com/services/oauth2/token',
         json={
             'instance_url': instance_url,
             'access_token': 'abc123',
