@@ -15,6 +15,25 @@ class BaseUserTestCase(TestCase):
         self.factory = RequestFactory()
 
 
+class TestUserRedirectView(BaseUserTestCase):
+
+    def test_get_redirect_url(self):
+        # Instantiate the view directly. Never do this outside a test!
+        view = UserRedirectView()
+        # Generate a fake request
+        request = self.factory.get('/fake-url')
+        # Attach the user to the request
+        request.user = self.user
+        # Attach the request to the view
+        view.request = request
+        # Expect: '/users/testuser/', as that is the default username for
+        #   self.make_user()
+        self.assertEqual(
+            view.get_redirect_url(),
+            '/users/testuser/'
+        )
+
+
 class TestUserUpdateView(BaseUserTestCase):
 
     def setUp(self):
@@ -28,6 +47,14 @@ class TestUserUpdateView(BaseUserTestCase):
         request.user = self.user
         # Attach the request to the view
         self.view.request = request
+
+    def test_get_success_url(self):
+        # Expect: '/users/testuser/', as that is the default username for
+        #   self.make_user()
+        self.assertEqual(
+            self.view.get_success_url(),
+            '/users/testuser/'
+        )
 
     def test_get_object(self):
         # Expect: self.user, as that is the request's user object

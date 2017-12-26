@@ -20,6 +20,10 @@ urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, admin.site.urls),
 
+    # User management
+    url(r'^users/', include('sfdoc.users.urls', namespace='users')),
+    url(r'^accounts/', include('allauth.urls')),
+ 
     # Django-RQ
     url(r'^django-rq/', include('django_rq.urls')),
 
