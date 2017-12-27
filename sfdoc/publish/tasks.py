@@ -17,7 +17,7 @@ from .utils import upload_draft
 
 
 @job
-def process_easydita_bundle(easydita_bundle_pk):
+def process_easydita_bundle(easydita_bundle_pk, production=False):
     """
     Get the bundle from easyDITA and process the contents.
     There are 3 phases:
@@ -26,7 +26,7 @@ def process_easydita_bundle(easydita_bundle_pk):
         3) Publish drafts
     """
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
-    sf = get_salesforce_api()
+    sf = get_salesforce_api(production)
     with TemporaryDirectory() as d:
         easydita_bundle.download(d)
 

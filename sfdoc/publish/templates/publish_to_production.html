@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3>Publish easyDITA bundle (ID={{ easydita_bundle_id }}) to production</h3>
+<p>By checking the box below, you acknowledge that you have reviewed the documentation changes in the review org and that no further changes are needed before pushing to production.</p>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <p><input type="submit" value="Submit" /></p>
+</form>
+{% endblock content %}

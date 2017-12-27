@@ -286,6 +286,3 @@ RQ_QUEUES = {
 
 HTML_EXTENSIONS = ('.htm', '.html')
 IMAGE_EXTENSIONS = ('.jpg', '.png')
-
-# Salesforce
-SALESFORCE_LOGIN_URL = 'https://login.salesforce.com'

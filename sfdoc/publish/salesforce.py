@@ -7,23 +7,29 @@ import requests
 from simple_salesforce import Salesforce
 
 
-def get_salesforce_api(base_url=None):
+def get_salesforce_api(production=False):
     """Get an instance of the Salesforce REST API."""
-    url = settings.SALESFORCE_LOGIN_URL
-    if settings.SALESFORCE_SANDBOX:
+    if production:
+        client_id = settings.SALESFORCE_CLIENT_ID
+        key = settings.SALESFORCE_JWT_PRIVATE_KEY
+        sandbox = settings.SALESFORCE_SANDBOX
+        username = settings.SALESFORCE_USERNAME
+    else:
+        client_id = settings.SALESFORCE_CLIENT_ID_REVIEW
+        key = settings.SALESFORCE_JWT_PRIVATE_KEY_REVIEW
+        sandbox = settings.SALESFORCE_SANDBOX_REVIEW
+        username = settings.SALESFORCE_USERNAME_REVIEW
+    url = 'https://login.salesforce.com'
+    if sandbox:
         url = url.replace('login', 'test')
     payload = {
         'alg': 'RS256',
-        'iss': settings.SALESFORCE_CLIENT_ID,
-        'sub': settings.SALESFORCE_USERNAME,
+        'iss': client_id,
+        'sub': username,
         'aud': url,
         'exp': timegm(datetime.utcnow().utctimetuple()),
     }
-    encoded_jwt = jwt.encode(
-        payload,
-        settings.SALESFORCE_JWT_PRIVATE_KEY,
-        algorithm='RS256',
-    )
+    encoded_jwt = jwt.encode(payload, key, algorithm='RS256')
     data = {
         'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         'assertion': encoded_jwt,
@@ -36,7 +42,7 @@ def get_salesforce_api(base_url=None):
     return Salesforce(
         instance_url=response_data['instance_url'],
         session_id=response_data['access_token'],
-        sandbox=settings.SALESFORCE_SANDBOX,
+        sandbox=sandbox,
         version=settings.SALESFORCE_API_VERSION,
         client_id='sfdoc',
     )
