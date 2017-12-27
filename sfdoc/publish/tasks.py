@@ -89,4 +89,10 @@ def process_easydita_bundle(easydita_bundle_pk, production=False):
                 mail_error(msg, e, easydita_bundle)
                 raise
 
+    if production:
+        easydita_bundle.complete_production = True
+    else:
+        easydita_bundle.complete_review = True
+    easydita_bundle.save()
+
     return 'Processed easyDITA bundle {}'.format(easydita_bundle.easydita_id)

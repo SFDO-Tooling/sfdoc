@@ -8,6 +8,8 @@ import requests
 
 
 class EasyditaBundle(models.Model):
+    complete_production = models.BooleanField(default=False)
+    complete_review = models.BooleanField(default=False)
     easydita_id = models.CharField(max_length=255, unique=True)
     time_created = models.DateTimeField(auto_now_add=True)
     time_last_received = models.DateTimeField(default=now)

@@ -21,7 +21,11 @@ def webhook(request):
     data = json.loads(request.body.decode('utf-8'))
     easydita_bundle, created = EasyditaBundle.objects.update_or_create(
         easydita_id=data['resource_id'],
-        defaults={'time_last_received': now()},
+        defaults={
+            'complete_production': False,
+            'complete_review': False,
+            'time_last_received': now(),
+        },
     )
     process_easydita_bundle.delay(easydita_bundle.pk, production=False)
     return HttpResponse('OK')
@@ -58,4 +62,6 @@ def publish_to_production_confirmation(request, easydita_bundle_id):
     context = {
         'easydita_bundle_id': easydita_bundle.easydita_id,
     }
+    if not easydita_bundle.complete_review:
+        return render(request, 'publish_incomplete.html', context=context)
     return render(request, 'publish_confirmed.html', context=context)
