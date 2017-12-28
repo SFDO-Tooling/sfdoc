@@ -110,3 +110,5 @@ HTML_WHITELIST = {
     'ul': []
 }
 LINK_WHITELIST = []
+
+HEROKU_APP_NAME = 'sfdoc.example.com'
