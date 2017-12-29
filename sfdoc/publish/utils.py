@@ -15,14 +15,20 @@ from .exceptions import ImageError
 from .exceptions import KnowledgeError
 
 
-def mail_error(message, e, easydita_bundle):
-    """Send email on error."""
-    subject = '[sfdoc] Error processing easyDITA bundle {}'.format(
-        easydita_bundle.easydita_id,
-    )
-    message += (
-        '\n\nError class: {}\nError info: {}\n\neasyDITA bundle URL: {}\n'
-    ).format(e.__class__.__name__, e, easydita_bundle.url)
+def get_site_url():
+    return 'http://' + settings.HEROKU_APP_NAME
+
+
+def email(message, easydita_bundle, e=None):
+    """Send an email."""
+    subject = '[sfdoc] easyDITA bundle {}'.format(easydita_bundle.easydita_id)
+    if e:
+        message += (
+            '\n\n'
+            'Error while processing easyDITA bundle:\n'
+            '[{}] {}\n'
+        ).format(e.__class__.__name__, e)
+    message += '\neasyDITA bundle URL: {}\n'.format(easydita_bundle.url)
     send_mail(subject, message, settings.FROM_EMAIL, settings.TO_EMAILS)
 
 

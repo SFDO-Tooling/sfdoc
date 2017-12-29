@@ -1,5 +1,6 @@
 import os
 from tempfile import TemporaryDirectory
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django_rq import job
@@ -9,10 +10,11 @@ from .exceptions import HtmlError
 from .exceptions import KnowledgeError
 from .models import EasyditaBundle
 from .salesforce import get_salesforce_api
+from .utils import get_site_url
 from .utils import handle_image
-from .utils import mail_error
 from .utils import publish_kav
 from .utils import scrub
+from .utils import email
 from .utils import upload_draft
 
 
@@ -48,7 +50,7 @@ def process_easydita_bundle(easydita_bundle_pk, production=False):
                         msg = 'Error checking HTML file {}'.format(
                             filename_full,
                         )
-                        mail_error(msg, e, easydita_bundle)
+                        email(msg, easydita_bundle, e)
                         raise
 
         # upload article drafts and images
@@ -64,7 +66,7 @@ def process_easydita_bundle(easydita_bundle_pk, production=False):
                         msg = 'Error uploading draft for HTML file {}'.format(
                             filename_full,
                         )
-                        mail_error(msg, e, easydita_bundle)
+                        email(msg, easydita_bundle, e)
                         raise
                     if kav_id:
                         publish_queue.append(kav_id)
@@ -75,7 +77,7 @@ def process_easydita_bundle(easydita_bundle_pk, production=False):
                         msg = 'Error updating image file {}'.format(
                             filename_full,
                         )
-                        mail_error(msg, e, easydita_bundle)
+                        email(msg, easydita_bundle, e)
                         raise
 
         # publish article drafts
@@ -86,13 +88,27 @@ def process_easydita_bundle(easydita_bundle_pk, production=False):
                 msg = (
                     'Error publishing draft KnowledgeArticleVersion (ID={})'
                 ).format(kav_id)
-                mail_error(msg, e, easydita_bundle)
+                email(msg, easydita_bundle, e)
                 raise
 
+    msg = (
+        'easyDITA bundle {} has been successfully processed and uploaded to '
+    ).format(easydita_bundle.easydita_id)
     if production:
+        msg += 'the production Salesforce org.'
         easydita_bundle.complete_production = True
     else:
+        production_url = urljoin(
+            get_site_url(),
+            'publish/production/{}/'.format(easydita_bundle.easydita_id),
+        )
+        msg += (
+            'the review Salesforce org. After approving the changes in the '
+            'review org, use the following link to upload to the production '
+            'org.\n\n{}'
+        ).format(production_url)
         easydita_bundle.complete_review = True
     easydita_bundle.save()
+    email(msg, easydita_bundle)
 
     return 'Processed easyDITA bundle {}'.format(easydita_bundle.easydita_id)
