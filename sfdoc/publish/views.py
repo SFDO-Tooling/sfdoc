@@ -27,7 +27,7 @@ def webhook(request):
             'time_last_received': now(),
         },
     )
-    process_easydita_bundle.delay(easydita_bundle.pk, production=False)
+    process_easydita_bundle.delay(easydita_bundle.pk, review=True)
     return HttpResponse('OK')
 
 
@@ -41,7 +41,7 @@ def publish_to_production(request, easydita_bundle_id):
     if request.method == 'POST':
         form = PublishToProductionForm(request.POST)
         if form.is_valid():
-            process_easydita_bundle.delay(easydita_bundle.pk, production=True)
+            process_easydita_bundle.delay(easydita_bundle.pk, review=False)
             return HttpResponseRedirect('confirmed/')
     else:
         form = PublishToProductionForm()

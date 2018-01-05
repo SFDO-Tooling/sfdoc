@@ -7,18 +7,18 @@ import requests
 from simple_salesforce import Salesforce
 
 
-def get_salesforce_api(production=False):
+def get_salesforce_api(review=False):
     """Get an instance of the Salesforce REST API."""
-    if production:
-        client_id = settings.SALESFORCE_CLIENT_ID
-        key = settings.SALESFORCE_JWT_PRIVATE_KEY
-        sandbox = settings.SALESFORCE_SANDBOX
-        username = settings.SALESFORCE_USERNAME
-    else:
+    if review:
         client_id = settings.SALESFORCE_CLIENT_ID_REVIEW
         key = settings.SALESFORCE_JWT_PRIVATE_KEY_REVIEW
         sandbox = settings.SALESFORCE_SANDBOX_REVIEW
         username = settings.SALESFORCE_USERNAME_REVIEW
+    else:
+        client_id = settings.SALESFORCE_CLIENT_ID
+        key = settings.SALESFORCE_JWT_PRIVATE_KEY
+        sandbox = settings.SALESFORCE_SANDBOX
+        username = settings.SALESFORCE_USERNAME
     url = 'https://login.salesforce.com'
     if sandbox:
         url = url.replace('login', 'test')

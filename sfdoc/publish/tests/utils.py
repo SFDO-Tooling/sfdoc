@@ -136,11 +136,14 @@ def mock_query(
     )
 
 
-def mock_salesforce_auth(instance_url):
+def mock_salesforce_auth(instance_url, sandbox=False):
     """Mock auth for Salesforce API."""
+    url = 'https://login.salesforce.com/services/oauth2/token'
+    if sandbox:
+        url = url.replace('login', 'test')
     responses.add(
         'POST',
-        url='https://test.salesforce.com/services/oauth2/token',
+        url=url,
         json={
             'instance_url': instance_url,
             'access_token': 'abc123',
