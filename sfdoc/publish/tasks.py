@@ -19,7 +19,7 @@ from .utils import upload_draft
 
 
 @job
-def process_easydita_bundle(easydita_bundle_pk, production=False):
+def process_easydita_bundle(easydita_bundle_pk, review=False):
     """
     Get the bundle from easyDITA and process the contents.
     There are 3 phases:
@@ -28,7 +28,7 @@ def process_easydita_bundle(easydita_bundle_pk, production=False):
         3) Publish drafts
     """
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
-    sf = get_salesforce_api(production)
+    sf = get_salesforce_api(review)
     with TemporaryDirectory() as d:
         easydita_bundle.download(d)
 
@@ -94,10 +94,7 @@ def process_easydita_bundle(easydita_bundle_pk, production=False):
     msg = (
         'easyDITA bundle {} has been successfully processed and uploaded to '
     ).format(easydita_bundle.easydita_id)
-    if production:
-        msg += 'the production Salesforce org.'
-        easydita_bundle.complete_production = True
-    else:
+    if review:
         production_url = urljoin(
             get_site_url(),
             'publish/production/{}/'.format(easydita_bundle.easydita_id),
@@ -108,6 +105,9 @@ def process_easydita_bundle(easydita_bundle_pk, production=False):
             'org.\n\n{}'
         ).format(production_url)
         easydita_bundle.complete_review = True
+    else:
+        msg += 'the production Salesforce org.'
+        easydita_bundle.complete_production = True
     easydita_bundle.save()
     email(msg, easydita_bundle)
 
