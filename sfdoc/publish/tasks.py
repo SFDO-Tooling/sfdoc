@@ -72,7 +72,7 @@ def process_easydita_bundle(easydita_bundle_pk, review=False):
                         publish_queue.append(kav_id)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     try:
-                        handle_image(filename_full)
+                        handle_image(filename_full, review)
                     except ImageError as e:
                         msg = 'Error updating image file {}'.format(
                             filename_full,

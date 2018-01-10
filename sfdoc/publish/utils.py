@@ -197,9 +197,13 @@ def upload_draft(filename, sf):
     return kav_id
 
 
-def handle_image(filename):
+def handle_image(filename, review):
     """Save image file to image server."""
     basename = os.path.basename(filename)
+    if review:
+        key = 'review/' + basename
+    else:
+        key = 'production/' + basename
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
     with TemporaryDirectory() as d:
@@ -210,14 +214,14 @@ def handle_image(filename):
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == '404':
                 # upload new image
-                upload_image(s3, bucket, filename, basename)
+                upload_image(s3, bucket, filename, key)
                 return
             else:
                 raise
         # image exists, see if it needs update
         if not filecmp.cmp(filename, localname):
             # files differ, update the image
-            upload_image(s3, bucket, filename, basename)
+            upload_image(s3, bucket, filename, key)
 
 
 def upload_image(s3, bucket, filename, key):
