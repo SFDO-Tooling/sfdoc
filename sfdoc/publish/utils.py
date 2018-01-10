@@ -88,8 +88,12 @@ def query_kav(sf, url_name, publish_status):
 
 def replace_image_links(html_body, review):
     """Replace the image URL placeholder."""
-    folder = 'review' if review else 'production'
-    images_path = urljoin(settings.IMAGES_URL_ROOT, folder)
+    images_path = urljoin(
+        settings.AWS_S3_URL,
+        settings.AWS_STORAGE_BUCKET_NAME + (
+            '/review' if review else '/production'
+        )
+    )
     soup = BeautifulSoup(html_body, 'html.parser')
     for img in soup('img'):
         img['src'] = img['src'].replace(
