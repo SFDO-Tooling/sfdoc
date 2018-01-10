@@ -61,7 +61,7 @@ def process_easydita_bundle(easydita_bundle_pk, review=False):
                 filename_full = os.path.join(dirpath, filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     try:
-                        kav_id = upload_draft(filename_full, sf)
+                        kav_id = upload_draft(filename_full, sf, review)
                     except (KnowledgeError, SalesforceGeneralError) as e:
                         msg = 'Error uploading draft for HTML file {}'.format(
                             filename_full,

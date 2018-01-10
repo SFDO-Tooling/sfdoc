@@ -2,6 +2,7 @@ import filecmp
 from http import HTTPStatus
 import os
 from tempfile import TemporaryDirectory
+from urllib.parse import urljoin
 
 import boto3
 import botocore
@@ -85,13 +86,15 @@ def query_kav(sf, url_name, publish_status):
     return result
 
 
-def replace_image_links(html_body):
+def replace_image_links(html_body, review):
     """Replace the image URL placeholder."""
+    folder = 'review' if review else 'production'
+    images_path = urljoin(settings.IMAGES_URL_ROOT, folder)
     soup = BeautifulSoup(html_body, 'html.parser')
     for img in soup('img'):
         img['src'] = img['src'].replace(
             settings.IMAGES_URL_PLACEHOLDER,
-            settings.IMAGES_URL_ROOT,
+            images_path,
         )
     return soup.prettify()
 
@@ -138,13 +141,13 @@ def update_draft(kav_api, kav_id, title, summary, body):
         raise KnowlegeError(msg)
 
 
-def upload_draft(filename, sf):
+def upload_draft(filename, sf, review):
     """Create a draft KnowledgeArticleVersion."""
     kav_api = getattr(sf, settings.SALESFORCE_ARTICLE_TYPE)
     with open(filename, 'r') as f:
         html = f.read()
     url_name, title, summary, body = parse(html)
-    body = replace_image_links(body)
+    body = replace_image_links(body, review)
 
     # search for existing draft. if found, update fields and return
     result = query_kav(sf, url_name, 'draft')
