@@ -11,7 +11,6 @@ from django.core.files import File
 from django.core.mail import send_mail
 
 from .exceptions import HtmlError
-from .exceptions import ImageError
 from .exceptions import KnowledgeError
 
 
@@ -214,25 +213,17 @@ def handle_image(filename, review):
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == '404':
                 # upload new image
-                upload_image(s3, bucket, filename, key)
+                upload_image(bucket, filename, key)
                 return
             else:
                 raise
         # image exists, see if it needs update
         if not filecmp.cmp(filename, localname):
             # files differ, update the image
-            upload_image(s3, bucket, filename, key)
+            upload_image(bucket, filename, key)
 
 
-def upload_image(s3, bucket, filename, key):
+def upload_image(bucket, filename, key):
     """Upload image to S3."""
-    # create / overwrite
     with open(filename, 'rb') as f:
-        bucket.put_object(Key=key, Body=f)
-    # set public read permission
-    object_acl = s3.ObjectAcl(settings.AWS_STORAGE_BUCKET_NAME, key)
-    response = object_acl.put(ACL='public-read')
-    if response['ResponseMetadata']['HTTPStatusCode'] != HTTPStatus.OK:
-        raise ImageError(
-            'Failed to set public read permission on S3 file {}'.format(key)
-        )
+        bucket.put_object(Key=key, Body=f, ACL='public-read')

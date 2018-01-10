@@ -73,7 +73,7 @@ def process_easydita_bundle(easydita_bundle_pk, review=False):
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     try:
                         handle_image(filename_full, review)
-                    except ImageError as e:
+                    except Exception as e:
                         msg = 'Error updating image file {}'.format(
                             filename_full,
                         )
