@@ -61,7 +61,7 @@ def process_easydita_bundle(easydita_bundle_pk, review=False):
                 filename_full = os.path.join(dirpath, filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     try:
-                        kav_id = upload_draft(filename_full, sf)
+                        kav_id = upload_draft(filename_full, sf, review)
                     except (KnowledgeError, SalesforceGeneralError) as e:
                         msg = 'Error uploading draft for HTML file {}'.format(
                             filename_full,
@@ -72,8 +72,8 @@ def process_easydita_bundle(easydita_bundle_pk, review=False):
                         publish_queue.append(kav_id)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     try:
-                        handle_image(filename_full)
-                    except ImageError as e:
+                        handle_image(filename_full, review)
+                    except Exception as e:
                         msg = 'Error updating image file {}'.format(
                             filename_full,
                         )
