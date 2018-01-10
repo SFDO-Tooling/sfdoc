@@ -286,3 +286,6 @@ RQ_QUEUES = {
 
 HTML_EXTENSIONS = ('.htm', '.html')
 IMAGE_EXTENSIONS = ('.jpg', '.png')
+
+# Amazon Web Services
+AWS_S3_URL = 'https://s3.amazonaws.com'

@@ -66,7 +66,6 @@ EASYDITA_USERNAME = 'testuser'
 EASYDITA_PASSWORD = 'testpass'
 
 IMAGES_URL_PLACEHOLDER = 'ARTICLE_IMAGES_URL'
-IMAGES_URL_ROOT = 'http://example.com/images'
 
 # mail
 FROM_EMAIL = 'admin@example.com'
