@@ -10,7 +10,9 @@ from simple_salesforce import Salesforce
 
 def get_salesforce_api():
     """Get an instance of the Salesforce REST API."""
-    url = get_salesforce_login_url()
+    url = settings.SALESFORCE_LOGIN_URL
+    if settings.SALESFORCE_SANDBOX:
+        url = url.replace('login', 'test')
     payload = {
         'alg': 'RS256',
         'iss': settings.SALESFORCE_CLIENT_ID,
@@ -39,10 +41,3 @@ def get_salesforce_api():
         version=settings.SALESFORCE_API_VERSION,
         client_id='sfdoc',
     )
-
-
-def get_salesforce_login_url():
-    url = settings.SALESFORCE_LOGIN_URL
-    if settings.SALESFORCE_SANDBOX:
-        url = url.replace('login', 'test')
-    return url
