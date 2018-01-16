@@ -59,7 +59,7 @@ def parse(html):
     return url_name, title, summary, body
 
 
-def publish_kav(kav_id, sf):
+def publish_kav(sf, kav_id):
     """Publish a draft KnowledgeArticleVersion."""
     url = (
         sf.base_url +
@@ -143,7 +143,7 @@ def update_draft(kav_api, kav_id, title, summary, body):
         raise KnowlegeError(msg)
 
 
-def upload_draft(filename, sf):
+def upload_draft(sf, filename):
     """Create a draft KnowledgeArticleVersion."""
     kav_api = getattr(sf, settings.SALESFORCE_ARTICLE_TYPE)
     with open(filename, 'r') as f:

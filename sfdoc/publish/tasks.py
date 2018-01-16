@@ -59,7 +59,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                 filename_full = os.path.join(dirpath, filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     try:
-                        kav_id = upload_draft(filename_full, sf)
+                        kav_id = upload_draft(sf, filename_full)
                     except (KnowledgeError, SalesforceGeneralError) as e:
                         msg = 'Error uploading draft for HTML file {}'.format(
                             filename_full,
@@ -98,7 +98,7 @@ def publish_drafts(easydita_bundle_pk):
     sf = get_salesforce_api()
     for article in easydita_bundle.articles:
         try:
-            publish_kav(kav_id, sf)
+            publish_kav(sf, kav_id)
         except (KnowledgeError, SalesforceGeneralError) as e:
             msg = (
                 'Error publishing draft KnowledgeArticleVersion (ID={}). '
