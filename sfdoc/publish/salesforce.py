@@ -1,5 +1,6 @@
 from calendar import timegm
 from datetime import datetime
+from urllib.parse import urljoin
 
 from django.conf import settings
 import jwt
@@ -9,9 +10,7 @@ from simple_salesforce import Salesforce
 
 def get_salesforce_api():
     """Get an instance of the Salesforce REST API."""
-    url = 'https://login.salesforce.com'
-    if settings.SALESFORCE_SANDBOX:
-        url = url.replace('login', 'test')
+    url = get_salesforce_login_url()
     payload = {
         'alg': 'RS256',
         'iss': settings.SALESFORCE_CLIENT_ID,
@@ -29,7 +28,7 @@ def get_salesforce_api():
         'assertion': encoded_jwt,
     }
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    auth_url = url + '/services/oauth2/token'
+    auth_url = urljoin(url, 'services/oauth2/token')
     response = requests.post(url=auth_url, data=data, headers=headers)
     response.raise_for_status()
     response_data = response.json()
@@ -40,3 +39,10 @@ def get_salesforce_api():
         version=settings.SALESFORCE_API_VERSION,
         client_id='sfdoc',
     )
+
+
+def get_salesforce_login_url():
+    url = settings.SALESFORCE_LOGIN_URL
+    if settings.SALESFORCE_SANDBOX:
+        url = url.replace('login', 'test')
+    return url
