@@ -73,13 +73,9 @@ TO_EMAILS = ['beatrice@example.com', 'john@example.com', 'susan@example.com']
 
 # Salesforce
 SALESFORCE_CLIENT_ID = 'abc123'
-SALESFORCE_CLIENT_ID_REVIEW = 'zyx098'
 SALESFORCE_SANDBOX = False
-SALESFORCE_SANDBOX_REVIEW = True
 SALESFORCE_JWT_PRIVATE_KEY = gen_private_key()
-SALESFORCE_JWT_PRIVATE_KEY_REVIEW = gen_private_key()
 SALESFORCE_USERNAME = 'test@example.com'
-SALESFORCE_USERNAME_REVIEW = 'test@example-review.com'
 SALESFORCE_ARTICLE_TYPE = 'Knowledge__kav'
 SALESFORCE_ARTICLE_BODY_FIELD = 'ArticleBody__c'
 SALESFORCE_API_VERSION = '41.0'

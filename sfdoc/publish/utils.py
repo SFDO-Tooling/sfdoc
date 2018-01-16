@@ -86,13 +86,11 @@ def query_kav(sf, url_name, publish_status):
     return result
 
 
-def replace_image_links(html_body, review):
+def replace_image_links(html_body):
     """Replace the image URL placeholder."""
     images_path = urljoin(
         settings.AWS_S3_URL,
-        settings.AWS_STORAGE_BUCKET_NAME + (
-            '/review' if review else '/production'
-        )
+        settings.AWS_STORAGE_BUCKET_NAME,
     )
     soup = BeautifulSoup(html_body, 'html.parser')
     for img in soup('img'):
@@ -145,13 +143,13 @@ def update_draft(kav_api, kav_id, title, summary, body):
         raise KnowlegeError(msg)
 
 
-def upload_draft(filename, sf, review):
+def upload_draft(filename, sf):
     """Create a draft KnowledgeArticleVersion."""
     kav_api = getattr(sf, settings.SALESFORCE_ARTICLE_TYPE)
     with open(filename, 'r') as f:
         html = f.read()
     url_name, title, summary, body = parse(html)
-    body = replace_image_links(body, review)
+    body = replace_image_links(body)
 
     # search for existing draft. if found, update fields and return
     result = query_kav(sf, url_name, 'draft')
@@ -203,34 +201,38 @@ def upload_draft(filename, sf, review):
     return kav_id
 
 
-def handle_image(filename, review):
+def handle_image(filename):
     """Save image file to image server."""
     basename = os.path.basename(filename)
-    if review:
-        key = 'review/' + basename
-    else:
-        key = 'production/' + basename
     s3 = boto3.resource('s3')
-    bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
     with TemporaryDirectory() as d:
         # try to download the image to see if it exists
         localname = os.path.join(d, basename)
         try:
-            bucket.download_file(basename, localname)
+            s3.meta.client.download_file(
+                settings.AWS_STORAGE_BUCKET_NAME,
+                basename,
+                localname,
+            )
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == '404':
                 # upload new image
-                upload_image(bucket, filename, key)
+                upload_image(s3, filename, basename)
                 return
             else:
                 raise
         # image exists, see if it needs update
         if not filecmp.cmp(filename, localname):
             # files differ, update the image
-            upload_image(bucket, filename, key)
+            upload_image(s3, filename, basename)
 
 
-def upload_image(bucket, filename, key):
+def upload_image(s3, filename, key):
     """Upload image to S3."""
     with open(filename, 'rb') as f:
-        bucket.put_object(Key=key, Body=f, ACL='public-read')
+        s3.meta.client.put_object(
+            ACL='public-read',
+            Body=f,
+            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+            Key=key,
+        )

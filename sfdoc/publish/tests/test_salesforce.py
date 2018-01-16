@@ -12,21 +12,8 @@ class TestGetSalesforceApi(TestCase):
         self.instance_url = 'https://testinstance.salesforce.com'
 
     @responses.activate
-    def test_get_salesforce_api_production(self):
-        """Get API for a production org."""
-        mock_salesforce_auth(
-            self.instance_url,
-            sandbox=settings.SALESFORCE_SANDBOX,
-        )
-        sfapi = get_salesforce_api(review=False)
-        self.assertEqual(len(responses.calls), 1)
-
-    @responses.activate
-    def test_get_salesforce_api_review(self):
-        """Get API for a sandbox org."""
-        mock_salesforce_auth(
-            self.instance_url,
-            sandbox=settings.SALESFORCE_SANDBOX_REVIEW,
-        )
-        sfapi = get_salesforce_api(review=True)
+    def test_get_salesforce_api(self):
+        """Get API to a Salesforce org."""
+        mock_salesforce_auth(self.instance_url)
+        sfapi = get_salesforce_api()
         self.assertEqual(len(responses.calls), 1)
