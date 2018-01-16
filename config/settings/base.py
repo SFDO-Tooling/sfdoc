@@ -289,3 +289,6 @@ IMAGE_EXTENSIONS = ('.jpg', '.png')
 
 # Amazon Web Services
 AWS_S3_URL = 'https://s3.amazonaws.com'
+
+# Salesforce
+SALESFORCE_LOGIN_URL = 'https://login.salesforce.com'
