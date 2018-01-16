@@ -13,6 +13,7 @@ from django.views.decorators.http import require_POST
 from .forms import PublishToProductionForm
 from .models import EasyditaBundle
 from .tasks import process_easydita_bundle
+from .tasks import publish_drafts
 
 
 @never_cache
@@ -24,12 +25,12 @@ def webhook(request):
     easydita_bundle, created = EasyditaBundle.objects.update_or_create(
         easydita_id=data['resource_id'],
         defaults={
-            'complete_production': False,
-            'complete_review': False,
+            'complete_draft': False,
+            'complete_publish': False,
             'time_last_received': now(),
         },
     )
-    process_easydita_bundle.delay(easydita_bundle.pk, review=True)
+    process_easydita_bundle.delay(easydita_bundle.pk)
     return HttpResponse('OK')
 
 
@@ -44,7 +45,7 @@ def publish_to_production(request, easydita_bundle_id):
     if request.method == 'POST':
         form = PublishToProductionForm(request.POST)
         if form.is_valid():
-            process_easydita_bundle.delay(easydita_bundle.pk, review=False)
+            publish_drafts.delay(easydita_bundle.pk)
             return HttpResponseRedirect('confirmed/')
     else:
         form = PublishToProductionForm()
@@ -66,6 +67,6 @@ def publish_to_production_confirmation(request, easydita_bundle_id):
     context = {
         'easydita_bundle_id': easydita_bundle.easydita_id,
     }
-    if not easydita_bundle.complete_review:
+    if not easydita_bundle.complete_draft:
         return render(request, 'publish_incomplete.html', context=context)
     return render(request, 'publish_confirmed.html', context=context)

@@ -7,9 +7,20 @@ from django.utils.timezone import now
 import requests
 
 
+class Article(models.Model):
+    """Tracks created/updated articles per bundle."""
+    easydita_bundle = models.ForeignKey(
+        'EasyditaBundle',
+        on_delete=models.CASCADE,
+        related_name='articles',
+    )
+    kav_id = models.CharField(max_length=18, unique=True)
+
+
 class EasyditaBundle(models.Model):
-    complete_production = models.BooleanField(default=False)
-    complete_review = models.BooleanField(default=False)
+    """Represents a ZIP file of HTML and images from easyDITA."""
+    complete_draft = models.BooleanField(default=False)
+    complete_publish = models.BooleanField(default=False)
     easydita_id = models.CharField(max_length=255, unique=True)
     time_created = models.DateTimeField(auto_now_add=True)
     time_last_received = models.DateTimeField(default=now)

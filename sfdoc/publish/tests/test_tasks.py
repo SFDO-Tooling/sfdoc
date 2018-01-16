@@ -95,10 +95,6 @@ class TestProcessEasyditaBundle(TestCase):
         # update draft fields (article 2)
         mock_update_draft(self.instance_url, self.articles[1]['id'])
 
-        # publish drafts
-        for a in self.articles:
-            mock_publish_draft(self.instance_url, a['id'])
-
         process_easydita_bundle(easydita_bundle.pk)
 
-        self.assertEqual(len(responses.calls), 11)
+        self.assertEqual(len(responses.calls), 9)
