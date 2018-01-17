@@ -3,5 +3,5 @@ class HtmlError(Exception):
     pass
 
 
-class KnowledgeError(Exception):
+class SalesforceError(Exception):
     pass
