@@ -1,22 +1,18 @@
 import os
 from tempfile import TemporaryDirectory
-from urllib.parse import urljoin
 
 from django.conf import settings
 from django_rq import job
 from simple_salesforce.exceptions import SalesforceGeneralError
 
 from .exceptions import HtmlError
-from .exceptions import KnowledgeError
+from .exceptions import SalesforceError
 from .models import Article
 from .models import EasyditaBundle
-from .salesforce import get_salesforce_api
-from .utils import get_site_url
+from .salesforce import Salesforce
 from .utils import handle_image
-from .utils import publish_kav
-from .utils import scrub
+from .utils import scrub_html
 from .utils import email
-from .utils import upload_draft
 
 
 @job
@@ -26,7 +22,7 @@ def process_easydita_bundle(easydita_bundle_pk):
     HTML files are checked for issues first, then uploaded as drafts.
     """
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
-    sf = get_salesforce_api()
+    salesforce = Salesforce()
     with TemporaryDirectory() as d:
         easydita_bundle.download(d)
 
@@ -39,10 +35,10 @@ def process_easydita_bundle(easydita_bundle_pk):
                     with open(filename_full, 'r') as f:
                         html = f.read()
                     try:
-                        scrub(html)
+                        scrub_html(html)
                     except (
                         HtmlError,
-                        KnowledgeError,
+                        SalesforceError,
                         SalesforceGeneralError,
                     ) as e:
                         msg = 'Error checking HTML file {}'.format(
@@ -59,8 +55,10 @@ def process_easydita_bundle(easydita_bundle_pk):
                 filename_full = os.path.join(dirpath, filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     try:
-                        kav_id = upload_draft(sf, filename_full)
-                    except (KnowledgeError, SalesforceGeneralError) as e:
+                        with open(filename_full, 'r') as f:
+                            html = f.read()
+                        kav_id = salesforce.upload_draft(html)
+                    except (SalesforceError, SalesforceGeneralError) as e:
                         msg = 'Error uploading draft for HTML file {}'.format(
                             filename_full,
                         )
@@ -95,11 +93,11 @@ def process_easydita_bundle(easydita_bundle_pk):
 def publish_drafts(easydita_bundle_pk):
     """Publish all drafts related to an easyDITA bundle."""
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
-    sf = get_salesforce_api()
+    salesforce = Salesforce()
     for article in easydita_bundle.articles:
         try:
-            publish_kav(sf, kav_id)
-        except (KnowledgeError, SalesforceGeneralError) as e:
+            salesforce.publish_draft(kav_id)
+        except (SalesforceError, SalesforceGeneralError) as e:
             msg = (
                 'Error publishing draft KnowledgeArticleVersion (ID={}). '
                 'The publishing process has been aborted.'
