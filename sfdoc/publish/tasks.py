@@ -5,12 +5,12 @@ from django.conf import settings
 from django_rq import job
 from simple_salesforce.exceptions import SalesforceGeneralError
 
+from .amazon import S3
 from .exceptions import HtmlError
 from .exceptions import SalesforceError
 from .models import Article
 from .models import EasyditaBundle
 from .salesforce import Salesforce
-from .utils import handle_image
 from .utils import scrub_html
 from .utils import email
 
@@ -48,6 +48,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                         raise
 
         # upload article drafts and images
+        s3 = S3(draft=True)
         publish_queue = []
         for dirpath, dirnames, filenames in os.walk(d):
             for filename in filenames:
@@ -70,23 +71,24 @@ def process_easydita_bundle(easydita_bundle_pk):
                     )
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     try:
-                        handle_image(filename_full)
+                        result = s3.handle_image(filename_full)
                     except Exception as e:
                         msg = 'Error updating image file {}'.format(
                             filename_full,
                         )
                         email(msg, easydita_bundle, e)
                         raise
+                    if result in ('created', 'updated'):
+                        Image.objects.create(
+                            easydita_bundle=easydita_bundle,
+                            filename=filename,
+                        )
 
-    msg = (
-        'easyDITA bundle {} has been successfully processed and uploaded to '
-        'the production Salesforce org.'
-    ).format(easydita_bundle.easydita_id)
+    msg = 'Processed easyDITA bundle {}'.format(easydita_bundle.easydita_id)
     easydita_bundle.complete_draft = True
     easydita_bundle.save()
     email(msg, easydita_bundle)
-
-    return 'Processed easyDITA bundle {}'.format(easydita_bundle.easydita_id)
+    return msg
 
 
 @job
@@ -94,6 +96,7 @@ def publish_drafts(easydita_bundle_pk):
     """Publish all drafts related to an easyDITA bundle."""
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
     salesforce = Salesforce()
+    s3 = S3(draft=False)
     for article in easydita_bundle.articles:
         try:
             salesforce.publish_draft(kav_id)
@@ -104,5 +107,7 @@ def publish_drafts(easydita_bundle_pk):
             ).format(article.kav_id)
             email(msg, easydita_bundle, e)
             raise
+    for image in easydita_bundle.images:
+        s3.copy_to_production(image.filename)
     easydita_bundle.complete_publish = True
     easydita_bundle.save()
