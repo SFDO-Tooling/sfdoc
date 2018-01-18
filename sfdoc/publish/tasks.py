@@ -65,10 +65,11 @@ def process_easydita_bundle(easydita_bundle_pk):
                         )
                         email(msg, easydita_bundle, e)
                         raise
-                    Article.objects.create(
-                        easydita_bundle=easydita_bundle,
-                        kav_id=kav_id,
-                    )
+                    if kav_id:
+                        Article.objects.create(
+                            easydita_bundle=easydita_bundle,
+                            kav_id=kav_id,
+                        )
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     try:
                         result = s3.handle_image(filename_full)
