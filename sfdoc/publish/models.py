@@ -40,3 +40,12 @@ class EasyditaBundle(models.Model):
             settings.EASYDITA_INSTANCE_URL,
             self.easydita_id,
         )
+
+
+class Image(models.Model):
+    easydita_bundle = models.ForeignKey(
+        'EasyditaBundle',
+        on_delete=models.CASCADE,
+        related_name='images',
+    )
+    filename = models.CharField(max_length=255, unique=True)
