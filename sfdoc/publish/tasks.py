@@ -34,18 +34,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                     filename_full = os.path.join(dirpath, filename)
                     with open(filename_full, 'r') as f:
                         html = f.read()
-                    try:
-                        scrub_html(html)
-                    except (
-                        HtmlError,
-                        SalesforceError,
-                        SalesforceGeneralError,
-                    ) as e:
-                        msg = 'Error checking HTML file {}'.format(
-                            filename_full,
-                        )
-                        email(msg, easydita_bundle, e)
-                        raise
+                    scrub_html(html)
 
         # upload article drafts and images
         s3 = S3(draft=True)
@@ -55,30 +44,16 @@ def process_easydita_bundle(easydita_bundle_pk):
                 name, ext = os.path.splitext(filename)
                 filename_full = os.path.join(dirpath, filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
-                    try:
-                        with open(filename_full, 'r') as f:
-                            html = f.read()
-                        kav_id = salesforce.upload_draft(html)
-                    except (SalesforceError, SalesforceGeneralError) as e:
-                        msg = 'Error uploading draft for HTML file {}'.format(
-                            filename_full,
-                        )
-                        email(msg, easydita_bundle, e)
-                        raise
+                    with open(filename_full, 'r') as f:
+                        html = f.read()
+                    kav_id = salesforce.upload_draft(html)
                     if kav_id:
                         Article.objects.create(
                             easydita_bundle=easydita_bundle,
                             kav_id=kav_id,
                         )
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
-                    try:
-                        result = s3.handle_image(filename_full)
-                    except Exception as e:
-                        msg = 'Error updating image file {}'.format(
-                            filename_full,
-                        )
-                        email(msg, easydita_bundle, e)
-                        raise
+                    result = s3.handle_image(filename_full)
                     if result in ('created', 'updated'):
                         Image.objects.create(
                             easydita_bundle=easydita_bundle,
@@ -99,15 +74,7 @@ def publish_drafts(easydita_bundle_pk):
     salesforce = Salesforce()
     s3 = S3(draft=False)
     for article in easydita_bundle.articles:
-        try:
-            salesforce.publish_draft(kav_id)
-        except (SalesforceError, SalesforceGeneralError) as e:
-            msg = (
-                'Error publishing draft KnowledgeArticleVersion (ID={}). '
-                'The publishing process has been aborted.'
-            ).format(article.kav_id)
-            email(msg, easydita_bundle, e)
-            raise
+        salesforce.publish_draft(kav_id)
     for image in easydita_bundle.images:
         s3.copy_to_production(image.filename)
     easydita_bundle.complete_publish = True

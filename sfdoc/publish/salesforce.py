@@ -17,7 +17,7 @@ class Salesforce:
     """Interact with a Salesforce org."""
 
     def __init__(self):
-        self._get_salesforce_api()
+        self.api = self._get_salesforce_api()
 
     def _get_salesforce_api(self):
         """Get an instance of the Salesforce REST API."""
@@ -52,7 +52,7 @@ class Salesforce:
             version=settings.SALESFORCE_API_VERSION,
             client_id='sfdoc',
         )
-        self.api = sf
+        return sf
 
     def create_article(self, url_name, title, summary, body):
         """Create a new article in draft state."""
