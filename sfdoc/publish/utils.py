@@ -2,22 +2,8 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.core.mail import send_mail
 
 from .exceptions import HtmlError
-
-
-def email(message, easydita_bundle, e=None):
-    """Send an email."""
-    subject = '[sfdoc] easyDITA bundle {}'.format(easydita_bundle.easydita_id)
-    if e:
-        message += (
-            '\n\n'
-            'Error while processing easyDITA bundle:\n'
-            '[{}] {}\n'
-        ).format(e.__class__.__name__, e)
-    message += '\neasyDITA bundle URL: {}\n'.format(easydita_bundle.url)
-    send_mail(subject, message, settings.FROM_EMAIL, settings.TO_EMAILS)
 
 
 def parse_html(html):
