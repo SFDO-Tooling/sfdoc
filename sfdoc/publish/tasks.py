@@ -12,7 +12,6 @@ from .models import Article
 from .models import EasyditaBundle
 from .salesforce import Salesforce
 from .utils import scrub_html
-from .utils import email
 
 
 @job
@@ -63,7 +62,6 @@ def process_easydita_bundle(easydita_bundle_pk):
     msg = 'Processed easyDITA bundle {}'.format(easydita_bundle.easydita_id)
     easydita_bundle.complete_draft = True
     easydita_bundle.save()
-    email(msg, easydita_bundle)
     return msg
 
 

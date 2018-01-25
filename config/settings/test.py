@@ -67,10 +67,6 @@ EASYDITA_PASSWORD = 'testpass'
 
 IMAGES_URL_PLACEHOLDER = 'ARTICLE_IMAGES_URL'
 
-# mail
-FROM_EMAIL = 'admin@example.com'
-TO_EMAILS = ['beatrice@example.com', 'john@example.com', 'susan@example.com']
-
 # Salesforce
 SALESFORCE_CLIENT_ID = 'abc123'
 SALESFORCE_SANDBOX = False
