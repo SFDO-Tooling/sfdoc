@@ -130,5 +130,3 @@ LINK_WHITELIST = env.json('LINK_WHITELIST')
 
 # easyDITA
 EASYDITA_INSTANCE_URL = env('EASYDITA_INSTANCE_URL')
-
-HEROKU_APP_NAME = env('HEROKU_DNS_APP_NAME').replace('app.localspace', 'herokuapp.com')
