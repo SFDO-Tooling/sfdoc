@@ -5,9 +5,6 @@ Production Configurations
 - Use mailgun to send emails
 - Use Redis for cache
 
-- Use sentry for error logging
-
-
 """
 
 from boto.s3.connection import OrdinaryCallingFormat
