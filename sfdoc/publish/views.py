@@ -25,8 +25,7 @@ def webhook(request):
     easydita_bundle, created = EasyditaBundle.objects.update_or_create(
         easydita_id=data['resource_id'],
         defaults={
-            'complete_draft': False,
-            'complete_publish': False,
+            'status': EasyditaBundle.STATUS_NEW,
             'time_last_received': now(),
         },
     )
@@ -67,6 +66,7 @@ def publish_to_production_confirmation(request, easydita_bundle_id):
     context = {
         'easydita_bundle_id': easydita_bundle.easydita_id,
     }
-    if not easydita_bundle.complete_draft:
+    if easydita_bundle.status == easydita_bundle.STATUS_NEW:
         return render(request, 'publish_incomplete.html', context=context)
-    return render(request, 'publish_confirmed.html', context=context)
+    else:
+        return render(request, 'publish_confirmed.html', context=context)

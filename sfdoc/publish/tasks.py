@@ -60,7 +60,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                         )
 
     msg = 'Processed easyDITA bundle {}'.format(easydita_bundle.easydita_id)
-    easydita_bundle.complete_draft = True
+    easydita_bundle.status = easydita_bundle.STATUS_DRAFT
     easydita_bundle.save()
     return msg
 
@@ -75,5 +75,5 @@ def publish_drafts(easydita_bundle_pk):
         salesforce.publish_draft(kav_id)
     for image in easydita_bundle.images:
         s3.copy_to_production(image.filename)
-    easydita_bundle.complete_publish = True
+    easydita_bundle.status = easydita_bundle.STATUS_PUBLISHED
     easydita_bundle.save()
