@@ -21,7 +21,7 @@ def process_easydita_bundle(easydita_bundle_pk):
     HTML files are checked for issues first, then uploaded as drafts.
     """
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
-    easydita_bundle.status = easydita_bundle.STATUS_PROCESSING
+    easydita_bundle.status = EasyditaBundle.STATUS_PROCESSING
     easydita_bundle.save()
     salesforce = Salesforce()
     with TemporaryDirectory() as d:
@@ -62,7 +62,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                         )
 
     msg = 'Processed easyDITA bundle {}'.format(easydita_bundle.easydita_id)
-    easydita_bundle.status = easydita_bundle.STATUS_DRAFT
+    easydita_bundle.status = EasyditaBundle.STATUS_DRAFT
     easydita_bundle.save()
     return msg
 
@@ -71,7 +71,7 @@ def process_easydita_bundle(easydita_bundle_pk):
 def publish_drafts(easydita_bundle_pk):
     """Publish all drafts related to an easyDITA bundle."""
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
-    easydita_bundle.status = easydita_bundle.STATUS_PUBLISHING
+    easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
     easydita_bundle.save()
     salesforce = Salesforce()
     s3 = S3(draft=False)
@@ -79,10 +79,10 @@ def publish_drafts(easydita_bundle_pk):
         salesforce.publish_draft(kav_id)
     for image in easydita_bundle.images:
         s3.copy_to_production(image.filename)
-    easydita_bundle.status = easydita_bundle.STATUS_PUBLISHED
+    easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHED
     easydita_bundle.save()
     # process next bundle in queue
-    qs = EasyditaBundle.objects.filter(status=easydita_bundle.STATUS_NEW)
+    qs = EasyditaBundle.objects.filter(status=EasyditaBundle.STATUS_NEW)
     if qs:
         bundle = qs.earliest('time_last_received')
         process_easydita_bundle.delay(bundle.pk)
