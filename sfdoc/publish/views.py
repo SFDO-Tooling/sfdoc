@@ -2,6 +2,7 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.http import HttpResponseForbidden
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
@@ -22,15 +23,25 @@ from .tasks import publish_drafts
 def webhook(request):
     """Receive webhook from easyDITA."""
     data = json.loads(request.body.decode('utf-8'))
-    easydita_bundle, created = EasyditaBundle.objects.update_or_create(
-        easydita_id=data['resource_id'],
-        defaults={
-            'status': EasyditaBundle.STATUS_NEW,
-            'time_last_received': now(),
-        },
-    )
-    process_easydita_bundle.delay(easydita_bundle.pk)
-    return HttpResponse('OK')
+    easydita_id = data['resource_id']
+    mgr = EasyditaBundle.objects
+    easydita_bundle, created = mgr.get_or_create(easydita_id=easydita_id)
+    if created or easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHED:
+        easydita_bundle.time_last_received = now()
+        easydita_bundle.status = EasyditaBundle.STATUS_NEW
+        easydita_bundle.save()
+        qs_other = mgr.exclude(pk=easydita_bundle.pk)
+        qs_published = mgr.filter(status=EasyditaBundle.STATUS_PUBLISHED)
+        if qs_other.count() == qs_published.count():
+            # all other bundles are published, process this one immediately
+            process_easydita_bundle.delay(easydita_bundle.pk)
+        return HttpResponse('OK')
+    else:
+        return HttpResponseForbidden(
+            'easyDITA bundle (ID={}) is already being processed.'.format(
+                easydita_id=easydita_id,
+            )
+        )
 
 
 @never_cache
@@ -44,23 +55,23 @@ def publish_to_production(request, easydita_bundle_id):
     context = {
         'easydita_bundle_id': easydita_bundle.easydita_id,
     }
-    if easydita_bundle.status == easydita_bundle.STATUS_NEW:
+    if easydita_bundle.status == EasyditaBundle.STATUS_NEW:
         template = 'publish_incomplete.html'
-    elif easydita_bundle.status == easydita_bundle.STATUS_DRAFT:
+    elif easydita_bundle.status == EasyditaBundle.STATUS_DRAFT:
         template = 'publish_to_production.html'
         if request.method == 'POST':
             form = PublishToProductionForm(request.POST)
             if form.is_valid():
                 publish_drafts.delay(easydita_bundle.pk)
-                easydita_bundle.status = easydita_bundle.STATUS_PUBLISHING
+                easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
                 easydita_bundle.save()
                 return HttpResponseRedirect('confirmed/')
         else:
             form = PublishToProductionForm()
         context['form'] = form
-    elif easydita_bundle.status == easydita_bundle.STATUS_PUBLISHING:
+    elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHING:
         template = 'publishing.html'
-    elif easydita_bundle.status == easydita_bundle.STATUS_PUBLISHED:
+    elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHED:
         template = 'published.html'
     return render(request, template, context=context)
 
@@ -76,12 +87,12 @@ def publish_to_production_confirmation(request, easydita_bundle_id):
     context = {
         'easydita_bundle_id': easydita_bundle.easydita_id,
     }
-    if easydita_bundle.status == easydita_bundle.STATUS_NEW:
+    if easydita_bundle.status == EasyditaBundle.STATUS_NEW:
         template = 'publish_incomplete.html'
-    elif easydita_bundle.status == easydita_bundle.STATUS_DRAFT:
+    elif easydita_bundle.status == EasyditaBundle.STATUS_DRAFT:
         return HttpResponseRedirect('../')
-    elif easydita_bundle.status == easydita_bundle.STATUS_PUBLISHING:
+    elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHING:
         template = 'publishing.html'
-    elif easydita_bundle.status == easydita_bundle.STATUS_PUBLISHED:
+    elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHED:
         template = 'published.html'
     return render(request, template, context=context)
