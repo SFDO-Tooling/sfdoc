@@ -21,6 +21,8 @@ def process_easydita_bundle(easydita_bundle_pk):
     HTML files are checked for issues first, then uploaded as drafts.
     """
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
+    easydita_bundle.status = easydita_bundle.STATUS_PROCESSING
+    easydita_bundle.save()
     salesforce = Salesforce()
     with TemporaryDirectory() as d:
         easydita_bundle.download(d)
@@ -79,3 +81,8 @@ def publish_drafts(easydita_bundle_pk):
         s3.copy_to_production(image.filename)
     easydita_bundle.status = easydita_bundle.STATUS_PUBLISHED
     easydita_bundle.save()
+    # process next bundle in queue
+    qs = EasyditaBundle.objects.filter(status=easydita_bundle.STATUS_NEW)
+    if qs:
+        bundle = qs.earliest('time_last_received')
+        process_easydita_bundle.delay(bundle.pk)
