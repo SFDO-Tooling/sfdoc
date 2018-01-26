@@ -69,6 +69,8 @@ def process_easydita_bundle(easydita_bundle_pk):
 def publish_drafts(easydita_bundle_pk):
     """Publish all drafts related to an easyDITA bundle."""
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
+    easydita_bundle.status = easydita_bundle.STATUS_PUBLISHING
+    easydita_bundle.save()
     salesforce = Salesforce()
     s3 = S3(draft=False)
     for article in easydita_bundle.articles:

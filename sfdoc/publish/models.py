@@ -19,15 +19,17 @@ class Article(models.Model):
 
 class EasyditaBundle(models.Model):
     """Represents a ZIP file of HTML and images from easyDITA."""
-    STATUS_NEW = 'N'        # newly received webhook from easyDITA
-    STATUS_DRAFT = 'D'      # drafts uploaded and ready for review
-    STATUS_PUBLISHED = 'P'  # drafts have been published
+    STATUS_NEW = 'N'            # newly received webhook from easyDITA
+    STATUS_DRAFT = 'D'          # drafts uploaded and ready for review
+    STATUS_PUBLISHING = 'G'     # drafts have been published
+    STATUS_PUBLISHED = 'P'      # drafts have been published
     easydita_id = models.CharField(max_length=255, unique=True)
     status = models.CharField(
         max_length=1,
         choices=(
             (STATUS_NEW, 'New'),
             (STATUS_DRAFT, 'Draft'),
+            (STATUS_PUBLISHING, 'Publishing'),
             (STATUS_PUBLISHED, 'Published'),
         ),
         default=STATUS_NEW,

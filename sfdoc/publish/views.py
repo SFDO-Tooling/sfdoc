@@ -41,18 +41,28 @@ def publish_to_production(request, easydita_bundle_id):
         EasyditaBundle,
         easydita_id=easydita_bundle_id,
     )
-    if request.method == 'POST':
-        form = PublishToProductionForm(request.POST)
-        if form.is_valid():
-            publish_drafts.delay(easydita_bundle.pk)
-            return HttpResponseRedirect('confirmed/')
-    else:
-        form = PublishToProductionForm()
     context = {
         'easydita_bundle_id': easydita_bundle.easydita_id,
-        'form': form,
     }
-    return render(request, 'publish_to_production.html', context=context)
+    if easydita_bundle.status == easydita_bundle.STATUS_NEW:
+        template = 'publish_incomplete.html'
+    elif easydita_bundle.status == easydita_bundle.STATUS_DRAFT:
+        template = 'publish_to_production.html'
+        if request.method == 'POST':
+            form = PublishToProductionForm(request.POST)
+            if form.is_valid():
+                publish_drafts.delay(easydita_bundle.pk)
+                easydita_bundle.status = easydita_bundle.STATUS_PUBLISHING
+                easydita_bundle.save()
+                return HttpResponseRedirect('confirmed/')
+        else:
+            form = PublishToProductionForm()
+        context['form'] = form
+    elif easydita_bundle.status == easydita_bundle.STATUS_PUBLISHING:
+        template = 'publishing.html'
+    elif easydita_bundle.status == easydita_bundle.STATUS_PUBLISHED:
+        template = 'published.html'
+    return render(request, template, context=context)
 
 
 @never_cache
@@ -67,6 +77,11 @@ def publish_to_production_confirmation(request, easydita_bundle_id):
         'easydita_bundle_id': easydita_bundle.easydita_id,
     }
     if easydita_bundle.status == easydita_bundle.STATUS_NEW:
-        return render(request, 'publish_incomplete.html', context=context)
-    else:
-        return render(request, 'publish_confirmed.html', context=context)
+        template = 'publish_incomplete.html'
+    elif easydita_bundle.status == easydita_bundle.STATUS_DRAFT:
+        return HttpResponseRedirect('../')
+    elif easydita_bundle.status == easydita_bundle.STATUS_PUBLISHING:
+        template = 'publishing.html'
+    elif easydita_bundle.status == easydita_bundle.STATUS_PUBLISHED:
+        template = 'published.html'
+    return render(request, template, context=context)
