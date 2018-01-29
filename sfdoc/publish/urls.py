@@ -10,8 +10,8 @@ urlpatterns = [
     ),
     url(
         regex=r'^(?P<easydita_bundle_id>\d+)/$',
-        view=views.bundle_status,
-        name='bundle_status',
+        view=views.bundle,
+        name='bundle',
     ),
     url(
         regex=r'^webhook/$',

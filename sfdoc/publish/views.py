@@ -46,7 +46,7 @@ def webhook(request):
 
 @never_cache
 @login_required
-def bundle_status(request, easydita_bundle_id):
+def bundle(request, easydita_bundle_id):
     easydita_bundle = get_object_or_404(
         EasyditaBundle,
         easydita_id=easydita_bundle_id,
