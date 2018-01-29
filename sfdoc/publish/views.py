@@ -107,3 +107,24 @@ def bundle_status(request, easydita_bundle_id):
     )
     context = {'bundle': easydita_bundle}
     return render(request, 'status.html', context=context)
+
+
+@never_cache
+@login_required
+def queue_status(request):
+    mgr = EasyditaBundle.objects
+    if not mgr.count():
+        return render(request, 'no_bundles.html')
+    qs = mgr.exclude(status=EasyditaBundle.STATUS_PUBLISHED)
+    if not qs:
+        return render(request, 'all_published.html')
+    qs_new = qs.filter(status=EasyditaBundle.STATUS_NEW)
+    qs_notnew = qs.exclude(status=EasyditaBundle.STATUS_NEW)
+    if qs_notnew.count() > 1:
+        raise Exception('Expected only 1 bundle processing')
+    bundle = qs_notnew.get() if qs_notnew else None
+    context = {
+        'bundle': bundle,
+        'queue': qs_new.order_by('time_last_received'),
+    }
+    return render(request, 'queue_status.html', context=context)

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3>easyDITA bundle processing queue</h3>
+{% if bundle %}
+<br>
+<h4>Currently Processing</h4>
+<a href="{{ bundle.get_absolute_url }}">easyDITA bundle {{ bundle.easydita_id }}: {{ bundle.get_status_display }}</a>
+{% endif %}
+{% if queue %}
+<br><br>
+<h4>In Queue</h4>
+<ol>
+{% for item in queue %}
+  <li><a href="{{ item.get_absolute_url }}">easyDITA bundle {{ item.easydita_id }}: {{ item.get_status_display }}</a></li>
+{% endfor %}
+</ol>
+{% endif %}
+{% endblock content %}

@@ -47,6 +47,9 @@ class EasyditaBundle(models.Model):
         with ZipFile(zip_file) as f:
             f.extractall(path)
 
+    def get_absolute_url(self):
+        return '/publish/{}/status'.format(self.pk)
+
     @property
     def url(self):
         """The easyDITA URL for the bundle."""

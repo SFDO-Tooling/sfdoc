@@ -19,6 +19,11 @@ urlpatterns = [
         name='bundle_status',
     ),
     url(
+        regex=r'^status/$',
+        view=views.queue_status,
+        name='queue_status',
+    ),
+    url(
         regex=r'^webhook/$',
         view=views.webhook,
         name='webhook',
