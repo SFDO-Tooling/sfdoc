@@ -4,14 +4,14 @@ from . import views
 
 urlpatterns = [
     url(
-        regex=r'^production/(?P<easydita_bundle_id>\d+)/$',
-        view=views.publish_to_production,
-        name='production',
+        regex=r'^$',
+        view=views.queue,
+        name='queue',
     ),
     url(
-        regex=r'^production/(?P<easydita_bundle_id>\d+)/confirmed/$',
-        view=views.publish_to_production_confirmation,
-        name='production_confirm',
+        regex=r'^(?P<pk>\d+)/$',
+        view=views.bundle,
+        name='bundle',
     ),
     url(
         regex=r'^webhook/$',
