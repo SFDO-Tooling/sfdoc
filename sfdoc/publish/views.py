@@ -78,9 +78,9 @@ def queue(request):
     qs_notnew = qs.exclude(status=EasyditaBundle.STATUS_NEW)
     if qs_notnew.count() > 1:
         raise Exception('Expected only 1 bundle processing')
-    bundle = qs_notnew.get() if qs_notnew else None
+    easydita_bundle = qs_notnew.get() if qs_notnew else None
     context = {
-        'bundle': bundle,
+        'bundle': easydita_bundle,
         'queue': qs_new.order_by('time_last_received'),
     }
     return render(request, 'queue.html', context=context)
