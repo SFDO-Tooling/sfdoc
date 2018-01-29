@@ -65,32 +65,10 @@ def publish_to_production(request, easydita_bundle_id):
                 publish_drafts.delay(easydita_bundle.pk)
                 easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
                 easydita_bundle.save()
-                return HttpResponseRedirect('confirmed/')
+                return HttpResponseRedirect('../')
         else:
             form = PublishToProductionForm()
         context['form'] = form
-    elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHING:
-        template = 'publishing.html'
-    elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHED:
-        template = 'published.html'
-    return render(request, template, context=context)
-
-
-@never_cache
-@login_required
-def publish_to_production_confirmation(request, easydita_bundle_id):
-    """Confirm the bundle is being published to production."""
-    easydita_bundle = get_object_or_404(
-        EasyditaBundle,
-        easydita_id=easydita_bundle_id,
-    )
-    context = {
-        'easydita_bundle_id': easydita_bundle.easydita_id,
-    }
-    if easydita_bundle.status == EasyditaBundle.STATUS_NEW:
-        template = 'publish_incomplete.html'
-    elif easydita_bundle.status == EasyditaBundle.STATUS_DRAFT:
-        return HttpResponseRedirect('../')
     elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHING:
         template = 'publishing.html'
     elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHED:
