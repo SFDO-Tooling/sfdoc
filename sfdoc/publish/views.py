@@ -96,3 +96,14 @@ def publish_to_production_confirmation(request, easydita_bundle_id):
     elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHED:
         template = 'published.html'
     return render(request, template, context=context)
+
+
+@never_cache
+@login_required
+def bundle_status(request, easydita_bundle_id):
+    easydita_bundle = get_object_or_404(
+        EasyditaBundle,
+        easydita_id=easydita_bundle_id,
+    )
+    context = {'bundle': easydita_bundle}
+    return render(request, 'status.html', context=context)
