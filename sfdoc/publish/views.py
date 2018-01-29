@@ -63,7 +63,7 @@ def bundle_status(request, easydita_bundle_id):
         else:
             form = PublishToProductionForm()
         context['form'] = form
-        return render(request, 'publish_to_production.html', context=context)
+        return render(request, 'publish_drafts.html', context=context)
     else:
         return render(request, 'status.html', context=context)
 
