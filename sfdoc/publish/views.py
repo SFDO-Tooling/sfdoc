@@ -18,6 +18,48 @@ from .tasks import publish_drafts
 
 
 @never_cache
+@login_required
+def bundle(request, pk):
+    easydita_bundle = get_object_or_404(EasyditaBundle, pk=pk)
+    context = {'bundle': easydita_bundle}
+    if easydita_bundle.status == EasyditaBundle.STATUS_DRAFT:
+        if request.method == 'POST':
+            form = PublishToProductionForm(request.POST)
+            if form.is_valid():
+                publish_drafts.delay(easydita_bundle.pk)
+                easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
+                easydita_bundle.save()
+            return HttpResponseRedirect('./')
+        else:
+            form = PublishToProductionForm()
+        context['form'] = form
+        return render(request, 'publish_drafts.html', context=context)
+    else:
+        return render(request, 'status.html', context=context)
+
+
+@never_cache
+@login_required
+def queue(request):
+    mgr = EasyditaBundle.objects
+    if not mgr.count():
+        return render(request, 'no_bundles.html')
+    qs = mgr.exclude(status=EasyditaBundle.STATUS_PUBLISHED)
+    if not qs:
+        return render(request, 'all_published.html')
+    qs_new = qs.filter(status=EasyditaBundle.STATUS_NEW)
+    qs_notnew = qs.exclude(status=EasyditaBundle.STATUS_NEW)
+    if qs_notnew.count() > 1:
+        raise Exception('Expected only 1 bundle processing')
+    easydita_bundle = qs_notnew.get() if qs_notnew else None
+    context = {
+        'bundle': easydita_bundle,
+        'queue': qs_new.order_by('time_last_received'),
+    }
+    return render(request, 'queue.html', context=context)
+
+
+@never_cache
 @csrf_exempt
 @require_POST
 def webhook(request):
@@ -42,57 +84,3 @@ def webhook(request):
                 easydita_id=easydita_id,
             )
         )
-
-
-@never_cache
-@login_required
-def publish_to_production(request, easydita_bundle_id):
-    """Run the publish flow against the production Salesforce org."""
-    easydita_bundle = get_object_or_404(
-        EasyditaBundle,
-        easydita_id=easydita_bundle_id,
-    )
-    context = {
-        'easydita_bundle_id': easydita_bundle.easydita_id,
-    }
-    if easydita_bundle.status == EasyditaBundle.STATUS_NEW:
-        template = 'publish_incomplete.html'
-    elif easydita_bundle.status == EasyditaBundle.STATUS_DRAFT:
-        template = 'publish_to_production.html'
-        if request.method == 'POST':
-            form = PublishToProductionForm(request.POST)
-            if form.is_valid():
-                publish_drafts.delay(easydita_bundle.pk)
-                easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
-                easydita_bundle.save()
-                return HttpResponseRedirect('confirmed/')
-        else:
-            form = PublishToProductionForm()
-        context['form'] = form
-    elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHING:
-        template = 'publishing.html'
-    elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHED:
-        template = 'published.html'
-    return render(request, template, context=context)
-
-
-@never_cache
-@login_required
-def publish_to_production_confirmation(request, easydita_bundle_id):
-    """Confirm the bundle is being published to production."""
-    easydita_bundle = get_object_or_404(
-        EasyditaBundle,
-        easydita_id=easydita_bundle_id,
-    )
-    context = {
-        'easydita_bundle_id': easydita_bundle.easydita_id,
-    }
-    if easydita_bundle.status == EasyditaBundle.STATUS_NEW:
-        template = 'publish_incomplete.html'
-    elif easydita_bundle.status == EasyditaBundle.STATUS_DRAFT:
-        return HttpResponseRedirect('../')
-    elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHING:
-        template = 'publishing.html'
-    elif easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHED:
-        template = 'published.html'
-    return render(request, template, context=context)

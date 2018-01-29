@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3>easyDITA bundle {{ bundle.easydita_id }}</h3>
+<p>
+  <br>Status: {{ bundle.get_status_display }}
+  <br>Time Last Received: {{ bundle.time_last_received }}
+</p>
+{% endblock content %}
