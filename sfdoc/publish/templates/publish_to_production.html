@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3>Publish drafts from easyDITA bundle (ID={{ easydita_bundle_id }})</h3>
+<h3>Publish drafts from easyDITA bundle {{ easydita_bundle_id }}</h3>
 <p>By checking the box below, you acknowledge that you have reviewed the drafts and that no further changes are needed before publishing.</p>
 <form action="" method="post">
     {% csrf_token %}
