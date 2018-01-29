@@ -5,8 +5,8 @@ from . import views
 urlpatterns = [
     url(
         regex=r'^$',
-        view=views.queue_status,
-        name='queue_status',
+        view=views.queue,
+        name='queue',
     ),
     url(
         regex=r'^(?P<easydita_bundle_id>\d+)/$',

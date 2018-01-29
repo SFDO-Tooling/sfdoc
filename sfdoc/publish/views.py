@@ -70,7 +70,7 @@ def bundle_status(request, easydita_bundle_id):
 
 @never_cache
 @login_required
-def queue_status(request):
+def queue(request):
     mgr = EasyditaBundle.objects
     if not mgr.count():
         return render(request, 'no_bundles.html')
@@ -86,4 +86,4 @@ def queue_status(request):
         'bundle': bundle,
         'queue': qs_new.order_by('time_last_received'),
     }
-    return render(request, 'queue_status.html', context=context)
+    return render(request, 'queue.html', context=context)
