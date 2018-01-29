@@ -46,12 +46,12 @@ def webhook(request):
 
 @never_cache
 @login_required
-def publish_to_production(request, easydita_bundle_id):
-    """Run the publish flow against the production Salesforce org."""
+def bundle_status(request, easydita_bundle_id):
     easydita_bundle = get_object_or_404(
         EasyditaBundle,
         easydita_id=easydita_bundle_id,
     )
+    context = {'bundle': easydita_bundle}
     if easydita_bundle.status == EasyditaBundle.STATUS_DRAFT:
         if request.method == 'POST':
             form = PublishToProductionForm(request.POST)
@@ -59,27 +59,13 @@ def publish_to_production(request, easydita_bundle_id):
                 publish_drafts.delay(easydita_bundle.pk)
                 easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
                 easydita_bundle.save()
-            return HttpResponseRedirect('../')
+            return HttpResponseRedirect('./')
         else:
             form = PublishToProductionForm()
-        context = {
-            'easydita_bundle_id': easydita_bundle.easydita_id,
-            'form': form,
-        }
+        context['form'] = form
         return render(request, 'publish_to_production.html', context=context)
     else:
-        return HttpResponseRedirect('../')
-
-
-@never_cache
-@login_required
-def bundle_status(request, easydita_bundle_id):
-    easydita_bundle = get_object_or_404(
-        EasyditaBundle,
-        easydita_id=easydita_bundle_id,
-    )
-    context = {'bundle': easydita_bundle}
-    return render(request, 'status.html', context=context)
+        return render(request, 'status.html', context=context)
 
 
 @never_cache
