@@ -48,7 +48,7 @@ class EasyditaBundle(models.Model):
             f.extractall(path)
 
     def get_absolute_url(self):
-        return '/publish/{}/status'.format(self.pk)
+        return '/publish/{}/'.format(self.pk)
 
     @property
     def url(self):

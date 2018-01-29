@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     url(
-        regex=r'^(?P<easydita_bundle_id>\d+)/$',
+        regex=r'^(?P<easydita_bundle_id>\d+)/publish/$',
         view=views.publish_to_production,
         name='production',
     ),
@@ -14,12 +14,12 @@ urlpatterns = [
         name='production_confirm',
     ),
     url(
-        regex=r'^(?P<easydita_bundle_id>\d+)/status/$',
+        regex=r'^(?P<easydita_bundle_id>\d+)/$',
         view=views.bundle_status,
         name='bundle_status',
     ),
     url(
-        regex=r'^status/$',
+        regex=r'^$',
         view=views.queue_status,
         name='queue_status',
     ),
