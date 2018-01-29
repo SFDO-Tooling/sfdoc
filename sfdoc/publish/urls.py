@@ -9,7 +9,7 @@ urlpatterns = [
         name='queue',
     ),
     url(
-        regex=r'^(?P<easydita_bundle_id>\d+)/$',
+        regex=r'^(?P<pk>\d+)/$',
         view=views.bundle,
         name='bundle',
     ),
