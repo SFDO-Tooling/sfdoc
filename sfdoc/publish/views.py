@@ -26,8 +26,11 @@ def bundle(request, pk):
         if request.method == 'POST':
             form = PublishToProductionForm(request.POST)
             if form.is_valid():
-                publish_drafts.delay(easydita_bundle.pk)
-                easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
+                if form.accepted():
+                    publish_drafts.delay(easydita_bundle.pk)
+                    easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
+                else:
+                    easydita_bundle.status = EasyditaBundle.STATUS_REJECTED
                 easydita_bundle.save()
             return HttpResponseRedirect('./')
         else:
