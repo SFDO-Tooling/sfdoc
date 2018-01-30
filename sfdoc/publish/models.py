@@ -22,6 +22,7 @@ class EasyditaBundle(models.Model):
     STATUS_NEW = 'N'            # newly received webhook from easyDITA
     STATUS_PROCESSING = 'C'     # processing bundle to upload drafts
     STATUS_DRAFT = 'D'          # drafts uploaded and ready for review
+    STATUS_REJECTED = 'R'       # drafts have been rejected
     STATUS_PUBLISHING = 'G'     # drafts are being published
     STATUS_PUBLISHED = 'P'      # drafts have been published
     easydita_id = models.CharField(max_length=255, unique=True)
@@ -31,6 +32,7 @@ class EasyditaBundle(models.Model):
             (STATUS_NEW, 'New'),
             (STATUS_PROCESSING, 'Processing'),
             (STATUS_DRAFT, 'Draft'),
+            (STATUS_REJECTED, 'Rejected'),
             (STATUS_PUBLISHING, 'Publishing'),
             (STATUS_PUBLISHED, 'Published'),
         ),
