@@ -33,7 +33,7 @@ def bundle(request, pk):
         else:
             form = PublishToProductionForm()
         context['form'] = form
-        return render(request, 'publish_drafts.html', context=context)
+        return render(request, 'publish_form.html', context=context)
     else:
         return render(request, 'status.html', context=context)
 
