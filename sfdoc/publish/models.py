@@ -41,6 +41,12 @@ class EasyditaBundle(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
     time_last_received = models.DateTimeField(default=now)
 
+    def is_complete(self):
+        return self.status in (
+            self.STATUS_PUBLISHED,
+            self.STATUS_REJECTED,
+        )
+
     def download(self, path):
         """Download bundle ZIP and extract to given directory."""
         auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)

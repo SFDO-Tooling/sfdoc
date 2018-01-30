@@ -71,7 +71,7 @@ def webhook(request):
     easydita_id = data['resource_id']
     mgr = EasyditaBundle.objects
     easydita_bundle, created = mgr.get_or_create(easydita_id=easydita_id)
-    if created or easydita_bundle.status == EasyditaBundle.STATUS_PUBLISHED:
+    if created or easydita_bundle.is_complete():
         easydita_bundle.time_last_received = now()
         easydita_bundle.status = EasyditaBundle.STATUS_NEW
         easydita_bundle.save()
