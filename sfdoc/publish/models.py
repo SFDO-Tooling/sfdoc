@@ -40,7 +40,7 @@ class EasyditaBundle(models.Model):
         ),
         default=STATUS_NEW,
     )
-    time_queued = models.DateTimeField(null=True)
+    time_queued = models.DateTimeField(null=True, blank=True)
 
     def is_complete(self):
         return self.status in (
