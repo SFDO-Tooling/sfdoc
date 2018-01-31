@@ -3,7 +3,6 @@ from zipfile import ZipFile
 
 from django.conf import settings
 from django.db import models
-from django.utils.timezone import now
 import requests
 
 
@@ -41,6 +40,9 @@ class EasyditaBundle(models.Model):
         default=STATUS_NEW,
     )
     time_queued = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return 'easyDITA bundle {}'.format(self.easydita_id)
 
     def is_complete(self):
         return self.status in (

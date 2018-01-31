@@ -9,8 +9,8 @@ import requests
 from simple_salesforce import Salesforce as SimpleSalesforce
 
 from .exceptions import SalesforceError
-from .utils import parse_html
-from .utils import replace_image_links
+from .html import parse_html
+from .html import replace_image_links
 
 
 class Salesforce:
