@@ -64,10 +64,9 @@ def process_easydita_bundle(easydita_bundle_pk):
                             filename=filename,
                         )
 
-    msg = 'Processed easyDITA bundle {}'.format(easydita_bundle.easydita_id)
     easydita_bundle.status = EasyditaBundle.STATUS_DRAFT
     easydita_bundle.save()
-    return msg
+    return 'Processed easyDITA bundle (pk={})'.format(easydita_bundle.pk)
 
 
 @job
@@ -78,12 +77,14 @@ def process_queue():
         EasyditaBundle.STATUS_DRAFT,
         EasyditaBundle.STATUS_PUBLISHING,
     )):
-        # already processing a bundle
-        return
+        return 'Already processing an easyDITA bundle!'
     easydita_bundle = EasyditaBundle.objects.filter(
         status=EasyditaBundle.STATUS_QUEUED,
     ).earliest('time_queued')
     process_easydita_bundle.delay(easydita_bundle.pk)
+    return 'Started processing next easyDITA bundle in queue (pk={})'.format(
+        easydita_bundle.pk,
+    )
 
 
 @job
@@ -109,6 +110,7 @@ def process_webhook(pk):
     else:
         webhook.status = Webhook.STATUS_REJECTED
     webhook.save()
+    return 'Processed webhook (pk={})'.format(webhook.pk)
 
 
 @job
@@ -126,3 +128,6 @@ def publish_drafts(easydita_bundle_pk):
     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHED
     easydita_bundle.save()
     process_queue.delay()
+    return 'Published all drafts from easyDITA bundle (pk={})'.format(
+        easydita_bundle.pk,
+    )
