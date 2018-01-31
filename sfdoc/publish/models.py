@@ -41,6 +41,9 @@ class EasyditaBundle(models.Model):
     )
     time_queued = models.DateTimeField(null=True, blank=True)
 
+    def __str__(self):
+        return 'easyDITA bundle {}'.format(self.easydita_id)
+
     def is_complete(self):
         return self.status in (
             self.STATUS_PUBLISHED,
