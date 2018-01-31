@@ -20,6 +20,7 @@ class Article(models.Model):
 class EasyditaBundle(models.Model):
     """Represents a ZIP file of HTML and images from easyDITA."""
     STATUS_NEW = 'N'            # newly received webhook from easyDITA
+    STATUS_QUEUED = 'Q'         # added to processing queue
     STATUS_PROCESSING = 'C'     # processing bundle to upload drafts
     STATUS_DRAFT = 'D'          # drafts uploaded and ready for review
     STATUS_REJECTED = 'R'       # drafts have been rejected
@@ -30,6 +31,7 @@ class EasyditaBundle(models.Model):
         max_length=1,
         choices=(
             (STATUS_NEW, 'New'),
+            (STATUS_QUEUED, 'Queued'),
             (STATUS_PROCESSING, 'Processing'),
             (STATUS_DRAFT, 'Draft'),
             (STATUS_REJECTED, 'Rejected'),
