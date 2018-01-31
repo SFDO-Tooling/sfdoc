@@ -1,5 +1,3 @@
-import json
-
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import HttpResponseForbidden
@@ -13,7 +11,8 @@ from django.views.decorators.http import require_POST
 
 from .forms import PublishToProductionForm
 from .models import EasyditaBundle
-from .tasks import process_easydita_bundle
+from .models import Webhook
+from .tasks import process_webhook
 from .tasks import publish_drafts
 
 
@@ -57,7 +56,7 @@ def queue(request):
     easydita_bundle = qs_notnew.get() if qs_notnew else None
     context = {
         'bundle': easydita_bundle,
-        'queue': qs_new.order_by('time_last_received'),
+        'queue': qs_new.order_by('time_queued'),
     }
     return render(request, 'queue.html', context=context)
 
@@ -67,23 +66,6 @@ def queue(request):
 @require_POST
 def webhook(request):
     """Receive webhook from easyDITA."""
-    data = json.loads(request.body.decode('utf-8'))
-    easydita_id = data['resource_id']
-    mgr = EasyditaBundle.objects
-    easydita_bundle, created = mgr.get_or_create(easydita_id=easydita_id)
-    if created or easydita_bundle.is_complete():
-        easydita_bundle.time_last_received = now()
-        easydita_bundle.status = EasyditaBundle.STATUS_NEW
-        easydita_bundle.save()
-        qs_other = mgr.exclude(pk=easydita_bundle.pk)
-        qs_published = mgr.filter(status=EasyditaBundle.STATUS_PUBLISHED)
-        if qs_other.count() == qs_published.count():
-            # all other bundles are published, process this one immediately
-            process_easydita_bundle.delay(easydita_bundle.pk)
-        return HttpResponse('OK')
-    else:
-        return HttpResponseForbidden(
-            'easyDITA bundle (ID={}) is already being processed.'.format(
-                easydita_id=easydita_id,
-            )
-        )
+    webhook = Webhook.objects.create(body=request.body)
+    process_webhook.delay(webhook.pk)
+    return HttpResponse('OK')

@@ -1,7 +1,9 @@
+import json
 import os
 from tempfile import TemporaryDirectory
 
 from django.conf import settings
+from django.utils.timezone import now
 from django_rq import job
 from simple_salesforce.exceptions import SalesforceGeneralError
 
@@ -10,6 +12,7 @@ from .exceptions import HtmlError
 from .exceptions import SalesforceError
 from .models import Article
 from .models import EasyditaBundle
+from .models import Webhook
 from .salesforce import Salesforce
 from .utils import scrub_html
 
@@ -68,6 +71,47 @@ def process_easydita_bundle(easydita_bundle_pk):
 
 
 @job
+def process_queue():
+    """Process the next easyDITA bundle in the queue."""
+    if EasyditaBundle.objects.filter(status__in=(
+        EasyditaBundle.STATUS_PROCESSING,
+        EasyditaBundle.STATUS_DRAFT,
+        EasyditaBundle.STATUS_PUBLISHING,
+    )):
+        # already processing a bundle
+        return
+    easydita_bundle = EasyditaBundle.objects.filter(
+        status=EasyditaBundle.STATUS_QUEUED,
+    ).earliest('time_queued')
+    process_easydita_bundle.delay(easydita_bundle.pk)
+
+
+@job
+def process_webhook(pk):
+    """Process an easyDITA webhook."""
+    webhook = Webhook.objects.get(pk=pk)
+    data = json.loads(webhook.body)
+    easydita_id = data['resource_id']
+    easydita_bundle, created = EasyditaBundle.objects.get_or_create(
+        easydita_id=easydita_id,
+    )
+    webhook.easydita_bundle = easydita_bundle
+    if created or easydita_bundle.is_complete():
+        webhook.status = Webhook.STATUS_ACCEPTED
+        easydita_bundle.status = EasyditaBundle.STATUS_QUEUED
+        easydita_bundle.time_queued = now()
+        easydita_bundle.save()
+        if EasyditaBundle.objects.filter(
+            status=EasyditaBundle.STATUS_QUEUED,
+        ).count() == 1:
+            # this is the only queued bundle
+            process_queue.delay()
+    else:
+        webhook.status = Webhook.STATUS_REJECTED
+    webhook.save()
+
+
+@job
 def publish_drafts(easydita_bundle_pk):
     """Publish all drafts related to an easyDITA bundle."""
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
@@ -81,8 +125,4 @@ def publish_drafts(easydita_bundle_pk):
         s3.copy_to_production(image.filename)
     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHED
     easydita_bundle.save()
-    # process next bundle in queue
-    qs = EasyditaBundle.objects.filter(status=EasyditaBundle.STATUS_NEW)
-    if qs:
-        bundle = qs.earliest('time_last_received')
-        process_easydita_bundle.delay(bundle.pk)
+    process_queue.delay()

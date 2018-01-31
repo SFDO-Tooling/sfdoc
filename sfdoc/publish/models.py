@@ -40,8 +40,7 @@ class EasyditaBundle(models.Model):
         ),
         default=STATUS_NEW,
     )
-    time_created = models.DateTimeField(auto_now_add=True)
-    time_last_received = models.DateTimeField(default=now)
+    time_queued = models.DateTimeField(null=True)
 
     def is_complete(self):
         return self.status in (
@@ -87,6 +86,7 @@ class Webhook(models.Model):
         'EasyditaBundle',
         on_delete=models.CASCADE,
         related_name='webhooks',
+        null=True,
     )
     status = models.CharField(
         max_length=1,

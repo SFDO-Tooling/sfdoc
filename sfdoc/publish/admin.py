@@ -19,8 +19,7 @@ class EasyditaBundleAdmin(admin.ModelAdmin):
         'pk',
         'easydita_id',
         'status',
-        'time_created',
-        'time_last_received',
+        'time_queued',
     ]
 admin.site.register(EasyditaBundle, EasyditaBundleAdmin)
 
