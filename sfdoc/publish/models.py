@@ -20,6 +20,7 @@ class Article(models.Model):
 class EasyditaBundle(models.Model):
     """Represents a ZIP file of HTML and images from easyDITA."""
     STATUS_NEW = 'N'            # newly received webhook from easyDITA
+    STATUS_QUEUED = 'Q'         # added to processing queue
     STATUS_PROCESSING = 'C'     # processing bundle to upload drafts
     STATUS_DRAFT = 'D'          # drafts uploaded and ready for review
     STATUS_REJECTED = 'R'       # drafts have been rejected
@@ -30,6 +31,7 @@ class EasyditaBundle(models.Model):
         max_length=1,
         choices=(
             (STATUS_NEW, 'New'),
+            (STATUS_QUEUED, 'Queued'),
             (STATUS_PROCESSING, 'Processing'),
             (STATUS_DRAFT, 'Draft'),
             (STATUS_REJECTED, 'Rejected'),
@@ -38,8 +40,7 @@ class EasyditaBundle(models.Model):
         ),
         default=STATUS_NEW,
     )
-    time_created = models.DateTimeField(auto_now_add=True)
-    time_last_received = models.DateTimeField(default=now)
+    time_queued = models.DateTimeField(null=True, blank=True)
 
     def is_complete(self):
         return self.status in (
@@ -74,3 +75,27 @@ class Image(models.Model):
         related_name='images',
     )
     filename = models.CharField(max_length=255, unique=True)
+
+
+class Webhook(models.Model):
+    STATUS_NEW = 'N'        # not yet processed
+    STATUS_ACCEPTED = 'A'   # webhook added bundle to processing queue
+    STATUS_REJECTED = 'R'   # bundle already processing or queued
+    body = models.TextField()
+    easydita_bundle = models.ForeignKey(
+        'EasyditaBundle',
+        on_delete=models.CASCADE,
+        related_name='webhooks',
+        null=True,
+        blank=True,
+    )
+    status = models.CharField(
+        max_length=1,
+        choices=(
+            (STATUS_NEW, 'New'),
+            (STATUS_ACCEPTED, 'Accepted'),
+            (STATUS_REJECTED, 'Rejected'),
+        ),
+        default=STATUS_NEW,
+    )
+    time = models.DateTimeField(auto_now_add=True)

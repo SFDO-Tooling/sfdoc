@@ -3,7 +3,6 @@ import json
 from django.test import RequestFactory
 from test_plus.test import TestCase
 
-from ..models import EasyditaBundle
 from .. import views
 
 
@@ -25,4 +24,3 @@ class TestWebhookView(BaseViewTestCase):
         request.user = self.user
         response = views.webhook(request)
         self.response_200(response)
-        self.assertEqual(EasyditaBundle.objects.count(), 1)
