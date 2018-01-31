@@ -6,8 +6,6 @@ import boto3
 import botocore
 from django.conf import settings
 
-from .models import Image
-
 
 class S3:
 

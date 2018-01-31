@@ -5,11 +5,8 @@ from tempfile import TemporaryDirectory
 from django.conf import settings
 from django.utils.timezone import now
 from django_rq import job
-from simple_salesforce.exceptions import SalesforceGeneralError
 
 from .amazon import S3
-from .exceptions import HtmlError
-from .exceptions import SalesforceError
 from .html import scrub_html
 from .models import Article
 from .models import EasyditaBundle
