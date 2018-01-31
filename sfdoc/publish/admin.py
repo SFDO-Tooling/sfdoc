@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import Article
 from .models import EasyditaBundle
 from .models import Image
+from .models import Webhook
 
 
 class ArticleAdmin(admin.ModelAdmin):
@@ -30,3 +31,11 @@ class ImageAdmin(admin.ModelAdmin):
         'filename',
     ]
 admin.site.register(Image, ImageAdmin)
+
+
+class WebhookAdmin(admin.ModelAdmin):
+    list_display = [
+        'pk',
+        'time',
+    ]
+admin.site.register(Webhook, WebhookAdmin)

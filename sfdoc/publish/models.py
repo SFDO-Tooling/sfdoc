@@ -76,3 +76,25 @@ class Image(models.Model):
         related_name='images',
     )
     filename = models.CharField(max_length=255, unique=True)
+
+
+class Webhook(models.Model):
+    STATUS_NEW = 'N'        # not yet processed
+    STATUS_ACCEPTED = 'A'   # webhook added bundle to processing queue
+    STATUS_REJECTED = 'R'   # bundle already processing or queued
+    body = models.TextField()
+    easydita_bundle = models.ForeignKey(
+        'EasyditaBundle',
+        on_delete=models.CASCADE,
+        related_name='webhooks',
+    )
+    status = models.CharField(
+        max_length=1,
+        choices=(
+            (STATUS_NEW, 'New'),
+            (STATUS_ACCEPTED, 'Accepted'),
+            (STATUS_REJECTED, 'Rejected'),
+        ),
+        default=STATUS_NEW,
+    )
+    time = models.DateTimeField(auto_now_add=True)
