@@ -35,6 +35,7 @@ admin.site.register(Image, ImageAdmin)
 class WebhookAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
+        'status',
         'time',
     ]
 admin.site.register(Webhook, WebhookAdmin)
