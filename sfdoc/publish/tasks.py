@@ -10,11 +10,11 @@ from simple_salesforce.exceptions import SalesforceGeneralError
 from .amazon import S3
 from .exceptions import HtmlError
 from .exceptions import SalesforceError
+from .html import scrub_html
 from .models import Article
 from .models import EasyditaBundle
 from .models import Webhook
 from .salesforce import Salesforce
-from .utils import scrub_html
 
 
 @job
