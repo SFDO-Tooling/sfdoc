@@ -1,9 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3>easyDITA bundle {{ bundle.easydita_id }}</h3>
+<h3>{{ bundle }}</h3>
 <p>
+  <br>easyDITA ID: {{ bundle.easydita_id }}
   <br>Status: {{ bundle.get_status_display }}
+{% if bundle.time_queued %}
   <br>Queued: {{ bundle.time_queued }}
+{% endif %}
 </p>
 {% endblock content %}
