@@ -46,6 +46,11 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'about' %}">About</a>
             </li>
+            {% if request.user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'publish:queue'  %}">{% trans "Publish" %}</a>
+            </li>
+            {% endif %}
             {% if request.user.is_staff %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin:index' %}">{% trans "Admin" %}</a>
