@@ -8,17 +8,13 @@ import requests
 
 class Article(models.Model):
     """Tracks created/updated articles per bundle."""
-    draft_preview_url = models.CharField(
-        max_length=255,
-        unique=True,
-        default='',
-    )
+    draft_preview_url = models.CharField(max_length=255, default='')
     easydita_bundle = models.ForeignKey(
         'EasyditaBundle',
         on_delete=models.CASCADE,
         related_name='articles',
     )
-    kav_id = models.CharField(max_length=18, unique=True)
+    kav_id = models.CharField(max_length=18)
     title = models.CharField(max_length=255, default='')
     url_name = models.CharField(max_length=255, default='')
 
@@ -86,7 +82,7 @@ class Image(models.Model):
         on_delete=models.CASCADE,
         related_name='images',
     )
-    filename = models.CharField(max_length=255, unique=True)
+    filename = models.CharField(max_length=255)
 
 
 class Webhook(models.Model):
