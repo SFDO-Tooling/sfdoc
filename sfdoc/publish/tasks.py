@@ -47,7 +47,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     with open(filename_full, 'r') as f:
                         html = f.read()
-                    salesforce.upload_draft(html, easydita_bundle)
+                    salesforce.process_article(html, easydita_bundle)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     result = s3.handle_image(filename_full)
                     if result in (Image.STATUS_CREATED, Image.STATUS_UPDATED):

@@ -128,7 +128,7 @@ class Salesforce:
             raise KnowlegeError(msg)
         return result
 
-    def upload_draft(self, html, easydita_bundle):
+    def process_article(self, html, easydita_bundle):
         """Create a draft KnowledgeArticleVersion."""
 
         # parse article fields from HTML
