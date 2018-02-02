@@ -19,7 +19,7 @@ class Article(models.Model):
     url_name = models.CharField(max_length=255, default='')
 
     def __str__(self):
-        return self.title
+        return 'Article {}: {}'.format(self.pk, self.title)
 
 
 class EasyditaBundle(models.Model):
