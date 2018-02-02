@@ -8,6 +8,11 @@ import requests
 
 class Article(models.Model):
     """Tracks created/updated articles per bundle."""
+    draft_preview_url = models.CharField(
+        max_length=255,
+        unique=True,
+        default='',
+    )
     easydita_bundle = models.ForeignKey(
         'EasyditaBundle',
         on_delete=models.CASCADE,
