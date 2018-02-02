@@ -78,8 +78,6 @@ class EasyditaBundle(models.Model):
 
 
 class Image(models.Model):
-    STATUS_CREATED = 'C'
-    STATUS_UPDATED = 'U'
     easydita_bundle = models.ForeignKey(
         'EasyditaBundle',
         on_delete=models.CASCADE,

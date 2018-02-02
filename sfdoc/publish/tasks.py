@@ -49,12 +49,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                         html = f.read()
                     salesforce.process_article(html, easydita_bundle)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
-                    result = s3.process_image(filename_full)
-                    if result in (Image.STATUS_CREATED, Image.STATUS_UPDATED):
-                        Image.objects.create(
-                            easydita_bundle=easydita_bundle,
-                            filename=filename,
-                        )
+                    s3.process_image(filename_full, easydita_bundle)
 
     easydita_bundle.status = EasyditaBundle.STATUS_DRAFT
     easydita_bundle.save()

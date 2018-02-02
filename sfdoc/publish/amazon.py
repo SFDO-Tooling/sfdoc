@@ -32,7 +32,7 @@ class S3:
             filename,
         )
 
-    def process_image(self, filename):
+    def process_image(self, filename, easydita_bundle):
         """Upload image file to S3 if needed."""
         basename = os.path.basename(filename)
         key = basename
@@ -51,15 +51,20 @@ class S3:
                 if e.response['Error']['Code'] == '404':
                     # image does not exist on S3, create a new one
                     upload_image(filename, key)
-                    return Image.STATUS_CREATED
+                    Image.objects.create(
+                        easydita_bundle=easydita_bundle,
+                        filename=basename,
+                    )
                 else:
                     raise
             # image exists on S3 already, compare it to local image
             if not filecmp.cmp(filename, s3localname):
                 # files differ, update image
                 upload_image(filename, key)
-                return Image.STATUS_UPDATED
-
+                Image.objects.create(
+                    easydita_bundle=easydita_bundle,
+                    filename=basename,
+                )
 
     def upload_image(self, filename, key):
         with open(filename, 'rb') as f:
