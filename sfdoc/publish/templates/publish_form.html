@@ -2,10 +2,22 @@
 
 {% block content %}
 <h3>Publish drafts from easyDITA bundle {{ bundle.easydita_id }}</h3>
+<br>
+
+<h6>Draft Previews</h6>
+<p>
+  <ul>
+{% for article in articles %}
+    <li><a href="{{ article.draft_preview_url }}" target="_blank">{{ article.draft_preview_url }}</a></li>
+{% endfor %}
+  </ul>
+</p>
+
 <form action="" method="post">
     {% csrf_token %}
     <br>
     {{ form.as_p }}
     <p><input type="submit" value="Submit" /></p>
 </form>
+
 {% endblock content %}

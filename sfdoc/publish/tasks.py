@@ -1,6 +1,7 @@
 import json
 import os
 from tempfile import TemporaryDirectory
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.utils.timezone import now
@@ -49,9 +50,15 @@ def process_easydita_bundle(easydita_bundle_pk):
                         html = f.read()
                     kav_id = salesforce.upload_draft(html)
                     if kav_id:
+                        o = urlparse(salesforce.api.base_url)
+                        draft_preview_url = (
+                            '{}://{}/knowledge/publishing/'
+                            'articlePreview.apexp?id={}'
+                        ).format(o.scheme, o.netloc, kav_id)
                         Article.objects.create(
                             easydita_bundle=easydita_bundle,
                             kav_id=kav_id,
+                            draft_preview_url=draft_preview_url,
                         )
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     result = s3.handle_image(filename_full)
