@@ -2,6 +2,7 @@ from calendar import timegm
 from datetime import datetime
 from http import HTTPStatus
 from urllib.parse import urljoin
+from urllib.parse import urlparse
 
 from django.conf import settings
 import jwt
@@ -11,6 +12,7 @@ from simple_salesforce import Salesforce as SimpleSalesforce
 from .exceptions import SalesforceError
 from .html import parse_html
 from .html import replace_image_links
+from .models import Article
 
 
 class Salesforce:
@@ -96,6 +98,20 @@ class Salesforce:
         result = self.api.query(query_str)
         return result
 
+    def save_article(self, kav_id, title, url_name, easydita_bundle):
+        o = urlparse(self.api.base_url)
+        draft_preview_url = (
+            '{}://{}/knowledge/publishing/'
+            'articlePreview.apexp?id={}'
+        ).format(o.scheme, o.netloc, kav_id)
+        Article.objects.create(
+            easydita_bundle=easydita_bundle,
+            kav_id=kav_id,
+            draft_preview_url=draft_preview_url,
+            title=title,
+            url_name=url_name,
+        )
+
     def update_draft(self, kav_id, title, summary, body):
         """Update the fields of an existing draft."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
@@ -112,7 +128,7 @@ class Salesforce:
             raise KnowlegeError(msg)
         return result
 
-    def upload_draft(self, html):
+    def upload_draft(self, html, easydita_bundle):
         """Create a draft KnowledgeArticleVersion."""
 
         # parse article fields from HTML
@@ -126,7 +142,8 @@ class Salesforce:
         if result['totalSize'] == 1:  # cannot be > 1
             kav_id = result['records'][0]['id']
             self.update_draft(kav_id, title, summary, body)
-            return kav_id, url_name, title
+            self.save_article(kav_id, title, url_name, easydita_bundle)
+            return
 
         # no drafts found. search for published article
         result = self.query_articles(url_name, 'online')
@@ -144,7 +161,7 @@ class Salesforce:
                 body == record[settings.SALESFORCE_ARTICLE_BODY_FIELD]
             ):
                 # no update
-                return None, url_name, title
+                return
 
             # create draft copy of published article
             url = (
@@ -161,4 +178,4 @@ class Salesforce:
             kav_id = result.json()['id']
             self.update_draft(kav_id, title, summary, body)
 
-        return kav_id, url_name, title
+        self.save_article(kav_id, title, url_name, easydita_bundle)

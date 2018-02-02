@@ -1,7 +1,6 @@
 import json
 import os
 from tempfile import TemporaryDirectory
-from urllib.parse import urlparse
 
 from django.conf import settings
 from django.utils.timezone import now
@@ -9,7 +8,6 @@ from django_rq import job
 
 from .amazon import S3
 from .html import scrub_html
-from .models import Article
 from .models import EasyditaBundle
 from .models import Webhook
 from .salesforce import Salesforce
@@ -49,20 +47,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     with open(filename_full, 'r') as f:
                         html = f.read()
-                    kav_id, url_name, title = salesforce.upload_draft(html)
-                    if kav_id:
-                        o = urlparse(salesforce.api.base_url)
-                        draft_preview_url = (
-                            '{}://{}/knowledge/publishing/'
-                            'articlePreview.apexp?id={}'
-                        ).format(o.scheme, o.netloc, kav_id)
-                        Article.objects.create(
-                            easydita_bundle=easydita_bundle,
-                            kav_id=kav_id,
-                            draft_preview_url=draft_preview_url,
-                            url_name=url_name,
-                            title=title,
-                        )
+                    salesforce.upload_draft(html, easydita_bundle)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     result = s3.handle_image(filename_full)
                     if result in (Image.STATUS_CREATED, Image.STATUS_UPDATED):
