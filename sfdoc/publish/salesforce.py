@@ -126,7 +126,7 @@ class Salesforce:
         if result['totalSize'] == 1:  # cannot be > 1
             kav_id = result['records'][0]['id']
             self.update_draft(kav_id, title, summary, body)
-            return kav_id
+            return kav_id, url_name, title
 
         # no drafts found. search for published article
         result = self.query_articles(url_name, 'online')
@@ -144,7 +144,7 @@ class Salesforce:
                 body == record[settings.SALESFORCE_ARTICLE_BODY_FIELD]
             ):
                 # no update
-                return
+                return None, url_name, title
 
             # create draft copy of published article
             url = (
@@ -161,4 +161,4 @@ class Salesforce:
             kav_id = result.json()['id']
             self.update_draft(kav_id, title, summary, body)
 
-        return kav_id
+        return kav_id, url_name, title

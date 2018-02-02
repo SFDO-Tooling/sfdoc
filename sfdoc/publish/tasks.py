@@ -48,7 +48,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     with open(filename_full, 'r') as f:
                         html = f.read()
-                    kav_id = salesforce.upload_draft(html)
+                    kav_id, url_name, title = salesforce.upload_draft(html)
                     if kav_id:
                         o = urlparse(salesforce.api.base_url)
                         draft_preview_url = (
@@ -59,6 +59,8 @@ def process_easydita_bundle(easydita_bundle_pk):
                             easydita_bundle=easydita_bundle,
                             kav_id=kav_id,
                             draft_preview_url=draft_preview_url,
+                            url_name=url_name,
+                            title=title,
                         )
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     result = s3.handle_image(filename_full)
