@@ -10,6 +10,8 @@ class ArticleAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
         'kav_id',
+        'title',
+        'url_name',
     ]
 admin.site.register(Article, ArticleAdmin)
 

@@ -8,7 +8,7 @@
 <p>
   <ul>
 {% for article in articles %}
-    <li><a href="{{ article.draft_preview_url }}" target="_blank">{{ article.draft_preview_url }}</a></li>
+    <li><a href="{{ article.draft_preview_url }}" target="_blank">{{ article.title }}</a></li>
 {% endfor %}
   </ul>
 </p>

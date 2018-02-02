@@ -19,6 +19,11 @@ class Article(models.Model):
         related_name='articles',
     )
     kav_id = models.CharField(max_length=18, unique=True)
+    title = models.CharField(max_length=255, default='')
+    url_name = models.CharField(max_length=255, default='')
+
+    def __str__(self):
+        return self.title
 
 
 class EasyditaBundle(models.Model):
