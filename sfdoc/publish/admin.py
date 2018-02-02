@@ -22,6 +22,7 @@ class EasyditaBundleAdmin(admin.ModelAdmin):
         'easydita_id',
         'status',
         'time_queued',
+        'time_processed',
     ]
     view_on_site = False
 admin.site.register(EasyditaBundle, EasyditaBundleAdmin)

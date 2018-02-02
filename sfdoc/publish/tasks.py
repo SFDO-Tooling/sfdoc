@@ -23,6 +23,7 @@ def process_easydita_bundle(easydita_bundle_pk):
     """
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
     easydita_bundle.status = EasyditaBundle.STATUS_PROCESSING
+    easydita_bundle.time_processed = now()
     easydita_bundle.save()
     salesforce = Salesforce()
     with TemporaryDirectory() as d:
