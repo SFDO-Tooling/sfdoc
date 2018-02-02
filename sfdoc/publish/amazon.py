@@ -32,7 +32,7 @@ class S3:
             filename,
         )
 
-    def handle_image(self, filename):
+    def process_image(self, filename):
         """Upload image file to S3 if needed."""
         basename = os.path.basename(filename)
         key = basename
