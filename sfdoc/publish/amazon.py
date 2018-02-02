@@ -6,6 +6,8 @@ import boto3
 import botocore
 from django.conf import settings
 
+from .models import Image
+
 
 class S3:
 
@@ -49,14 +51,14 @@ class S3:
                 if e.response['Error']['Code'] == '404':
                     # image does not exist on S3, create a new one
                     upload_image(filename, key)
-                    return 'created'
+                    return Image.STATUS_CREATED
                 else:
                     raise
             # image exists on S3 already, compare it to local image
             if not filecmp.cmp(filename, s3localname):
                 # files differ, update image
                 upload_image(filename, key)
-                return 'updated'
+                return Image.STATUS_UPDATED
 
 
     def upload_image(self, filename, key):

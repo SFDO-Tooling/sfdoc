@@ -64,7 +64,7 @@ def process_easydita_bundle(easydita_bundle_pk):
                         )
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     result = s3.handle_image(filename_full)
-                    if result in ('created', 'updated'):
+                    if result in (Image.STATUS_CREATED, Image.STATUS_UPDATED):
                         Image.objects.create(
                             easydita_bundle=easydita_bundle,
                             filename=filename,
