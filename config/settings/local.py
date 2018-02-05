@@ -68,7 +68,8 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # Your local stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
-# image links
+# article related
+ARTICLE_BODY_CLASS = env('ARTICLE_BODY_CLASS')
 IMAGES_URL_PLACEHOLDER = env('IMAGES_URL_PLACEHOLDER')
 
 # AWS

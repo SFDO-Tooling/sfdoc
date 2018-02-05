@@ -8,27 +8,28 @@ from .exceptions import HtmlError
 
 def parse_html(html):
     """Parse article fields from HTML."""
-    url_name = title = summary = body = None
     soup = BeautifulSoup(html, 'html.parser')
 
-    # URL name, title, summary
-    for meta in soup('meta'):
-        name = meta.get('name').lower()
-        if not name:
-            # not a name/content tag
-            continue
-        if name == 'urlname':
-            url_name = meta['content']
-        elif name == 'title':
-            title = meta['content']
-        elif name == 'summary':
-            summary = meta['content']
+    # URL name
+    url_name_tag = soup.find(attrs={'name': 'UrlName'})
+    if not url_name_tag:
+        raise HtmlError('Article URL name not found')
+    url_name = url_name_tag['content']
+
+    # title
+    if not soup.title:
+        raise HtmlError('Article title not found')
+    title = soup.title.string
+
+    # summary
+    summary_tag = soup.find(attrs={'name': 'description'})
+    if not summary_tag:
+        raise HtmlError('Article summary not found')
+    summary = summary_tag['content']
 
     # body
-    for div in soup('div'):
-        div_class = div.get('class')
-        if div_class and 'row-fluid' in div_class:
-            body = div.prettify()
+    body_tag = soup.find('div', class_=settings.ARTICLE_BODY_CLASS)
+    body = body_tag.prettify()
 
     return url_name, title, summary, body
 
