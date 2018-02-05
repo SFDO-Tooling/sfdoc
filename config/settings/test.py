@@ -65,6 +65,8 @@ EASYDITA_INSTANCE_URL = 'https://test.easydita.com'
 EASYDITA_USERNAME = 'testuser'
 EASYDITA_PASSWORD = 'testpass'
 
+# article related
+ARTICLE_BODY_CLASS = 'article-body-class'
 IMAGES_URL_PLACEHOLDER = 'ARTICLE_IMAGES_URL'
 
 # Salesforce
@@ -99,6 +101,7 @@ HTML_WHITELIST = {
     'li': [],
     'meta': ['content', 'name'],
     'p': [],
+    'title': [],
     'ul': []
 }
 LINK_WHITELIST = []

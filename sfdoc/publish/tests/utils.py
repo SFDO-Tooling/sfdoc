@@ -13,20 +13,21 @@ def create_test_html(url_name, title, summary, body):
     s = '''
     <html>
     <head>
-      <meta name="urlname" content="{}">
-      <meta name="title" content="{}">
-      <meta name="summary" content="{}">
+      <meta name="UrlName" content="{}">
+      <meta name="description" content="{}">
+      <title>{}</title>
     </head>
     <body>
-      <div class="row-fluid">
+      <div class="{}">
         {}
       </div>
     </body>
     </html>
     '''.format(
         url_name,
-        title,
         summary,
+        title,
+        settings.ARTICLE_BODY_CLASS,
         body,
     )
     return s

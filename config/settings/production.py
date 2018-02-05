@@ -112,7 +112,8 @@ S3_IMAGES_DRAFT_DIR = env('S3_IMAGES_DRAFT_DIR')
 if S3_IMAGES_DRAFT_DIR[-1] != '/':
     S3_IMAGES_DRAFT_DIR += '/'
 
-# image links
+# article related
+ARTICLE_BODY_CLASS = env('ARTICLE_BODY_CLASS')
 IMAGES_URL_PLACEHOLDER = env('IMAGES_URL_PLACEHOLDER')
 
 # Salesforce
