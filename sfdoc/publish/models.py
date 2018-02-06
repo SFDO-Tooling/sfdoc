@@ -1,9 +1,12 @@
 from io import BytesIO
+import os
 from zipfile import ZipFile
 
 from django.conf import settings
 from django.db import models
 import requests
+
+from .html import scrub_html
 
 
 class Article(models.Model):
@@ -67,6 +70,29 @@ class EasyditaBundle(models.Model):
 
     def get_absolute_url(self):
         return '/publish/{}/'.format(self.pk)
+
+    def process(self, path, salesforce, s3):
+        # check all HTML files
+        for dirpath, dirnames, filenames in os.walk(path):
+            for filename in filenames:
+                name, ext = os.path.splitext(filename)
+                if ext.lower() in settings.HTML_EXTENSIONS:
+                    filename_full = os.path.join(dirpath, filename)
+                    with open(filename_full, 'r') as f:
+                        html = f.read()
+                    scrub_html(html)
+        # upload article drafts and images
+        publish_queue = []
+        for dirpath, dirnames, filenames in os.walk(path):
+            for filename in filenames:
+                name, ext = os.path.splitext(filename)
+                filename_full = os.path.join(dirpath, filename)
+                if ext.lower() in settings.HTML_EXTENSIONS:
+                    with open(filename_full, 'r') as f:
+                        html = f.read()
+                    salesforce.process_article(html, self)
+                elif ext.lower() in settings.IMAGE_EXTENSIONS:
+                    s3.process_image(filename_full, self)
 
     @property
     def url(self):

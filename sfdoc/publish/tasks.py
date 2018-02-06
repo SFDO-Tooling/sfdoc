@@ -1,13 +1,10 @@
 import json
-import os
 from tempfile import TemporaryDirectory
 
-from django.conf import settings
 from django.utils.timezone import now
 from django_rq import job
 
 from .amazon import S3
-from .html import scrub_html
 from .models import EasyditaBundle
 from .models import Webhook
 from .salesforce import Salesforce
@@ -24,33 +21,10 @@ def process_easydita_bundle(easydita_bundle_pk):
     easydita_bundle.time_processed = now()
     easydita_bundle.save()
     salesforce = Salesforce()
-    with TemporaryDirectory() as d:
-        easydita_bundle.download(d)
-
-        # check all HTML files
-        for dirpath, dirnames, filenames in os.walk(d):
-            for filename in filenames:
-                name, ext = os.path.splitext(filename)
-                if ext.lower() in settings.HTML_EXTENSIONS:
-                    filename_full = os.path.join(dirpath, filename)
-                    with open(filename_full, 'r') as f:
-                        html = f.read()
-                    scrub_html(html)
-
-        # upload article drafts and images
-        s3 = S3(draft=True)
-        publish_queue = []
-        for dirpath, dirnames, filenames in os.walk(d):
-            for filename in filenames:
-                name, ext = os.path.splitext(filename)
-                filename_full = os.path.join(dirpath, filename)
-                if ext.lower() in settings.HTML_EXTENSIONS:
-                    with open(filename_full, 'r') as f:
-                        html = f.read()
-                    salesforce.process_article(html, easydita_bundle)
-                elif ext.lower() in settings.IMAGE_EXTENSIONS:
-                    s3.process_image(filename_full, easydita_bundle)
-
+    s3 = S3(draft=True)
+    with TemporaryDirectory() as tempdir:
+        easydita_bundle.download(tempdir)
+        easydita_bundle.process(tempdir, salesforce, s3)
     easydita_bundle.status = EasyditaBundle.STATUS_DRAFT
     easydita_bundle.save()
     return 'Processed easyDITA bundle (pk={})'.format(easydita_bundle.pk)
