@@ -77,10 +77,7 @@ class Salesforce:
         data = {'publishStatus': 'online'}
         result = self.api._call_salesforce('PATCH', url, json=data)
         if result.status_code != HTTPStatus.NO_CONTENT:
-            msg = (
-                'Error publishing KnowledgeArticleVersion (ID={})'
-            ).format(kav_id)
-            raise SalesforceError(msg)
+            raise SalesforceError('Error publishing KnowledgeArticleVersion (ID={})'.format(kav_id))
         return result
 
     def query_articles(self, url_name, publish_status):
@@ -121,10 +118,7 @@ class Salesforce:
         }
         result = kav_api.update(kav_id, data)
         if result != HTTPStatus.NO_CONTENT:
-            msg = (
-                'Error updating draft KnowledgeArticleVersion (ID={})'
-            ).format(kav_id)
-            raise KnowlegeError(msg)
+            raise KnowlegeError('Error updating draft KnowledgeArticleVersion (ID={})'.format(kav_id))
         return result
 
     def process_article(self, html_raw, easydita_bundle):
@@ -170,10 +164,7 @@ class Salesforce:
             data = {'articleId': record['KnowledgeArticleId']}
             result = self.api._call_salesforce('POST', url, json=data)
             if result.status_code != HTTPStatus.CREATED:
-                msg = (
-                    'Error creating new draft for KnowlegeArticle (ID={})'
-                ).format(record['KnowledgeArticleId'])
-                raise KnowlegeError(msg)
+                raise KnowlegeError('Error creating new draft for KnowlegeArticle (ID={})'.format(record['KnowledgeArticleId']))
             kav_id = result.json()['id']
             self.update_draft(kav_id, html)
 
