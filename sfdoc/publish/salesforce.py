@@ -11,6 +11,7 @@ from simple_salesforce import Salesforce as SimpleSalesforce
 
 from .exceptions import SalesforceError
 from .html import HTML
+from .html import update_image_links_production
 from .models import Article
 
 
@@ -78,11 +79,17 @@ class Salesforce:
 
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
+        kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
+        kav = kav_api.get(kav_id)
+        body = update_image_links_production(kav['body'])
         url = (
             self.api.base_url +
             'knowledgeManagement/articleVersions/masterVersions/{}'
         ).format(kav_id)
-        data = {'publishStatus': 'online'}
+        data = {
+            'publishStatus': 'online',
+            settings.SALESFORCE_ARTICLE_BODY_FIELD: body,
+        }
         result = self.api._call_salesforce('PATCH', url, json=data)
         if result.status_code != HTTPStatus.NO_CONTENT:
             raise SalesforceError('Error publishing KnowledgeArticleVersion (ID={})'.format(kav_id))

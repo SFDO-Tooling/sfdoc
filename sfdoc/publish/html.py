@@ -78,3 +78,10 @@ def scrub_html(html):
                             raise HtmlError(msg)
                 scrub_tree(child)
     scrub_tree(soup)
+
+
+def update_image_links_production(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    for img in soup('img'):
+        img['src'] = img['src'].replace(settings.S3_IMAGES_DRAFT_DIR, '')
+    return soup.prettify()
