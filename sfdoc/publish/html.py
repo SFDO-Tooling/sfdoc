@@ -6,47 +6,51 @@ from django.conf import settings
 from .exceptions import HtmlError
 
 
-def parse_html(html):
-    """Parse article fields from HTML."""
-    soup = BeautifulSoup(html, 'html.parser')
+class HTML:
+    """Article HTML utility class."""
 
-    # URL name
-    url_name_tag = soup.find(attrs={'name': 'UrlName'})
-    if not url_name_tag:
-        raise HtmlError('Article URL name not found')
-    url_name = url_name_tag['content']
+    def __init__(self, html):
+        """Parse article fields from HTML."""
+        soup = BeautifulSoup(html, 'html.parser')
 
-    # title
-    if not soup.title:
-        raise HtmlError('Article title not found')
-    title = soup.title.string
+        # meta (URL name, summary, visibility settings)
+        for attr, tag_name in (
+            ('url_name', 'UrlName'),
+            ('summary', 'description'),
+            ('is_visible_in_app', 'is-visible-in-app'),
+            ('is_visible_in_csp', 'is-visible-in-csp'),
+            ('is_visible_in_pkb', 'is-visible-in-pkb'),
+            ('is_visible_in_prm', 'is-visible-in-prm'),
+        ):
+            tag = soup.find('meta', attrs={'name': tag_name})
+            if not tag:
+                raise HtmlError('Meta tag name={} not found'.format(tag_name))
+            setattr(self, attr, tag['content'])
 
-    # summary
-    summary_tag = soup.find(attrs={'name': 'description'})
-    if not summary_tag:
-        raise HtmlError('Article summary not found')
-    summary = summary_tag['content']
+        # title
+        if not soup.title:
+            raise HtmlError('Article title not found')
+        self.title = soup.title.string
 
-    # body
-    body_tag = soup.find('div', class_=settings.ARTICLE_BODY_CLASS)
-    body = body_tag.prettify()
+        # body
+        body_tag = soup.find('div', class_=settings.ARTICLE_BODY_CLASS)
+        if not body_tag:
+            raise HtmlError('Body tag class={} not found'.format(settings.ARTICLE_BODY_CLASS))
+        self.body = body_tag.prettify()
 
-    return url_name, title, summary, body
-
-
-def replace_image_links(html_body):
-    """Replace the image URL placeholder."""
-    images_path = urljoin(
-        settings.AWS_S3_URL,
-        settings.AWS_STORAGE_BUCKET_NAME,
-    )
-    soup = BeautifulSoup(html_body, 'html.parser')
-    for img in soup('img'):
-        img['src'] = img['src'].replace(
-            settings.IMAGES_URL_PLACEHOLDER,
-            images_path,
+    def update_image_links(self):
+        """Replace the image URL placeholder."""
+        images_path = urljoin(
+            settings.AWS_S3_URL,
+            settings.AWS_STORAGE_BUCKET_NAME,
         )
-    return soup.prettify()
+        soup = BeautifulSoup(self.body, 'html.parser')
+        for img in soup('img'):
+            img['src'] = img['src'].replace(
+                settings.IMAGES_URL_PLACEHOLDER,
+                images_path,
+            )
+        self.body = soup.prettify()
 
 
 def scrub_html(html):
