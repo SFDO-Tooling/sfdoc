@@ -55,6 +55,7 @@ class S3:
                         easydita_bundle=easydita_bundle,
                         filename=basename,
                     )
+                    return
                 else:
                     raise
             # image exists on S3 already, compare it to local image
