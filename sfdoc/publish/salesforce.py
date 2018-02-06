@@ -55,14 +55,14 @@ class Salesforce:
         )
         return sf
 
-    def create_article(self, url_name, title, summary, body):
+    def create_article(self, html):
         """Create a new article in draft state."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         data = {
-            'UrlName': url_name,
-            'Title': title,
-            'Summary': summary,
-            settings.SALESFORCE_ARTICLE_BODY_FIELD: body,
+            'UrlName': html.url_name,
+            'Title': html.title,
+            'Summary': html.summary,
+            settings.SALESFORCE_ARTICLE_BODY_FIELD: html.body,
         }
         result = kav_api.create(data=data)
         kav_id = result['id']
@@ -97,7 +97,7 @@ class Salesforce:
         result = self.api.query(query_str)
         return result
 
-    def save_article(self, kav_id, title, url_name, easydita_bundle):
+    def save_article(self, kav_id, html, easydita_bundle):
         o = urlparse(self.api.base_url)
         draft_preview_url = (
             '{}://{}/knowledge/publishing/'
@@ -107,17 +107,17 @@ class Salesforce:
             easydita_bundle=easydita_bundle,
             kav_id=kav_id,
             draft_preview_url=draft_preview_url,
-            title=title,
-            url_name=url_name,
+            title=html.title,
+            url_name=html.url_name,
         )
 
-    def update_draft(self, kav_id, title, summary, body):
+    def update_draft(self, kav_id, html):
         """Update the fields of an existing draft."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         data = {
-            'Title': title,
-            'Summary': summary,
-            settings.SALESFORCE_ARTICLE_BODY_FIELD: body,
+            'Title': html.title,
+            'Summary': html.summary,
+            settings.SALESFORCE_ARTICLE_BODY_FIELD: html.body,
         }
         result = kav_api.update(kav_id, data)
         if result != HTTPStatus.NO_CONTENT:
@@ -140,15 +140,15 @@ class Salesforce:
         result = self.query_articles(html.url_name, 'draft')
         if result['totalSize'] == 1:  # cannot be > 1
             kav_id = result['records'][0]['id']
-            self.update_draft(kav_id, html.title, html.summary, html.body)
-            self.save_article(kav_id, html.title, html.url_name, easydita_bundle)
+            self.update_draft(kav_id, html)
+            self.save_article(kav_id, html, easydita_bundle)
             return
 
         # no drafts found. search for published article
         result = self.query_articles(html.url_name, 'online')
         if result['totalSize'] == 0:
             # new article
-            kav_id = self.create_article(html.url_name, html.title, html.summary, html.body)
+            kav_id = self.create_article(html)
         elif result['totalSize'] == 1:
             # new draft of existing article
             record = result['records'][0]
@@ -175,6 +175,6 @@ class Salesforce:
                 ).format(record['KnowledgeArticleId'])
                 raise KnowlegeError(msg)
             kav_id = result.json()['id']
-            self.update_draft(kav_id, html.title, html.summary, html.body)
+            self.update_draft(kav_id, html)
 
-        self.save_article(kav_id, html.title, html.url_name, easydita_bundle)
+        self.save_article(kav_id, html, easydita_bundle)
