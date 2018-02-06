@@ -58,7 +58,14 @@ class Salesforce:
     def create_article(self, html):
         """Create a new article in draft state."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
-        data = {
+        data = self.create_article_data(html)
+        result = kav_api.create(data=data)
+        kav_id = result['id']
+        return kav_id
+
+    @staticmethod
+    def create_article_data(html):
+        return {
             'UrlName': html.url_name,
             'Title': html.title,
             'Summary': html.summary,
@@ -68,9 +75,6 @@ class Salesforce:
             'IsVisibleInPrm': html.is_visible_in_prm,
             settings.SALESFORCE_ARTICLE_BODY_FIELD: html.body,
         }
-        result = kav_api.create(data=data)
-        kav_id = result['id']
-        return kav_id
 
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
@@ -115,15 +119,7 @@ class Salesforce:
     def update_draft(self, kav_id, html):
         """Update the fields of an existing draft."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
-        data = {
-            'Title': html.title,
-            'Summary': html.summary,
-            'IsVisibleInApp': html.is_visible_in_app,
-            'IsVisibleInCsp': html.is_visible_in_csp,
-            'IsVisibleInPkb': html.is_visible_in_pkb,
-            'IsVisibleInPrm': html.is_visible_in_prm,
-            settings.SALESFORCE_ARTICLE_BODY_FIELD: html.body,
-        }
+        data = self.create_article_data(html)
         result = kav_api.update(kav_id, data)
         if result != HTTPStatus.NO_CONTENT:
             raise KnowlegeError('Error updating draft KnowledgeArticleVersion (ID={})'.format(kav_id))
