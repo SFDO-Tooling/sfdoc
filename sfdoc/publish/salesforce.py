@@ -10,8 +10,7 @@ import requests
 from simple_salesforce import Salesforce as SimpleSalesforce
 
 from .exceptions import SalesforceError
-from .html import parse_html
-from .html import replace_image_links
+from .html import HTML
 from .models import Article
 
 
@@ -42,7 +41,7 @@ class Salesforce:
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
             'assertion': encoded_jwt,
         }
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        headers = {'Content-Type': 'application/html-www-form-urlencoded'}
         auth_url = urljoin(url, 'services/oauth2/token')
         response = requests.post(url=auth_url, data=data, headers=headers)
         response.raise_for_status()
@@ -128,37 +127,37 @@ class Salesforce:
             raise KnowlegeError(msg)
         return result
 
-    def process_article(self, html, easydita_bundle):
+    def process_article(self, html_raw, easydita_bundle):
         """Create a draft KnowledgeArticleVersion."""
 
-        # parse article fields from HTML
-        url_name, title, summary, body = parse_html(html)
+        # init HTML utility class
+        html = HTML(html_raw)
 
         # update image links to use Amazon S3
-        body = replace_image_links(body)
+        html.update_image_links()
 
         # search for existing draft. if found, update fields and return
-        result = self.query_articles(url_name, 'draft')
+        result = self.query_articles(html.url_name, 'draft')
         if result['totalSize'] == 1:  # cannot be > 1
             kav_id = result['records'][0]['id']
-            self.update_draft(kav_id, title, summary, body)
-            self.save_article(kav_id, title, url_name, easydita_bundle)
+            self.update_draft(kav_id, html.title, html.summary, html.body)
+            self.save_article(kav_id, html.title, html.url_name, easydita_bundle)
             return
 
         # no drafts found. search for published article
-        result = self.query_articles(url_name, 'online')
+        result = self.query_articles(html.url_name, 'online')
         if result['totalSize'] == 0:
             # new article
-            kav_id = self.create_article(url_name, title, summary, body)
+            kav_id = self.create_article(html.url_name, html.title, html.summary, html.body)
         elif result['totalSize'] == 1:
             # new draft of existing article
             record = result['records'][0]
 
             # check for changes in article fields
             if (
-                title == record['Title'] and
-                summary == record['Summary'] and
-                body == record[settings.SALESFORCE_ARTICLE_BODY_FIELD]
+                html.title == record['Title'] and
+                html.summary == record['Summary'] and
+                html.body == record[settings.SALESFORCE_ARTICLE_BODY_FIELD]
             ):
                 # no update
                 return
@@ -176,6 +175,6 @@ class Salesforce:
                 ).format(record['KnowledgeArticleId'])
                 raise KnowlegeError(msg)
             kav_id = result.json()['id']
-            self.update_draft(kav_id, title, summary, body)
+            self.update_draft(kav_id, html.title, html.summary, html.body)
 
-        self.save_article(kav_id, title, url_name, easydita_bundle)
+        self.save_article(kav_id, html.title, html.url_name, easydita_bundle)
