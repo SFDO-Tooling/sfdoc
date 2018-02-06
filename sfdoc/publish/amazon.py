@@ -38,8 +38,8 @@ class S3:
         key = basename
         if self.draft:
             key = settings.S3_IMAGES_DRAFT_DIR + key
-        s3localname = os.path.join(d, basename)
-        with TemporaryDirectory() as d:
+        with TemporaryDirectory() as tempdir:
+            s3localname = os.path.join(tempdir, basename)
             try:
                 # download image by name
                 self.api.meta.client.download_file(
