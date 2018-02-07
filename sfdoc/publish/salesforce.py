@@ -42,7 +42,7 @@ class Salesforce:
             'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
             'assertion': encoded_jwt,
         }
-        headers = {'Content-Type': 'application/html-www-form-urlencoded'}
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         auth_url = urljoin(url, 'services/oauth2/token')
         response = requests.post(url=auth_url, data=data, headers=headers)
         response.raise_for_status()
