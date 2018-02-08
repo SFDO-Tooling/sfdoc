@@ -53,21 +53,26 @@ def process_webhook(pk):
     """Process an easyDITA webhook."""
     webhook = Webhook.objects.get(pk=pk)
     data = json.loads(webhook.body)
-    easydita_id = data['resource_id']
-    easydita_bundle, created = EasyditaBundle.objects.get_or_create(
-        easydita_id=easydita_id,
-    )
-    webhook.easydita_bundle = easydita_bundle
-    if created or easydita_bundle.is_complete():
-        webhook.status = Webhook.STATUS_ACCEPTED
-        easydita_bundle.status = EasyditaBundle.STATUS_QUEUED
-        easydita_bundle.time_queued = now()
-        easydita_bundle.save()
-        if EasyditaBundle.objects.filter(
-            status=EasyditaBundle.STATUS_QUEUED,
-        ).count() == 1:
-            # this is the only queued bundle
-            process_queue.delay()
+    if (
+        data['event_id'] == 'dita-ot-publish-complete'
+        and data['event_data']['publish-result'] == 'success'
+    ):
+        easydita_bundle, created = EasyditaBundle.objects.get_or_create(
+            easydita_id=data['event_data']['output-uuid'],
+        )
+        webhook.easydita_bundle = easydita_bundle
+        if created or easydita_bundle.is_complete():
+            webhook.status = Webhook.STATUS_ACCEPTED
+            easydita_bundle.status = EasyditaBundle.STATUS_QUEUED
+            easydita_bundle.time_queued = now()
+            easydita_bundle.save()
+            if EasyditaBundle.objects.filter(
+                status=EasyditaBundle.STATUS_QUEUED,
+            ).count() == 1:
+                # this is the only queued bundle
+                process_queue.delay()
+        else:
+            webhook.status = Webhook.STATUS_REJECTED
     else:
         webhook.status = Webhook.STATUS_REJECTED
     webhook.save()
