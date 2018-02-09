@@ -49,4 +49,8 @@
 </ul>
 {% endif %}
 
+{% if not processing and not queued and not published and not rejected and not error %}
+<h4>There are no easyDITA bundles in the system.</h4>
+{% endif %}
+
 {% endblock content %}

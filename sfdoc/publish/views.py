@@ -42,14 +42,6 @@ def bundle(request, pk):
 @never_cache
 @login_required
 def queue(request):
-    if not EasyditaBundle.objects.count():
-        return render(request, 'no_bundles.html')
-    if not EasyditaBundle.objects.exclude(status__in=(
-        EasyditaBundle.STATUS_REJECTED,
-        EasyditaBundle.STATUS_PUBLISHED,
-        EasyditaBundle.STATUS_ERROR,
-    )):
-        return render(request, 'all_complete.html')
     qs_queued = EasyditaBundle.objects.filter(
         status=EasyditaBundle.STATUS_QUEUED,
     )
