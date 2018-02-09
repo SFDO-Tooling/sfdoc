@@ -1,4 +1,5 @@
 from io import BytesIO
+import logging
 import os
 from zipfile import ZipFile
 
@@ -7,6 +8,8 @@ from django.db import models
 import requests
 
 from .html import scrub_html
+
+logger = logging.getLogger(__name__)
 
 
 class Article(models.Model):
@@ -66,6 +69,7 @@ class EasyditaBundle(models.Model):
 
     def download(self, path):
         """Download bundle ZIP and extract to given directory."""
+        logger.info('Downloading easyDITA bundle from {}'.format(self.url))
         auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
         response = requests.get(self.url, auth=auth)
         zip_file = BytesIO(response.content)
@@ -77,6 +81,9 @@ class EasyditaBundle(models.Model):
 
     def process(self, path, salesforce, s3):
         # check all HTML files
+        logger.info('Scrubbing all HTML files in easyDITA bundle {}'.format(
+            self.pk,
+        ))
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 name, ext = os.path.splitext(filename)
@@ -89,7 +96,8 @@ class EasyditaBundle(models.Model):
                     except HtmlError as e:
                         self.set_error(e)
                         raise
-        # upload article drafts and images
+        # upload draft articles and images
+        logger.info('Uploading draft articles and images')
         publish_queue = []
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
@@ -104,6 +112,7 @@ class EasyditaBundle(models.Model):
 
     def set_error(self, e):
         """Set error status and message."""
+        logger.error(str(e))
         self.status = self.STATUS_ERROR
         self.error_message = str(e)
         self.save()

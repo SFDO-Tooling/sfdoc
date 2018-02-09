@@ -1,4 +1,5 @@
 import json
+import logging
 from tempfile import TemporaryDirectory
 
 from django.utils.timezone import now
@@ -9,6 +10,8 @@ from .models import EasyditaBundle
 from .models import Webhook
 from .salesforce import Salesforce
 
+logger = logging.getLogger(__name__)
+
 
 @job
 def process_easydita_bundle(easydita_bundle_pk):
@@ -16,6 +19,7 @@ def process_easydita_bundle(easydita_bundle_pk):
     Get the bundle from easyDITA and process the contents.
     HTML files are checked for issues first, then uploaded as drafts.
     """
+    logger.info('Processing easyDITA bundle {}'.format(easydita_bundle_pk))
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
     easydita_bundle.status = EasyditaBundle.STATUS_PROCESSING
     easydita_bundle.time_processed = now()
@@ -27,30 +31,38 @@ def process_easydita_bundle(easydita_bundle_pk):
         easydita_bundle.process(tempdir, salesforce, s3)
     easydita_bundle.status = EasyditaBundle.STATUS_DRAFT
     easydita_bundle.save()
-    return 'Processed easyDITA bundle (pk={})'.format(easydita_bundle.pk)
+    msg = 'Processed easyDITA bundle (pk={})'.format(easydita_bundle.pk)
+    logger.info(msg)
+    return msg
 
 
 @job
 def process_queue():
     """Process the next easyDITA bundle in the queue."""
+    logger.info('Processing bundle queue')
     if EasyditaBundle.objects.filter(status__in=(
         EasyditaBundle.STATUS_PROCESSING,
         EasyditaBundle.STATUS_DRAFT,
         EasyditaBundle.STATUS_PUBLISHING,
     )):
-        return 'Already processing an easyDITA bundle!'
+        msg = 'Already processing an easyDITA bundle!'
+        logger.info(msg)
+        return msg
     easydita_bundle = EasyditaBundle.objects.filter(
         status=EasyditaBundle.STATUS_QUEUED,
     ).earliest('time_queued')
     process_easydita_bundle.delay(easydita_bundle.pk)
-    return 'Started processing next easyDITA bundle in queue (pk={})'.format(
+    msg = 'Started processing next easyDITA bundle in queue (pk={})'.format(
         easydita_bundle.pk,
     )
+    logger.info(msg)
+    return msg
 
 
 @job
 def process_webhook(pk):
     """Process an easyDITA webhook."""
+    logger.info('Processing webhook {}'.format(pk))
     webhook = Webhook.objects.get(pk=pk)
     data = json.loads(webhook.body)
     if (
@@ -62,6 +74,7 @@ def process_webhook(pk):
         )
         webhook.easydita_bundle = easydita_bundle
         if created or easydita_bundle.is_complete():
+            logger.info('Webhook accepted')
             webhook.status = Webhook.STATUS_ACCEPTED
             easydita_bundle.status = EasyditaBundle.STATUS_QUEUED
             easydita_bundle.time_queued = now()
@@ -72,16 +85,23 @@ def process_webhook(pk):
                 # this is the only queued bundle
                 process_queue.delay()
         else:
+            logger.info('Webhook rejected (already processing)')
             webhook.status = Webhook.STATUS_REJECTED
     else:
+        logger.info('Webhook rejected (not dita-ot success)')
         webhook.status = Webhook.STATUS_REJECTED
     webhook.save()
-    return 'Processed webhook (pk={})'.format(webhook.pk)
+    msg = 'Processed webhook (pk={})'.format(webhook.pk)
+    logger.info(msg)
+    return msg
 
 
 @job
 def publish_drafts(easydita_bundle_pk):
     """Publish all drafts related to an easyDITA bundle."""
+    logger.info(
+        'Publishing drafts for easyDITA bundle {}'.format(easydita_bundle_pk)
+    )
     easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
     easydita_bundle.save()
@@ -98,6 +118,8 @@ def publish_drafts(easydita_bundle_pk):
     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHED
     easydita_bundle.save()
     process_queue.delay()
-    return 'Published all drafts from easyDITA bundle (pk={})'.format(
+    msg = 'Published all drafts from easyDITA bundle (pk={})'.format(
         easydita_bundle.pk,
     )
+    logger.info(msg)
+    return msg
