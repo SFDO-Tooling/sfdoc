@@ -1,4 +1,5 @@
 import filecmp
+import logging
 import os
 from tempfile import TemporaryDirectory
 
@@ -7,6 +8,8 @@ import botocore
 from django.conf import settings
 
 from .models import Image
+
+logger = logging.getLogger(__name__)
 
 
 class S3:

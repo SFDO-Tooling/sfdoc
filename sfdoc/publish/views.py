@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -12,6 +14,8 @@ from .models import EasyditaBundle
 from .models import Webhook
 from .tasks import process_webhook
 from .tasks import publish_drafts
+
+logger = logging.getLogger(__name__)
 
 
 @never_cache
