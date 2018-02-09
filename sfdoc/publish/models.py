@@ -7,6 +7,7 @@ from django.db import models
 import requests
 
 from .html import scrub_html
+from .utils import unzip
 
 logger = logging.getLogger(__name__)
 
