@@ -47,6 +47,7 @@ def queue(request):
     if not EasyditaBundle.objects.exclude(status__in=(
         EasyditaBundle.STATUS_REJECTED,
         EasyditaBundle.STATUS_PUBLISHED,
+        EasyditaBundle.STATUS_ERROR,
     )):
         return render(request, 'all_complete.html')
     qs_queued = EasyditaBundle.objects.filter(
@@ -63,6 +64,9 @@ def queue(request):
     qs_published = EasyditaBundle.objects.filter(
         status=EasyditaBundle.STATUS_PUBLISHED,
     )
+    qs_error = EasyditaBundle.objects.filter(
+        status=EasyditaBundle.STATUS_ERROR,
+    )
     if qs_processing.count() > 1:
         raise Exception('Expected only 1 bundle processing')
     context = {
@@ -70,6 +74,7 @@ def queue(request):
         'queued': qs_queued.order_by('time_queued'),
         'rejected': qs_rejected.order_by('time_queued'),
         'published': qs_published.order_by('time_queued'),
+        'error': qs_error.order_by('time_queued'),
     }
     return render(request, 'queue.html', context=context)
 

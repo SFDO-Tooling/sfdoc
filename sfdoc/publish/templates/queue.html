@@ -36,4 +36,13 @@
 </ul>
 {% endif %}
 
+{% if error %}
+<h4>Error</h4>
+<ul>
+{% for item in error %}
+  <li><a href="{{ item.get_absolute_url }}">{{ item }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
 {% endblock content %}

@@ -88,7 +88,11 @@ def publish_drafts(easydita_bundle_pk):
     salesforce = Salesforce()
     s3 = S3(draft=False)
     for article in easydita_bundle.articles:
-        salesforce.publish_draft(kav_id)
+        try:
+            salesforce.publish_draft(kav_id)
+        except SalesforceError as e:
+            easydita_bundle.set_error(e)
+            raise
     for image in easydita_bundle.images:
         s3.copy_to_production(image.filename)
     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHED
