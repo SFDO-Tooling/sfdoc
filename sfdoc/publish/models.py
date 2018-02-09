@@ -1,13 +1,13 @@
 from io import BytesIO
 import logging
 import os
-from zipfile import ZipFile
 
 from django.conf import settings
 from django.db import models
 import requests
 
 from .html import scrub_html
+from .utils import unzip
 
 logger = logging.getLogger(__name__)
 
@@ -73,8 +73,7 @@ class EasyditaBundle(models.Model):
         auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
         response = requests.get(self.url, auth=auth)
         zip_file = BytesIO(response.content)
-        with ZipFile(zip_file) as f:
-            f.extractall(path)
+        unzip(zip_file, path, recursive=True)
 
     def get_absolute_url(self):
         return '/publish/{}/'.format(self.pk)
