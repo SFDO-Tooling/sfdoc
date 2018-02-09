@@ -27,7 +27,7 @@ def bundle(request, pk):
         if request.method == 'POST':
             form = PublishToProductionForm(request.POST)
             if form.is_valid():
-                if form.accepted():
+                if form.approved():
                     publish_drafts.delay(easydita_bundle.pk)
                     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
                 else:
