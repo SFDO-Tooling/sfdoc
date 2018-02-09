@@ -92,7 +92,9 @@ class Salesforce:
         }
         result = self.api._call_salesforce('PATCH', url, json=data)
         if result.status_code != HTTPStatus.NO_CONTENT:
-            raise SalesforceError('Error publishing KnowledgeArticleVersion (ID={})'.format(kav_id))
+            raise SalesforceError((
+                'Error publishing KnowledgeArticleVersion (ID={})'
+            ).format(kav_id))
         return result
 
     def query_articles(self, url_name, publish_status):
@@ -129,14 +131,20 @@ class Salesforce:
         data = self.create_article_data(html)
         result = kav_api.update(kav_id, data)
         if result != HTTPStatus.NO_CONTENT:
-            raise KnowlegeError('Error updating draft KnowledgeArticleVersion (ID={})'.format(kav_id))
+            raise SalesforceError((
+                'Error updating draft KnowledgeArticleVersion (ID={})'
+            ).format(kav_id))
         return result
 
     def process_article(self, html_raw, easydita_bundle):
         """Create a draft KnowledgeArticleVersion."""
 
         # init HTML utility class
-        html = HTML(html_raw)
+        try:
+            html = HTML(html_raw)
+        except HtmlError as e:
+            easydita_bundle.set_error(e)
+            raise
 
         # update image links to use Amazon S3
         html.update_image_links()
@@ -145,7 +153,11 @@ class Salesforce:
         result = self.query_articles(html.url_name, 'draft')
         if result['totalSize'] == 1:  # cannot be > 1
             kav_id = result['records'][0]['id']
-            self.update_draft(kav_id, html)
+            try:
+                self.update_draft(kav_id, html)
+            except SalesforceError as e:
+                easydita_bundle.set_error(e)
+                raise
             self.save_article(kav_id, html, easydita_bundle)
             return
 
@@ -175,8 +187,16 @@ class Salesforce:
             data = {'articleId': record['KnowledgeArticleId']}
             result = self.api._call_salesforce('POST', url, json=data)
             if result.status_code != HTTPStatus.CREATED:
-                raise KnowlegeError('Error creating new draft for KnowlegeArticle (ID={})'.format(record['KnowledgeArticleId']))
+                e = SalesforceError((
+                    'Error creating new draft for KnowlegeArticle (ID={})'
+                ).format(record['KnowledgeArticleId']))
+                easydita_bundle.set_error(e)
+                raise(e)
             kav_id = result.json()['id']
-            self.update_draft(kav_id, html)
+            try:
+                self.update_draft(kav_id, html)
+            except SalesforceError as e:
+                easydita_bundle.set_error(e)
+                raise
 
         self.save_article(kav_id, html, easydita_bundle)

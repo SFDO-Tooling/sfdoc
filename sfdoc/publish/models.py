@@ -34,7 +34,9 @@ class EasyditaBundle(models.Model):
     STATUS_REJECTED = 'R'       # drafts have been rejected
     STATUS_PUBLISHING = 'G'     # drafts are being published
     STATUS_PUBLISHED = 'P'      # drafts have been published
+    STATUS_ERROR = 'E'          # error processing bundle
     easydita_id = models.CharField(max_length=255, unique=True)
+    error_message = models.TextField(default='')
     status = models.CharField(
         max_length=1,
         choices=(
@@ -45,6 +47,7 @@ class EasyditaBundle(models.Model):
             (STATUS_REJECTED, 'Rejected'),
             (STATUS_PUBLISHING, 'Publishing'),
             (STATUS_PUBLISHED, 'Published'),
+            (STATUS_ERROR, 'Error'),
         ),
         default=STATUS_NEW,
     )
@@ -58,6 +61,7 @@ class EasyditaBundle(models.Model):
         return self.status in (
             self.STATUS_PUBLISHED,
             self.STATUS_REJECTED,
+            self.STATUS_ERROR,
         )
 
     def download(self, path):
@@ -80,7 +84,11 @@ class EasyditaBundle(models.Model):
                     filename_full = os.path.join(dirpath, filename)
                     with open(filename_full, 'r') as f:
                         html = f.read()
-                    scrub_html(html)
+                    try:
+                        scrub_html(html)
+                    except HtmlError as e:
+                        self.set_error(e)
+                        raise
         # upload article drafts and images
         publish_queue = []
         for dirpath, dirnames, filenames in os.walk(path):
@@ -93,6 +101,12 @@ class EasyditaBundle(models.Model):
                     salesforce.process_article(html, self)
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     s3.process_image(filename_full, self)
+
+    def set_error(self, e):
+        """Set error status and message."""
+        self.status = self.STATUS_ERROR
+        self.error_message = str(e)
+        self.save()
 
     @property
     def url(self):

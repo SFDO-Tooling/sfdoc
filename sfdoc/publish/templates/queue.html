@@ -3,10 +3,14 @@
 {% block content %}
 <h3>easyDITA Bundle Processing Status</h3>
 
-{% if bundle %}
+{% if processing %}
 <br>
 <h4>Processing</h4>
-<p><a href="{{ bundle.get_absolute_url }}">{{ bundle }}</a></p>
+<ul>
+{% for item in processing %}
+  <li><a href="{{ item.get_absolute_url }}">{{ item }}</a></li>
+{% endfor %}
+</ul>
 {% endif %}
 
 {% if queued %}
@@ -34,6 +38,19 @@
   <li><a href="{{ item.get_absolute_url }}">{{ item }}</a></li>
 {% endfor %}
 </ul>
+{% endif %}
+
+{% if error %}
+<h4>Error</h4>
+<ul>
+{% for item in error %}
+  <li><a href="{{ item.get_absolute_url }}">{{ item }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if not processing and not queued and not published and not rejected and not error %}
+<h4>There are no easyDITA bundles in the system.</h4>
 {% endif %}
 
 {% endblock content %}
