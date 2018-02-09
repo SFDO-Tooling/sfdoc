@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 from .forms import PublishToProductionForm
 from .models import EasyditaBundle
 from .models import Webhook
+from .tasks import process_queue
 from .tasks import process_webhook
 from .tasks import publish_drafts
 
@@ -27,12 +28,14 @@ def bundle(request, pk):
         if request.method == 'POST':
             form = PublishToProductionForm(request.POST)
             if form.is_valid():
-                if form.accepted():
-                    publish_drafts.delay(easydita_bundle.pk)
+                if form.approved():
                     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
+                    easydita_bundle.save()
+                    publish_drafts.delay(easydita_bundle.pk)
                 else:
                     easydita_bundle.status = EasyditaBundle.STATUS_REJECTED
-                easydita_bundle.save()
+                    easydita_bundle.save()
+                    process_queue.delay()
             return HttpResponseRedirect('./')
         else:
             form = PublishToProductionForm()

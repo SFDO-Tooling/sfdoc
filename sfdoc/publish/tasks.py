@@ -79,11 +79,7 @@ def process_webhook(pk):
             easydita_bundle.status = EasyditaBundle.STATUS_QUEUED
             easydita_bundle.time_queued = now()
             easydita_bundle.save()
-            if EasyditaBundle.objects.filter(
-                status=EasyditaBundle.STATUS_QUEUED,
-            ).count() == 1:
-                # this is the only queued bundle
-                process_queue.delay()
+            process_queue.delay()
         else:
             logger.info('Webhook rejected (already processing)')
             webhook.status = Webhook.STATUS_REJECTED

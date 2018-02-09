@@ -24,6 +24,7 @@ class EasyditaBundleAdmin(admin.ModelAdmin):
         'time_queued',
         'time_processed',
     ]
+    list_filter = ('status',)
     view_on_site = False
 admin.site.register(EasyditaBundle, EasyditaBundleAdmin)
 
@@ -42,4 +43,5 @@ class WebhookAdmin(admin.ModelAdmin):
         'status',
         'time',
     ]
+    list_filter = ('status',)
 admin.site.register(Webhook, WebhookAdmin)
