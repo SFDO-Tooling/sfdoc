@@ -2,11 +2,13 @@
 
 {% block content %}
 <h3>{{ bundle }}</h3>
-<p>
-  <br>easyDITA ID: {{ bundle.easydita_id }}
-  <br>Status: {{ bundle.get_status_display }}
+<br>
+<p>easyDITA ID: {{ bundle.easydita_id }}</p>
+<p>Status: {{ bundle.get_status_display }}</p>
 {% if bundle.time_queued %}
-  <br>Queued: {{ bundle.time_queued }}
+<p>Queued: {{ bundle.time_queued }}</p>
 {% endif %}
-</p>
+{% if bundle.error_message %}
+<p>Error: {{ bundle.error_message}}</p>
+{% endif %}
 {% endblock content %}
