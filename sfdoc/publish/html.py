@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 
 from .exceptions import HtmlError
+from .utils import is_url_whitelisted
 
 logger = logging.getLogger(__name__)
 
@@ -74,9 +75,8 @@ def scrub_html(html):
                             'Tag "{}" attribute "{}" not in whitelist'
                         ).format(child.name, attr))
                     if attr == 'href':
-                        o = urlparse(child['href'])
-                        if o.hostname not in settings.LINK_WHITELIST:
-                            raise HtmlError('Link {} not in whitelist'.format(
+                        if not is_url_whitelisted(child['href']):
+                            raise HtmlError('URL {} not whitelisted'.format(
                                 child['href'],
                             ))
                 scrub_tree(child)
