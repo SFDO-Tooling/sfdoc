@@ -101,6 +101,8 @@ class EasyditaBundle(models.Model):
         publish_queue = []
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
+                if filename == 'index.html':
+                    continue
                 name, ext = os.path.splitext(filename)
                 filename_full = os.path.join(dirpath, filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
