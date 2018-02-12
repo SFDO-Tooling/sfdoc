@@ -6,6 +6,7 @@ from django.utils.timezone import now
 from django_rq import job
 
 from .amazon import S3
+from .exceptions import SalesforceError
 from .models import EasyditaBundle
 from .models import Webhook
 from .salesforce import Salesforce
