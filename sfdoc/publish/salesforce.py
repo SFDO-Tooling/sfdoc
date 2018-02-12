@@ -10,6 +10,7 @@ import jwt
 import requests
 from simple_salesforce import Salesforce as SimpleSalesforce
 
+from .exceptions import HtmlError
 from .exceptions import SalesforceError
 from .html import HTML
 from .html import update_image_links_production
