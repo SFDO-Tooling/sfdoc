@@ -19,16 +19,19 @@ class HTML:
         soup = BeautifulSoup(html, 'html.parser')
 
         # meta (URL name, summary, visibility settings)
-        for attr, tag_name in (
-            ('url_name', 'UrlName'),
-            ('summary', 'description'),
-            ('is_visible_in_app', 'is-visible-in-app'),
-            ('is_visible_in_csp', 'is-visible-in-csp'),
-            ('is_visible_in_pkb', 'is-visible-in-pkb'),
-            ('is_visible_in_prm', 'is-visible-in-prm'),
+        for attr, tag_name, optional in (
+            ('url_name', 'UrlName', False),
+            ('summary', 'description', True),
+            ('is_visible_in_app', 'is-visible-in-app', False),
+            ('is_visible_in_csp', 'is-visible-in-csp', False),
+            ('is_visible_in_pkb', 'is-visible-in-pkb', False),
+            ('is_visible_in_prm', 'is-visible-in-prm', False),
         ):
             tag = soup.find('meta', attrs={'name': tag_name})
             if not tag:
+                if optional:
+                    setattr(self, attr, '')
+                    continue
                 raise HtmlError('Meta tag name={} not found'.format(tag_name))
             setattr(self, attr, tag['content'])
 
