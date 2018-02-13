@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load tz %}
 
 {% block content %}
 <h3>{{ bundle }}</h3>
@@ -9,7 +10,9 @@
 <p>{{ bundle.get_status_display }}</p>
 {% if bundle.time_queued %}
 <h5>Queued</h5>
+{% localtime on %}
 <p>{{ bundle.time_queued }}</p>
+{% endlocaltime %}
 {% endif %}
 {% if bundle.error_message %}
 <h5>Error</h5>
