@@ -1,4 +1,5 @@
 import logging
+import os
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
@@ -60,6 +61,29 @@ class HTML:
                 images_path,
             )
         self.body = soup.prettify()
+
+
+def get_links(path):
+    """Find all the links (href, src) in all HTML files under the path."""
+    def proc(tree, links):
+        for child in tree.children:
+            if not hasattr(child, 'contents'):
+                continue
+            for attr in child.attrs:
+                if attr in ('href', 'src'):
+                    links.add(child[attr])
+            proc(child, links)
+    links = set([])
+    for dirpath, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            name, ext = os.path.splitext(filename)
+            if ext.lower() in settings.HTML_EXTENSIONS:
+                filename_full = os.path.join(dirpath, filename)
+                with open(filename_full, 'r') as f:
+                    html = f.read()
+                soup = BeautifulSoup(html, 'html.parser')
+                proc(soup, links)
+    return links
 
 
 def scrub_html(html):
