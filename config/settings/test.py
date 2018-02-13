@@ -104,6 +104,6 @@ HTML_WHITELIST = {
     'title': [],
     'ul': []
 }
-LINK_WHITELIST = []
+URL_WHITELIST = list(set([] + URL_WHITELIST_BASE))
 
 HEROKU_APP_NAME = 'sfdoc.example.com'

@@ -292,3 +292,13 @@ AWS_S3_URL = 'https://s3.amazonaws.com'
 
 # Salesforce
 SALESFORCE_LOGIN_URL = 'https://login.salesforce.com'
+
+# URL whitelist base
+URL_WHITELIST_BASE = [
+    '*.amazonaws.com/*',
+    '*.force.com/*',
+    '*.google.com/*',
+    '*.quip.com/*',
+    '*.salesforce.com/*',
+    '*.salesforce.org/*',
+]
