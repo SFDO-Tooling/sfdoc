@@ -86,6 +86,30 @@ def get_links(path):
     return links
 
 
+def get_tags(path):
+    """Find all HTML tags/attributes in all HTML files under the path."""
+    def proc(tree, tags):
+        for child in tree.children:
+            if not hasattr(child, 'contents'):
+                continue
+            if child.name not in tags:
+                tags[child.name] = set([])
+            for attr in child.attrs:
+                tags[child.name].add(attr)
+            proc(child, tags)
+    tags = {}
+    for dirpath, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            name, ext = os.path.splitext(filename)
+            if ext.lower() in settings.HTML_EXTENSIONS:
+                filename_full = os.path.join(dirpath, filename)
+                with open(filename_full, 'r') as f:
+                    html = f.read()
+                soup = BeautifulSoup(html, 'html.parser')
+                proc(soup, tags)
+    return tags
+
+
 def scrub_html(html):
     """Scrub HTML using whitelists for tags/attributes and links."""
     logger.info('Scrubbing HTML')
