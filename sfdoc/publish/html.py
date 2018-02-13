@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from urllib.parse import urljoin
@@ -63,7 +64,7 @@ class HTML:
         self.body = soup.prettify()
 
 
-def get_links(path):
+def get_links(path, print_json=False):
     """Find all the links (href, src) in all HTML files under the path."""
     def proc(tree, links):
         for child in tree.children:
@@ -83,10 +84,12 @@ def get_links(path):
                     html = f.read()
                 soup = BeautifulSoup(html, 'html.parser')
                 proc(soup, links)
+    if print_json:
+        print(json.dumps(sorted(list(links)), indent=2))
     return links
 
 
-def get_tags(path):
+def get_tags(path, print_json=False):
     """Find all HTML tags/attributes in all HTML files under the path."""
     def proc(tree, tags):
         for child in tree.children:
@@ -107,6 +110,13 @@ def get_tags(path):
                     html = f.read()
                 soup = BeautifulSoup(html, 'html.parser')
                 proc(soup, tags)
+    if print_json:
+        tags_json = {}
+        for tag in sorted(tags.keys()):
+            tags_json[tag] = []
+            for item in sorted(list(tags[tag])):
+                tags_json[tag].append(item)
+        print(json.dumps(tags_json, indent=2))
     return tags
 
 
