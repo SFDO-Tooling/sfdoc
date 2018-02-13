@@ -77,10 +77,10 @@ def scrub_html(html):
                         raise HtmlError((
                             'Tag "{}" attribute "{}" not in whitelist'
                         ).format(child.name, attr))
-                    if attr == 'href':
-                        if not is_url_whitelisted(child['href']):
+                    if attr in ('href', 'src'):
+                        if not is_url_whitelisted(child[attr]):
                             raise HtmlError('URL {} not whitelisted'.format(
-                                child['href'],
+                                child[attr],
                             ))
                 scrub_tree(child)
     scrub_tree(soup)
