@@ -162,7 +162,7 @@ class Salesforce:
         # search for existing draft. if found, update fields and return
         result = self.query_articles(html.url_name, 'draft')
         if result['totalSize'] == 1:  # cannot be > 1
-            kav_id = result['records'][0]['id']
+            kav_id = result['records'][0]['Id']
             try:
                 self.update_draft(kav_id, html)
             except SalesforceError as e:
