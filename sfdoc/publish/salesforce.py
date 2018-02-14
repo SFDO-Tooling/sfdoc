@@ -76,10 +76,10 @@ class Salesforce:
             'UrlName': html.url_name,
             'Title': html.title,
             'Summary': html.summary,
-            'IsVisibleInApp': html.is_visible_in_app,
-            'IsVisibleInCsp': html.is_visible_in_csp,
-            'IsVisibleInPkb': html.is_visible_in_pkb,
-            'IsVisibleInPrm': html.is_visible_in_prm,
+            # 'IsVisibleInApp': html.is_visible_in_app,
+            # 'IsVisibleInCsp': html.is_visible_in_csp,
+            # 'IsVisibleInPkb': html.is_visible_in_pkb,
+            # 'IsVisibleInPrm': html.is_visible_in_prm,
             settings.SALESFORCE_ARTICLE_BODY_FIELD: html.body,
         }
 
