@@ -20,6 +20,7 @@ class EasyditaBundleAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
         'easydita_id',
+        'easydita_resource_id',
         'status',
         'time_queued',
         'time_processed',

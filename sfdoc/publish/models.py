@@ -40,6 +40,7 @@ class EasyditaBundle(models.Model):
     STATUS_PUBLISHED = 'P'      # drafts have been published
     STATUS_ERROR = 'E'          # error processing bundle
     easydita_id = models.CharField(max_length=255, unique=True)
+    easydita_resource_id = models.CharField(max_length=255)
     error_message = models.TextField(default='')
     status = models.CharField(
         max_length=1,
