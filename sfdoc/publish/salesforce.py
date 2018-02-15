@@ -139,7 +139,7 @@ class Salesforce:
 
     def save_article(self, kav_id, html, easydita_bundle):
         """Create an Article object from parsed HTML."""
-        ka_id = self.get_ka_id(kav_id)
+        ka_id = self.get_ka_id(kav_id, 'draft')
         o = urlparse(self.api.base_url)
         draft_preview_url = (
             '{}://{}/knowledge/publishing/'
