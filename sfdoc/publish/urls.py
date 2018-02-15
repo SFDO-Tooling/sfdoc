@@ -4,6 +4,11 @@ from . import views
 
 urlpatterns = [
     url(
+        regex=r'^$',
+        view=views.index,
+        name='index',
+    ),
+    url(
         regex=r'^bundles/$',
         view=views.bundles,
         name='bundles',
@@ -12,11 +17,6 @@ urlpatterns = [
         regex=r'^bundles/(?P<pk>\d+)/$',
         view=views.bundle,
         name='bundle',
-    ),
-    url(
-        regex=r'^queue/$',
-        view=views.queue,
-        name='queue',
     ),
     url(
         regex=r'^webhook/$',

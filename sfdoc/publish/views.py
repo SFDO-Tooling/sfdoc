@@ -55,7 +55,7 @@ def bundles(request):
 
 @never_cache
 @login_required
-def queue(request):
+def index(request):
     qs_processing = EasyditaBundle.objects.filter(status__in=(
         EasyditaBundle.STATUS_PROCESSING,
         EasyditaBundle.STATUS_DRAFT,
@@ -68,7 +68,7 @@ def queue(request):
         'processing': qs_processing.order_by('time_queued'),
         'queued': qs_queued.order_by('time_queued'),
     }
-    return render(request, 'queue.html', context=context)
+    return render(request, 'index.html', context=context)
 
 
 @never_cache

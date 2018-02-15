@@ -48,7 +48,7 @@
             </li>
             {% if request.user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'publish:queue'  %}">{% trans "Publish" %}</a>
+              <a class="nav-link" href="{% url 'publish:index'  %}">{% trans "Publish" %}</a>
             </li>
             {% endif %}
             {% if request.user.is_staff %}
