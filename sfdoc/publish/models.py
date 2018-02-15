@@ -109,7 +109,11 @@ class EasyditaBundle(models.Model):
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     with open(filename_full, 'r') as f:
                         html = f.read()
-                    salesforce.process_article(html, self)
+                    try:
+                        salesforce.process_article(html, self)
+                    except Exception as e:
+                        self.set_error(e, filename=filename_full)
+                        raise
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     s3.process_image(filename_full, self)
 

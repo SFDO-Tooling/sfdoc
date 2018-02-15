@@ -150,11 +150,7 @@ class Salesforce:
         """Create a draft KnowledgeArticleVersion."""
 
         # init HTML utility class
-        try:
-            html = HTML(html_raw)
-        except HtmlError as e:
-            easydita_bundle.set_error(e)
-            raise
+        html = HTML(html_raw)
 
         # update image links to use Amazon S3
         html.update_image_links()
@@ -163,11 +159,7 @@ class Salesforce:
         result = self.query_articles(html.url_name, 'draft')
         if result['totalSize'] == 1:  # cannot be > 1
             kav_id = result['records'][0]['Id']
-            try:
-                self.update_draft(kav_id, html)
-            except SalesforceError as e:
-                easydita_bundle.set_error(e)
-                raise
+            self.update_draft(kav_id, html)
             self.save_article(kav_id, html, easydita_bundle)
             return
 
@@ -200,13 +192,8 @@ class Salesforce:
                 e = SalesforceError((
                     'Error creating new draft for KnowlegeArticle (ID={})'
                 ).format(record['KnowledgeArticleId']))
-                easydita_bundle.set_error(e)
                 raise(e)
             kav_id = result.json()['id']
-            try:
-                self.update_draft(kav_id, html)
-            except SalesforceError as e:
-                easydita_bundle.set_error(e)
-                raise
+            self.update_draft(kav_id, html)
 
         self.save_article(kav_id, html, easydita_bundle)
