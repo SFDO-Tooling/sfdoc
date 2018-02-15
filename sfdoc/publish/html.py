@@ -32,6 +32,7 @@ class HTML:
             tag = soup.find('meta', attrs={'name': tag_name})
             if optional and (not tag or not tag['content']):
                 setattr(self, attr, '')
+                continue
             if not tag:
                 raise HtmlError('Meta tag name={} not found'.format(tag_name))
             elif not tag['content']:
