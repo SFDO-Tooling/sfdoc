@@ -2,26 +2,25 @@
 
 {% block content %}
 <h3>{{ bundle }}</h3>
+<p><a href="{% url 'publish:bundles' %}">View all bundles</a></p>
 <br>
 
-<h5>easyDITA ID</h5>
-<p>{{ bundle.easydita_id }}</p>
-
-<h5>Status</h5>
-<p>{{ bundle.get_status_display }}</p>
-
-{% if bundle.time_queued %}
-<h5>Queued</h5>
-<p>{{ bundle.time_queued }}</p>
-{% endif %}
-
-{% if bundle.time_processed %}
-<h5>Processed</h5>
-<p>{{ bundle.time_processed }}</p>
-{% endif %}
-
+<table class="table">
+  <tr>
+    <th>easyDITA ID</th>
+    <th>Status</th>
+    <th>Time Queued</th>
+    <th>Time Processed</th>
+  </tr>
+  <tr>
+    <td>{{ bundle.easydita_id }}</td>
+    <td>{{ bundle.get_status_display }}</td>
+    <td>{{ bundle.time_queued }}</td>
+    <td>{{ bundle.time_processed }}</td>
+  </tr>
+</table>
 {% if bundle.error_message %}
-<h5>Error</h5>
+<h4>Error Message</h4>
 <p>{{ bundle.error_message }}</p>
 {% endif %}
 
