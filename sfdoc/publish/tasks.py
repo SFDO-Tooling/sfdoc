@@ -79,6 +79,7 @@ def process_webhook(pk):
         if created or easydita_bundle.is_complete():
             logger.info('Webhook accepted')
             webhook.status = Webhook.STATUS_ACCEPTED
+            webhook.save()
             easydita_bundle.status = EasyditaBundle.STATUS_QUEUED
             easydita_bundle.time_queued = now()
             easydita_bundle.save()
