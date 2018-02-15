@@ -78,7 +78,7 @@ class EasyditaBundle(models.Model):
         unzip(zip_file, path, recursive=True)
 
     def get_absolute_url(self):
-        return '/publish/{}/'.format(self.pk)
+        return '/publish/bundles/{}/'.format(self.pk)
 
     def process(self, path, salesforce, s3):
         # check all HTML files
