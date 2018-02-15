@@ -9,6 +9,7 @@ from .models import Webhook
 class ArticleAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
+        'ka_id',
         'kav_id',
         'title',
         'url_name',
