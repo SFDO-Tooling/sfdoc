@@ -48,7 +48,7 @@ class EasyditaBundle(models.Model):
             (STATUS_NEW, 'New'),
             (STATUS_QUEUED, 'Queued'),
             (STATUS_PROCESSING, 'Processing'),
-            (STATUS_DRAFT, 'Draft'),
+            (STATUS_DRAFT, 'Ready for Review'),
             (STATUS_REJECTED, 'Rejected'),
             (STATUS_PUBLISHING, 'Publishing'),
             (STATUS_PUBLISHED, 'Published'),
