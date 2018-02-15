@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3>easyDITA Bundle Processing Status</h3>
+<h3>easyDITA Bundle Processing Queue</h3>
 
 {% if processing %}
 <br>
 <h4>Processing</h4>
 <ul>
-{% for item in processing %}
-  <li><a href="{{ item.get_absolute_url }}">{{ item }}</a></li>
+{% for bundle in processing %}
+  <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }}</a></li>
 {% endfor %}
 </ul>
 {% endif %}
@@ -16,41 +16,14 @@
 {% if queued %}
 <h4>Queued</h4>
 <ol>
-{% for item in queued %}
-  <li><a href="{{ item.get_absolute_url }}">{{ item }}</a></li>
+{% for bundle in queued %}
+  <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }}</a></li>
 {% endfor %}
 </ol>
 {% endif %}
 
-{% if published %}
-<h4>Published</h4>
-<ul>
-{% for item in published %}
-  <li><a href="{{ item.get_absolute_url }}">{{ item }}</a></li>
-{% endfor %}
-</ul>
-{% endif %}
-
-{% if rejected %}
-<h4>Rejected</h4>
-<ul>
-{% for item in rejected %}
-  <li><a href="{{ item.get_absolute_url }}">{{ item }}</a></li>
-{% endfor %}
-</ul>
-{% endif %}
-
-{% if error %}
-<h4>Error</h4>
-<ul>
-{% for item in error %}
-  <li><a href="{{ item.get_absolute_url }}">{{ item }}</a></li>
-{% endfor %}
-</ul>
-{% endif %}
-
-{% if not processing and not queued and not published and not rejected and not error %}
-<h4>There are no easyDITA bundles in the system.</h4>
+{% if not processing and not queued %}
+<h4>There are no easyDITA bundles in the queue.</h4>
 {% endif %}
 
 {% endblock content %}
