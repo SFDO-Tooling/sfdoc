@@ -43,7 +43,7 @@ def bundle(request, pk):
         context['form'] = form
         return render(request, 'publish_form.html', context=context)
     else:
-        return render(request, 'status.html', context=context)
+        return render(request, 'bundle.html', context=context)
 
 
 @never_cache
