@@ -30,11 +30,14 @@ class HTML:
             ('is_visible_in_prm', 'is-visible-in-prm', False),
         ):
             tag = soup.find('meta', attrs={'name': tag_name})
+            if optional and (not tag or not tag['content']):
+                setattr(self, attr, '')
             if not tag:
-                if optional:
-                    setattr(self, attr, '')
-                    continue
                 raise HtmlError('Meta tag name={} not found'.format(tag_name))
+            elif not tag['content']:
+                raise HtmlError('Meta tag name={} has no content'.format(
+                    tag_name,
+                ))
             setattr(self, attr, tag['content'])
 
         # title
