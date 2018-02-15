@@ -118,7 +118,11 @@ class EasyditaBundle(models.Model):
                     if changed_1:
                         changed = True
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
-                    changed_1 = s3.process_image(filename_full, self)
+                    try:
+                        changed_1 = s3.process_image(filename_full, self)
+                    except Exception as e:
+                        self.set_error(e, filename=filename_full)
+                        raise
                     if changed_1:
                         changed = True
         if changed:
