@@ -9,7 +9,7 @@
 <h4>Processing</h4>
 <ul>
 {% for bundle in processing %}
-  <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }}</a></li>
+  <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }} ({{ bundle.get_status_display }})</a></li>
 {% endfor %}
 </ul>
 {% endif %}
