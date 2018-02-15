@@ -95,7 +95,7 @@ class EasyditaBundle(models.Model):
                     try:
                         scrub_html(html)
                     except HtmlError as e:
-                        self.set_error(e)
+                        self.set_error(e, filename=filename_full)
                         raise
         # upload draft articles and images
         logger.info('Uploading draft articles and images')
@@ -109,15 +109,22 @@ class EasyditaBundle(models.Model):
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     with open(filename_full, 'r') as f:
                         html = f.read()
-                    salesforce.process_article(html, self)
+                    try:
+                        salesforce.process_article(html, self)
+                    except Exception as e:
+                        self.set_error(e, filename=filename_full)
+                        raise
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
                     s3.process_image(filename_full, self)
 
-    def set_error(self, e):
+    def set_error(self, e, filename=None):
         """Set error status and message."""
         logger.error(str(e))
         self.status = self.STATUS_ERROR
-        self.error_message = str(e)
+        if filename:
+            self.error_message = '{}: {}'.format(filename, e)
+        else:
+            self.error_message = str(e)
         self.save()
 
     @property
