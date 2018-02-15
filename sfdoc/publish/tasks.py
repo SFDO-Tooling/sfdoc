@@ -66,14 +66,13 @@ def process_webhook(pk):
     logger.info('Processing webhook {}'.format(pk))
     webhook = Webhook.objects.get(pk=pk)
     data = json.loads(webhook.body)
-    if 'resource_id' in data:
-        webhook.easydita_resource_id = data['resource_id']
     if (
         data['event_id'] == 'dita-ot-publish-complete'
         and data['event_data']['publish-result'] == 'success'
     ):
         easydita_bundle, created = EasyditaBundle.objects.get_or_create(
             easydita_id=data['event_data']['output-uuid'],
+            defaults={'easydita_resource_id': data['resource_id']},
         )
         webhook.easydita_bundle = easydita_bundle
         if created or easydita_bundle.is_complete():
