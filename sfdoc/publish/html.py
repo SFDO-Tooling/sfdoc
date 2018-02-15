@@ -24,7 +24,6 @@ class HTML:
         for attr, tag_name, optional in (
             ('url_name', 'UrlName', False),
             ('summary', 'description', True),
-            ('is_visible_in_app', 'is-visible-in-app', False),
             ('is_visible_in_csp', 'is-visible-in-csp', False),
             ('is_visible_in_pkb', 'is-visible-in-pkb', False),
             ('is_visible_in_prm', 'is-visible-in-prm', False),

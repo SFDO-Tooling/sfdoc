@@ -15,7 +15,6 @@ def create_test_html(url_name, title, summary, body):
     <head>
       <meta name="UrlName" content="{}">
       <meta name="description" content="{}">
-      <meta name="is-visible-in-app" content="true">
       <meta name="is-visible-in-csp" content="true">
       <meta name="is-visible-in-pkb" content="true">
       <meta name="is-visible-in-prm" content="true">
