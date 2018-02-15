@@ -53,7 +53,7 @@ class S3:
             except botocore.exceptions.ClientError as e:
                 if e.response['Error']['Code'] == '404':
                     # image does not exist on S3, create a new one
-                    upload_image(filename, key)
+                    self.upload_image(filename, key)
                     Image.objects.create(
                         easydita_bundle=easydita_bundle,
                         filename=basename,
@@ -64,7 +64,7 @@ class S3:
             # image exists on S3 already, compare it to local image
             if not filecmp.cmp(filename, s3localname):
                 # files differ, update image
-                upload_image(filename, key)
+                self.upload_image(filename, key)
                 Image.objects.create(
                     easydita_bundle=easydita_bundle,
                     filename=basename,
