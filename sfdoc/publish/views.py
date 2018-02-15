@@ -67,11 +67,11 @@ def queue(request):
         status=EasyditaBundle.STATUS_ERROR,
     )
     context = {
-        'processing': qs_processing.order_by('time_queued'),
-        'queued': qs_queued.order_by('time_queued'),
-        'rejected': qs_rejected.order_by('time_queued'),
-        'published': qs_published.order_by('time_queued'),
-        'error': qs_error.order_by('time_queued'),
+        'processing': qs_processing.order_by('-time_queued'),
+        'queued': qs_queued.order_by('-time_queued'),
+        'rejected': qs_rejected.order_by('-time_queued'),
+        'published': qs_published.order_by('-time_queued'),
+        'error': qs_error.order_by('-time_queued'),
     }
     return render(request, 'queue.html', context=context)
 
