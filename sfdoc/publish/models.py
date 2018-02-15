@@ -100,6 +100,7 @@ class EasyditaBundle(models.Model):
         # upload draft articles and images
         logger.info('Uploading draft articles and images')
         publish_queue = []
+        changed = False
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if filename == 'index.html':
@@ -110,12 +111,25 @@ class EasyditaBundle(models.Model):
                     with open(filename_full, 'r') as f:
                         html = f.read()
                     try:
-                        salesforce.process_article(html, self)
+                        changed_1 = salesforce.process_article(html, self)
                     except Exception as e:
                         self.set_error(e, filename=filename_full)
                         raise
+                    if changed_1:
+                        changed = True
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
-                    s3.process_image(filename_full, self)
+                    changed_1 = s3.process_image(filename_full, self)
+                    if changed_1:
+                        changed = True
+        if changed:
+            self.status = self.STATUS_DRAFT
+        else:
+            self.status = self.STATUS_REJECTED
+            self.error_message = (
+                'No articles or images were updated, so the bundle was '
+                'automatically rejected.'
+            )
+        self.save()
 
     def set_error(self, e, filename=None):
         """Set error status and message."""

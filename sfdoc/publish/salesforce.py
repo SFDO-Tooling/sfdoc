@@ -160,7 +160,7 @@ class Salesforce:
             kav_id = result['records'][0]['Id']
             self.update_draft(kav_id, html)
             self.save_article(kav_id, html, easydita_bundle)
-            return
+            return True
 
         # no drafts found. search for published article
         result = self.query_articles(html.url_name, 'online')
@@ -178,7 +178,7 @@ class Salesforce:
                 html.body == record[settings.SALESFORCE_ARTICLE_BODY_FIELD]
             ):
                 # no update
-                return
+                return False
 
             # create draft copy of published article
             url = (
@@ -196,3 +196,4 @@ class Salesforce:
             self.update_draft(kav_id, html)
 
         self.save_article(kav_id, html, easydita_bundle)
+        return True
