@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from urllib.parse import urljoin
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -77,6 +78,9 @@ def get_links(path, print_json=False, body_only=True):
                 continue
             for attr in child.attrs:
                 if attr in ('href', 'src'):
+                    if not urlparse(child[attr]).scheme:
+                        # not an external link, implicitly whitelisted
+                        continue
                     links.add(child[attr])
             proc(child, links)
     links = set([])
