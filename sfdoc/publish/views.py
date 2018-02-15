@@ -49,7 +49,7 @@ def bundle(request, pk):
 @never_cache
 @login_required
 def bundles(request):
-    context = {'bundles': EasyditaBundle.objects.all().order_by('pk')}
+    context = {'bundles': EasyditaBundle.objects.all().order_by('-pk')}
     return render(request, 'bundles.html', context=context)
 
 
