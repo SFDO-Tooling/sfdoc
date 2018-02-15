@@ -43,37 +43,32 @@ def bundle(request, pk):
         context['form'] = form
         return render(request, 'publish_form.html', context=context)
     else:
-        return render(request, 'status.html', context=context)
+        return render(request, 'bundle.html', context=context)
 
 
 @never_cache
 @login_required
-def queue(request):
-    qs_queued = EasyditaBundle.objects.filter(
-        status=EasyditaBundle.STATUS_QUEUED,
-    )
+def bundles(request):
+    context = {'bundles': EasyditaBundle.objects.all().order_by('pk')}
+    return render(request, 'bundles.html', context=context)
+
+
+@never_cache
+@login_required
+def index(request):
     qs_processing = EasyditaBundle.objects.filter(status__in=(
         EasyditaBundle.STATUS_PROCESSING,
         EasyditaBundle.STATUS_DRAFT,
         EasyditaBundle.STATUS_PUBLISHING,
     ))
-    qs_rejected = EasyditaBundle.objects.filter(
-        status=EasyditaBundle.STATUS_REJECTED,
-    )
-    qs_published = EasyditaBundle.objects.filter(
-        status=EasyditaBundle.STATUS_PUBLISHED,
-    )
-    qs_error = EasyditaBundle.objects.filter(
-        status=EasyditaBundle.STATUS_ERROR,
+    qs_queued = EasyditaBundle.objects.filter(
+        status=EasyditaBundle.STATUS_QUEUED,
     )
     context = {
-        'processing': qs_processing.order_by('-time_queued'),
-        'queued': qs_queued.order_by('-time_queued'),
-        'rejected': qs_rejected.order_by('-time_queued'),
-        'published': qs_published.order_by('-time_queued'),
-        'error': qs_error.order_by('-time_queued'),
+        'processing': qs_processing.order_by('time_queued'),
+        'queued': qs_queued.order_by('time_queued'),
     }
-    return render(request, 'queue.html', context=context)
+    return render(request, 'index.html', context=context)
 
 
 @never_cache

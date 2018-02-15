@@ -5,11 +5,16 @@ from . import views
 urlpatterns = [
     url(
         regex=r'^$',
-        view=views.queue,
-        name='queue',
+        view=views.index,
+        name='index',
     ),
     url(
-        regex=r'^(?P<pk>\d+)/$',
+        regex=r'^bundles/$',
+        view=views.bundles,
+        name='bundles',
+    ),
+    url(
+        regex=r'^bundles/(?P<pk>\d+)/$',
         view=views.bundle,
         name='bundle',
     ),

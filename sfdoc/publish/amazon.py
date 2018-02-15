@@ -58,17 +58,21 @@ class S3:
                         easydita_bundle=easydita_bundle,
                         filename=basename,
                     )
-                    return
+                    return True
                 else:
                     raise
             # image exists on S3 already, compare it to local image
-            if not filecmp.cmp(filename, s3localname):
+            if filecmp.cmp(filename, s3localname):
+                # files are the same, no update
+                return False
+            else:
                 # files differ, update image
                 self.upload_image(filename, key)
                 Image.objects.create(
                     easydita_bundle=easydita_bundle,
                     filename=basename,
                 )
+                return True
 
     def upload_image(self, filename, key):
         with open(filename, 'rb') as f:

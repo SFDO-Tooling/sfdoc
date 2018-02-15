@@ -30,8 +30,6 @@ def process_easydita_bundle(easydita_bundle_pk):
     with TemporaryDirectory() as tempdir:
         easydita_bundle.download(tempdir)
         easydita_bundle.process(tempdir, salesforce, s3)
-    easydita_bundle.status = EasyditaBundle.STATUS_DRAFT
-    easydita_bundle.save()
     msg = 'Processed easyDITA bundle (pk={})'.format(easydita_bundle.pk)
     logger.info(msg)
     return msg
