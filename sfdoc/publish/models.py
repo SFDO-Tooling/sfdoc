@@ -103,7 +103,7 @@ class EasyditaBundle(models.Model):
         changed = False
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
-                if filename == 'index.html':
+                if filename in settings.HTML_SKIP_FILES:
                     continue
                 name, ext = os.path.splitext(filename)
                 filename_full = os.path.join(dirpath, filename)
