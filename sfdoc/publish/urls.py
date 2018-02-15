@@ -9,6 +9,11 @@ urlpatterns = [
         name='queue',
     ),
     url(
+        regex=r'^bundles/$',
+        view=views.bundles,
+        name='bundles',
+    ),
+    url(
         regex=r'^bundles/(?P<pk>\d+)/$',
         view=views.bundle,
         name='bundle',

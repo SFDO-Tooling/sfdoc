@@ -48,6 +48,13 @@ def bundle(request, pk):
 
 @never_cache
 @login_required
+def bundles(request):
+    context = {'bundles': EasyditaBundle.objects.all().order_by('pk')}
+    return render(request, 'bundles.html', context=context)
+
+
+@never_cache
+@login_required
 def queue(request):
     qs_processing = EasyditaBundle.objects.filter(status__in=(
         EasyditaBundle.STATUS_PROCESSING,

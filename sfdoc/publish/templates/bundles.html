@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3>easyDITA Bundles</h3>
+<br>
+
+{% if bundles %}
+<table class="table">
+  <tr>
+    <th>#</th>
+    <th>easyDITA ID</th>
+    <th>Status</th>
+    <th>Time Queued</th>
+    <th>Time Processed</th>
+  </tr>
+{% for bundle in bundles %}
+  <tr>
+    <td><a href="{{ bundle.get_absolute_url}} ">{{ bundle.pk }}</a></td>
+    <td>{{ bundle.easydita_id }}</td>
+    <td>{{ bundle.get_status_display }}</td>
+    <td>{{ bundle.time_queued }}</td>
+    <td>{{ bundle.time_processed }}</td>
+  </tr>
+{% endfor %}
+</table>
+{% else %}
+<h4>There are no easyDITA bundles in the system.</h4>
+{% endif %}
+
+{% endblock content %}
