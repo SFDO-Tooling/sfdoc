@@ -3,16 +3,26 @@
 {% block content %}
 <h3>{{ bundle }}</h3>
 <br>
+
 <h5>easyDITA ID</h5>
 <p>{{ bundle.easydita_id }}</p>
+
 <h5>Status</h5>
 <p>{{ bundle.get_status_display }}</p>
+
 {% if bundle.time_queued %}
 <h5>Queued</h5>
 <p>{{ bundle.time_queued }}</p>
 {% endif %}
+
+{% if bundle.time_processed %}
+<h5>Processed</h5>
+<p>{{ bundle.time_processed }}</p>
+{% endif %}
+
 {% if bundle.error_message %}
 <h5>Error</h5>
 <p>{{ bundle.error_message }}</p>
 {% endif %}
+
 {% endblock content %}
