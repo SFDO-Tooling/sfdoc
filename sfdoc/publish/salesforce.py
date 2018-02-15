@@ -82,6 +82,24 @@ class Salesforce:
             settings.SALESFORCE_ARTICLE_BODY_FIELD: html.body,
         }
 
+    def get_ka_id(self, kav_id, publish_status):
+        """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
+        query_str = (
+            "SELECT Id,KnowledgeArticleId FROM {} "
+            "WHERE Id='{}' AND PublishStatus='{}' AND language='en_US'"
+        ).format(
+            settings.SALESFORCE_ARTICLE_TYPE,
+            kav_id,
+            publish_status,
+        )
+        result = self.api.query(query_str)
+        if result['totalSize'] == 0:
+            raise SalesforceError(
+                'KnowledgeArticleVersion {} not found'.format(kav_id)
+            )
+        elif result['totalSize'] == 1:  # can only be 0 or 1
+            return result['records'][0]['KnowledgeArticleId']
+
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
         logger.info('Publishing draft KnowledgeArticleVersion {}'.format(
@@ -121,13 +139,19 @@ class Salesforce:
 
     def save_article(self, kav_id, html, easydita_bundle):
         """Create an Article object from parsed HTML."""
+        ka_id = self.get_ka_id(kav_id)
         o = urlparse(self.api.base_url)
         draft_preview_url = (
             '{}://{}/knowledge/publishing/'
             'articlePreview.apexp?id={}'
-        ).format(o.scheme, o.netloc, kav_id)
+        ).format(
+            o.scheme,
+            o.netloc,
+            ka_id[:15],  # reduce to 15 char ID
+        )
         Article.objects.create(
             easydita_bundle=easydita_bundle,
+            ka_id=ka_id,
             kav_id=kav_id,
             draft_preview_url=draft_preview_url,
             title=html.title,

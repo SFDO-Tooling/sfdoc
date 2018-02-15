@@ -21,6 +21,7 @@ class Article(models.Model):
         on_delete=models.CASCADE,
         related_name='articles',
     )
+    ka_id = models.CharField(max_length=18)
     kav_id = models.CharField(max_length=18)
     title = models.CharField(max_length=255, default='')
     url_name = models.CharField(max_length=255, default='')
