@@ -48,7 +48,9 @@ class HTML:
         # body
         body_tag = soup.find('div', class_=settings.ARTICLE_BODY_CLASS)
         if not body_tag:
-            raise HtmlError('Body tag class={} not found'.format(settings.ARTICLE_BODY_CLASS))
+            raise HtmlError('Body tag <div class={} ...> not found'.format(
+                settings.ARTICLE_BODY_CLASS,
+            ))
         self.body = body_tag.prettify()
 
     def update_image_links(self):
@@ -67,7 +69,7 @@ class HTML:
         self.body = soup.prettify()
 
 
-def get_links(path, print_json=False):
+def get_links(path, print_json=False, body_only=True):
     """Find all the links (href, src) in all HTML files under the path."""
     def proc(tree, links):
         for child in tree.children:
@@ -80,11 +82,16 @@ def get_links(path, print_json=False):
     links = set([])
     for dirpath, dirnames, filenames in os.walk(path):
         for filename in filenames:
+            if filename in settings.HTML_SKIP_FILES:
+                continue
             name, ext = os.path.splitext(filename)
             if ext.lower() in settings.HTML_EXTENSIONS:
                 filename_full = os.path.join(dirpath, filename)
                 with open(filename_full, 'r') as f:
                     html = f.read()
+                if body_only:
+                    html = HTML(html)
+                    html = html.body
                 soup = BeautifulSoup(html, 'html.parser')
                 proc(soup, links)
     if print_json:
@@ -92,7 +99,7 @@ def get_links(path, print_json=False):
     return links
 
 
-def get_tags(path, print_json=False):
+def get_tags(path, print_json=False, body_only=True):
     """Find all HTML tags/attributes in all HTML files under the path."""
     def proc(tree, tags):
         for child in tree.children:
@@ -106,11 +113,16 @@ def get_tags(path, print_json=False):
     tags = {}
     for dirpath, dirnames, filenames in os.walk(path):
         for filename in filenames:
+            if filename in settings.HTML_SKIP_FILES:
+                continue
             name, ext = os.path.splitext(filename)
             if ext.lower() in settings.HTML_EXTENSIONS:
                 filename_full = os.path.join(dirpath, filename)
                 with open(filename_full, 'r') as f:
                     html = f.read()
+                if body_only:
+                    html = HTML(html)
+                    html = html.body
                 soup = BeautifulSoup(html, 'html.parser')
                 proc(soup, tags)
     if print_json:
@@ -123,16 +135,19 @@ def get_tags(path, print_json=False):
     return tags
 
 
-def scrub_html(html):
-    """Scrub HTML using whitelists for tags/attributes and links."""
+def scrub_html(html_raw):
+    """Scrub article body using whitelists for tags/attributes and links."""
     logger.info('Scrubbing HTML')
-    soup = BeautifulSoup(html, 'html.parser')
+    html = HTML(html_raw)
+    soup = BeautifulSoup(html.body, 'html.parser')
 
     def scrub_tree(tree):
         for child in tree.children:
             if hasattr(child, 'contents'):
                 if child.name not in settings.HTML_WHITELIST:
-                    raise HtmlError('Tag "{}" not in whitelist'.format(child.name))
+                    raise HtmlError('Tag "{}" not in whitelist'.format(
+                        child.name,
+                    ))
                 for attr in child.attrs:
                     if attr not in settings.HTML_WHITELIST[child.name]:
                         raise HtmlError((
