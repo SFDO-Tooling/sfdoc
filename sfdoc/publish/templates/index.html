@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3>easyDITA Bundle Processing Queue</h3>
+<h4>easyDITA Bundle Processing Queue</h4>
 <p><a href="{% url 'publish:bundles' %}">View all bundles</a></p>
 <br>
 
 {% if processing %}
-<h4>Processing</h4>
+<h5>Processing</h5>
 <ul>
 {% for bundle in processing %}
   <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }} ({{ bundle.get_status_display }})</a></li>
@@ -15,7 +15,7 @@
 {% endif %}
 
 {% if queued %}
-<h4>Queued</h4>
+<h5>Queued</h5>
 <ol>
 {% for bundle in queued %}
   <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }}</a></li>

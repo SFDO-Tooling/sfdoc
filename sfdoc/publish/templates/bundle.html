@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3>{{ bundle }}</h3>
+<h4>{{ bundle }}</h4>
 <p><a href="{% url 'publish:bundles' %}">View all bundles</a></p>
 <br>
 
@@ -20,7 +20,7 @@
   </tr>
 </table>
 {% if bundle.error_message %}
-<h4>Error Message</h4>
+<h5>Error Message</h5>
 <p>{{ bundle.error_message }}</p>
 {% endif %}
 
