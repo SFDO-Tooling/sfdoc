@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     url(
-        regex=r'^$',
+        regex=r'^queue/$',
         view=views.queue,
         name='queue',
     ),
