@@ -285,6 +285,7 @@ RQ_QUEUES = {
 }
 
 HTML_EXTENSIONS = ('.htm', '.html')
+HTML_SKIP_FILES = ('index.html')
 IMAGE_EXTENSIONS = ('.jpg', '.png')
 
 # Amazon Web Services

@@ -19,8 +19,6 @@ def is_url_whitelisted(url):
 
 def unzip(zipfile, path, recursive=False):
     """Recursive unzip."""
-    print('ZIP file: {}'.format(zipfile))
-    print('Path: {}'.format(path))
     with ZipFile(zipfile) as f:
         f.extractall(path)
     if recursive:
