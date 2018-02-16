@@ -44,9 +44,9 @@ def gen_article(n):
         'url_name': 'test-{}-url-name'.format(n),
         'title': 'Test {} Title'.format(n),
         'summary': 'Test {} Summary'.format(n),
-        'body': 'Test article content<br><img src="{}/test-image.png">'.format(
-            settings.IMAGES_URL_PLACEHOLDER,
-        ),
+        'body': (
+            'Test article content\n<br/>\n<img src="{}/test-image.png"/>\n'
+        ).format(settings.IMAGES_URL_PLACEHOLDER),
     }
 
 
