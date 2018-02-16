@@ -140,21 +140,6 @@ def mock_query(
     )
 
 
-def mock_salesforce_auth(instance_url, sandbox=False):
-    """Mock auth for Salesforce API."""
-    url = urljoin(settings.SALESFORCE_LOGIN_URL, 'services/oauth2/token')
-    if sandbox:
-        url = url.replace('login', 'test')
-    responses.add(
-        'POST',
-        url=url,
-        json={
-            'instance_url': instance_url,
-            'access_token': 'abc123',
-        },
-    )
-
-
 def mock_update_draft(instance_url, kav_id):
     url = urljoin(instance_url, 'services/data/v{}/sobjects/{}/{}'.format(
         settings.SALESFORCE_API_VERSION,
