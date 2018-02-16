@@ -65,22 +65,10 @@ class Salesforce:
         """Create a new article in draft state."""
         logger.info('Creating new article')
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
-        data = self.create_article_data(html)
+        data = html.create_article_data()
         result = kav_api.create(data=data)
         kav_id = result['id']
         return kav_id
-
-    @staticmethod
-    def create_article_data(html):
-        return {
-            'UrlName': html.url_name,
-            'Title': html.title,
-            'Summary': html.summary,
-            'IsVisibleInCsp': html.is_visible_in_csp,
-            'IsVisibleInPkb': html.is_visible_in_pkb,
-            'IsVisibleInPrm': html.is_visible_in_prm,
-            settings.SALESFORCE_ARTICLE_BODY_FIELD: html.body,
-        }
 
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
@@ -161,7 +149,7 @@ class Salesforce:
     def update_draft(self, kav_id, html):
         """Update the fields of an existing draft."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
-        data = self.create_article_data(html)
+        data = html.create_article_data()
         result = kav_api.update(kav_id, data)
         if result != HTTPStatus.NO_CONTENT:
             raise SalesforceError((

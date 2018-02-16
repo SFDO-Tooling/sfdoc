@@ -18,6 +18,8 @@ def create_test_html(url_name, title, summary, body):
       <meta name="is-visible-in-csp" content="true">
       <meta name="is-visible-in-pkb" content="true">
       <meta name="is-visible-in-prm" content="true">
+      <meta name="{}" content="123">
+      <meta name="{}" content="456">
       <title>{}</title>
     </head>
     <body>
@@ -29,6 +31,8 @@ def create_test_html(url_name, title, summary, body):
     '''.format(
         url_name,
         summary,
+        settings.ARTICLE_AUTHOR,
+        settings.ARTICLE_AUTHOR_OVERRIDE,
         title,
         settings.ARTICLE_BODY_CLASS,
         body,

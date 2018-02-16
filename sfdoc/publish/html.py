@@ -28,6 +28,7 @@ class HTML:
             ('is_visible_in_csp', 'is-visible-in-csp', False),
             ('is_visible_in_pkb', 'is-visible-in-pkb', False),
             ('is_visible_in_prm', 'is-visible-in-prm', False),
+            ('author', settings.ARTICLE_AUTHOR, False),
         ):
             tag = soup.find('meta', attrs={'name': tag_name})
             if optional and (not tag or not tag['content']):
@@ -40,6 +41,13 @@ class HTML:
                     tag_name,
                 ))
             setattr(self, attr, tag['content'])
+
+        # author override (Salesforce org user ID)
+        tag = soup.find(
+            'meta',
+            attrs={'name': settings.ARTICLE_AUTHOR_OVERRIDE},
+        )
+        self.author_override = tag['content'] if tag else ''
 
         # title
         if not soup.title:
@@ -55,6 +63,19 @@ class HTML:
         body = body_tag.renderContents()
         soup_body = BeautifulSoup(body, 'html.parser')
         self.body = soup_body.prettify()
+
+    def create_article_data(self):
+        return {
+            'UrlName': self.url_name,
+            'Title': self.title,
+            'Summary': self.summary,
+            'IsVisibleInCsp': self.is_visible_in_csp,
+            'IsVisibleInPkb': self.is_visible_in_pkb,
+            'IsVisibleInPrm': self.is_visible_in_prm,
+            settings.SALESFORCE_ARTICLE_BODY_FIELD: self.body,
+            settings.SALESFORCE_ARTICLE_AUTHOR_FIELD: self.author,
+            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD: self.author_override,
+        }
 
     def update_image_links(self):
         """Replace the image URL placeholder."""
