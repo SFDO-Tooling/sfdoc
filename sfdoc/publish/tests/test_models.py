@@ -10,9 +10,8 @@ from ..models import Article
 from ..models import EasyditaBundle
 from ..models import Image
 from ..models import Webhook
-from .utils import create_test_html
-from .utils import gen_article
-from .utils import mock_easydita_bundle_download
+
+from . import utils
 
 
 class TestArticle(TestCase):
@@ -54,14 +53,14 @@ class TestEasyditaBundle(TestCase):
             settings.EASYDITA_INSTANCE_URL,
             self.easydita_bundle_id,
         )
-        self.articles = [gen_article(n) for n in range(1, 3)]
+        self.articles = [utils.gen_article(n) for n in range(1, 3)]
 
     @responses.activate
     def test_download(self):
         easydita_bundle = EasyditaBundle.objects.create(
             easydita_id=self.easydita_bundle_id,
         )
-        mock_easydita_bundle_download(
+        utils.mock_easydita_bundle_download(
             easydita_bundle.url,
             self.articles,
         )
@@ -71,7 +70,7 @@ class TestEasyditaBundle(TestCase):
             self.assertEqual(len(items), len(self.articles))
             for article, item in zip(self.articles, items):
                 self.assertEqual(item, article['filename'])
-                content = create_test_html(
+                content = utils.create_test_html(
                     article['url_name'],
                     article['title'],
                     article['summary'],
