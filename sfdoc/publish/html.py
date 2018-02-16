@@ -52,7 +52,9 @@ class HTML:
             raise HtmlError('Body tag <div class={} ...> not found'.format(
                 settings.ARTICLE_BODY_CLASS,
             ))
-        self.body = body_tag.prettify()
+        body = body_tag.renderContents()
+        soup_body = BeautifulSoup(body, 'html.parser')
+        self.body = soup_body.prettify()
 
     def update_image_links(self):
         """Replace the image URL placeholder."""
