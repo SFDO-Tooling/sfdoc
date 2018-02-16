@@ -8,6 +8,7 @@ from test_plus.test import TestCase
 
 from ..models import Article
 from ..models import EasyditaBundle
+from ..models import Image
 from .utils import create_test_html
 from .utils import gen_article
 from .utils import mock_easydita_bundle_download
@@ -78,3 +79,25 @@ class TestEasyditaBundle(TestCase):
                 with open(os.path.join(d, item)) as f:
                     self.assertEqual(f.read(), content)
         self.assertEqual(len(responses.calls), 1)
+
+
+class TestImage(TestCase):
+
+    def setUp(self):
+        self.image = self.create_image()
+
+    def create_image(self):
+        easydita_bundle = EasyditaBundle.objects.create(
+            easydita_id='0123456789',
+            easydita_resource_id='9876543210',
+        )
+        return Image.objects.create(
+            easydita_bundle=easydita_bundle,
+            filename='test.png',
+        )
+
+    def test_image_str(self):
+        self.assertEqual(
+            str(self.image),
+            'Image {}: {}'.format(self.image.pk, self.image.filename),
+        )
