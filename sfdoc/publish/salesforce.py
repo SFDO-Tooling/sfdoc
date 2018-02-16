@@ -80,6 +80,8 @@ class Salesforce:
             'IsVisibleInPkb': html.is_visible_in_pkb,
             'IsVisibleInPrm': html.is_visible_in_prm,
             settings.SALESFORCE_ARTICLE_BODY_FIELD: html.body,
+            settings.SALESFORCE_ARTICLE_AUTHOR_FIELD: html.author,
+            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD: html.author_override,
         }
 
     def get_ka_id(self, kav_id, publish_status):

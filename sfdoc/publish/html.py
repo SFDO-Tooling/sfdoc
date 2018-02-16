@@ -28,6 +28,7 @@ class HTML:
             ('is_visible_in_csp', 'is-visible-in-csp', False),
             ('is_visible_in_pkb', 'is-visible-in-pkb', False),
             ('is_visible_in_prm', 'is-visible-in-prm', False),
+            ('author', settings.ARTICLE_AUTHOR, False),
         ):
             tag = soup.find('meta', attrs={'name': tag_name})
             if optional and (not tag or not tag['content']):
@@ -40,6 +41,13 @@ class HTML:
                     tag_name,
                 ))
             setattr(self, attr, tag['content'])
+
+        # author override (Salesforce org user ID)
+        tag = soup.find(
+            'meta',
+            attrs={'name': settings.ARTICLE_AUTHOR_OVERRIDE},
+        )
+        self.author_override = tag['content'] if tag else ''
 
         # title
         if not soup.title:
