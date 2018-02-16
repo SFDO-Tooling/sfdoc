@@ -6,10 +6,42 @@ from django.conf import settings
 import responses
 from test_plus.test import TestCase
 
+from ..models import Article
 from ..models import EasyditaBundle
 from .utils import create_test_html
 from .utils import gen_article
 from .utils import mock_easydita_bundle_download
+
+
+class TestArticle(TestCase):
+
+    def setUp(self):
+        self.article = self.create_article()
+
+    def create_article(self):
+        easydita_bundle = EasyditaBundle.objects.create(
+            easydita_id='0123456789',
+            easydita_resource_id='9876543210',
+        )
+        ka_id = 'kA0123456789012345'
+        draft_preview_url = (
+            'https://test1.salesforce.com/knowledge/publishing/'
+            'articlePreview.apexp?id={}'
+        ).format(ka_id[:15])  # reduce to 15 char ID
+        return Article.objects.create(
+            draft_preview_url=draft_preview_url,
+            easydita_bundle=easydita_bundle,
+            ka_id=ka_id,
+            kav_id='ka9876543210987654',
+            title='Test Article',
+            url_name='Test-Article',
+        )
+
+    def test_article_str(self):
+        self.assertEqual(
+            str(self.article),
+            'Article {}: {}'.format(self.article.pk, self.article.title),
+        )
 
 
 class TestEasyditaBundle(TestCase):
