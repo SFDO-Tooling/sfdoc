@@ -44,7 +44,7 @@ class HTML:
         # title
         if not soup.title:
             raise HtmlError('Article title not found')
-        self.title = soup.title.string
+        self.title = str(soup.title.string)
 
         # body
         body_tag = soup.find('div', class_=settings.ARTICLE_BODY_CLASS)
