@@ -64,6 +64,19 @@ class HTML:
         soup_body = BeautifulSoup(body, 'html.parser')
         self.body = soup_body.prettify()
 
+    def create_article_data(self):
+        return {
+            'UrlName': self.url_name,
+            'Title': self.title,
+            'Summary': self.summary,
+            'IsVisibleInCsp': self.is_visible_in_csp,
+            'IsVisibleInPkb': self.is_visible_in_pkb,
+            'IsVisibleInPrm': self.is_visible_in_prm,
+            settings.SALESFORCE_ARTICLE_BODY_FIELD: self.body,
+            settings.SALESFORCE_ARTICLE_AUTHOR_FIELD: self.author,
+            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD: self.author_override,
+        }
+
     def update_image_links(self):
         """Replace the image URL placeholder."""
         logger.info('Updating image links to point at draft images')
