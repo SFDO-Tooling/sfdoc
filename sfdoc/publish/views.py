@@ -1,6 +1,9 @@
 import logging
 
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import EmptyPage
+from django.core.paginator import PageNotAnInteger
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -49,7 +52,29 @@ def bundle(request, pk):
 @never_cache
 @login_required
 def bundles(request):
-    context = {'bundles': EasyditaBundle.objects.all().order_by('-pk')}
+    qs = EasyditaBundle.objects.all().order_by('-pk')
+    count = request.GET.get('count', 25)
+    page = request.GET.get('page')
+    paginator = Paginator(qs, count)
+    try:
+        bundles = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        bundles = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        bundles = paginator.page(paginator.num_pages)
+    context = {'bundles': bundles}
+    if bundles.has_previous():
+        context['link_previous'] = '?page={}&count={}'.format(
+            bundles.previous_page_number(),
+            count,
+        )
+    if bundles.has_next():
+        context['link_next'] = '?page={}&count={}'.format(
+            bundles.next_page_number(),
+            count,
+        )
     return render(request, 'bundles.html', context=context)
 
 

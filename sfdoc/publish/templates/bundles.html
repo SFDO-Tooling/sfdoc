@@ -23,6 +23,23 @@
   </tr>
 {% endfor %}
 </table>
+
+{% if link_previous or link_next %}
+<ul class="pagination">
+{% if link_previous %}
+  <li class="page-item">
+    <a class="page-link" href="{{ link_previous }}">Previous</a>
+  </li>
+{% endif %}
+{% if link_next %}
+  <li class="page-item">
+    <a class="page-link" href="{{ link_next }}">Next</a>
+  </li>
+{% endif %}
+</ul>
+<p>Page {{ bundles.number }} of {{ bundles.paginator.num_pages }}</p>
+{% endif %}
+
 {% else %}
 <h5>There are no easyDITA bundles in the system.</h5>
 {% endif %}
