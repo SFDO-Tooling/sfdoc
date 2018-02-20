@@ -109,7 +109,7 @@ def publish_drafts(easydita_bundle_pk):
         logger.info('Publishing article {} of {}'.format(n, n_articles))
         try:
             salesforce.publish_draft(article.kav_id)
-        except SalesforceError as e:
+        except Exception as e:
             easydita_bundle.set_error(e)
             raise
     n_images = easydita_bundle.images.count()
