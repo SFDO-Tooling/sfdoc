@@ -104,13 +104,17 @@ def publish_drafts(easydita_bundle_pk):
     easydita_bundle.save()
     salesforce = Salesforce()
     s3 = S3(draft=False)
-    for article in easydita_bundle.articles.all():
+    n_articles = easydita_bundle.articles.count()
+    for n, article in enumerate(easydita_bundle.articles.all(), start=1):
+        logger.info('Publishing article {} of {}'.format(n, n_articles))
         try:
             salesforce.publish_draft(article.kav_id)
         except SalesforceError as e:
             easydita_bundle.set_error(e)
             raise
-    for image in easydita_bundle.images.all():
+    n_images = easydita_bundle.images.count()
+    for n, image in enumerate(easydita_bundle.images.all(), start=1):
+        logger.info('Publishing image {} of {}'.format(n, n_images))
         s3.copy_to_production(image.filename)
     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHED
     easydita_bundle.time_published = now()
