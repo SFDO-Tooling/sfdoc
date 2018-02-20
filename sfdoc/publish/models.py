@@ -92,6 +92,7 @@ class EasyditaBundle(models.Model):
                 name, ext = os.path.splitext(filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     filename_full = os.path.join(dirpath, filename)
+                    logger.info('Scrubbing file: {}'.format(filename_full))
                     with open(filename_full, 'r') as f:
                         html = f.read()
                     try:
@@ -106,10 +107,12 @@ class EasyditaBundle(models.Model):
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if filename in settings.HTML_SKIP_FILES:
+                    logger.info('Skipping file: {}'.format(filename))
                     continue
                 name, ext = os.path.splitext(filename)
                 filename_full = os.path.join(dirpath, filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
+                    logger.info('Processing HTML file: {}'.format(filename_full))
                     with open(filename_full, 'r') as f:
                         html = f.read()
                     try:
@@ -120,6 +123,7 @@ class EasyditaBundle(models.Model):
                     if changed_1:
                         changed = True
                 elif ext.lower() in settings.IMAGE_EXTENSIONS:
+                    logger.info('Processing image: {}'.format(filename_full))
                     try:
                         changed_1 = s3.process_image(filename_full, self)
                     except Exception as e:
