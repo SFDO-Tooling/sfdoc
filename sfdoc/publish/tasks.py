@@ -113,6 +113,7 @@ def publish_drafts(easydita_bundle_pk):
     for image in easydita_bundle.images.all():
         s3.copy_to_production(image.filename)
     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHED
+    easydita_bundle.time_published = now()
     easydita_bundle.save()
     process_queue.delay()
     msg = 'Published all drafts from easyDITA bundle (pk={})'.format(

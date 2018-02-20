@@ -11,12 +11,14 @@
     <th>Status</th>
     <th>Time Queued</th>
     <th>Time Processed</th>
+    <th>Time Published</th>
   </tr>
   <tr>
     <td>{{ bundle.easydita_id }}</td>
     <td>{{ bundle.get_status_display }}</td>
     <td>{{ bundle.time_queued }}</td>
     <td>{{ bundle.time_processed }}</td>
+    <td>{{ bundle.time_published }}</td>
   </tr>
 </table>
 {% if bundle.error_message %}
