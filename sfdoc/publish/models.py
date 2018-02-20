@@ -96,7 +96,7 @@ class EasyditaBundle(models.Model):
                         html = f.read()
                     try:
                         scrub_html(html)
-                    except HtmlError as e:
+                    except Exception as e:
                         self.set_error(e, filename=filename_full)
                         raise
         # upload draft articles and images
