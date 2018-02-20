@@ -14,7 +14,7 @@ from .salesforce import Salesforce
 logger = logging.getLogger(__name__)
 
 
-@job(timeout=600)
+@job('default', timeout=600)
 def process_easydita_bundle(easydita_bundle_pk):
     """
     Get the bundle from easyDITA and process the contents.
@@ -93,7 +93,7 @@ def process_webhook(pk):
     return msg
 
 
-@job(timeout=600)
+@job('default', timeout=600)
 def publish_drafts(easydita_bundle_pk):
     """Publish all drafts related to an easyDITA bundle."""
     logger.info(
