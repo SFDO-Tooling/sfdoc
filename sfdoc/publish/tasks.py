@@ -106,7 +106,7 @@ def publish_drafts(easydita_bundle_pk):
     s3 = S3(draft=False)
     for article in easydita_bundle.articles.all():
         try:
-            salesforce.publish_draft(kav_id)
+            salesforce.publish_draft(article.kav_id)
         except SalesforceError as e:
             easydita_bundle.set_error(e)
             raise
