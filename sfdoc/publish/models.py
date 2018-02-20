@@ -1,3 +1,4 @@
+import fnmatch
 from io import BytesIO
 import logging
 import os
@@ -106,7 +107,12 @@ class EasyditaBundle(models.Model):
         changed = False
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
-                if filename in settings.HTML_SKIP_FILES:
+                skip = False
+                for skip_item in settings.HTML_SKIP_FILES:
+                    if fnmatch.fnmatch(filename, skip_item):
+                        skip = True
+                        break
+                if skip:
                     logger.info('Skipping file: {}'.format(filename))
                     continue
                 name, ext = os.path.splitext(filename)
