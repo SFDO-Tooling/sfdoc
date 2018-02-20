@@ -95,7 +95,7 @@ class Salesforce:
         ))
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         kav = kav_api.get(kav_id)
-        body = update_image_links_production(kav['body'])
+        body = update_image_links_production(kav[settings.SALESFORCE_ARTICLE_BODY_FIELD])
         url = (
             self.api.base_url +
             'knowledgeManagement/articleVersions/masterVersions/{}'
