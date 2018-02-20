@@ -25,6 +25,7 @@ class EasyditaBundleAdmin(admin.ModelAdmin):
         'status',
         'time_queued',
         'time_processed',
+        'time_published',
     ]
     list_filter = ('status',)
     view_on_site = False

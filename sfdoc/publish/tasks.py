@@ -104,15 +104,16 @@ def publish_drafts(easydita_bundle_pk):
     easydita_bundle.save()
     salesforce = Salesforce()
     s3 = S3(draft=False)
-    for article in easydita_bundle.articles:
+    for article in easydita_bundle.articles.all():
         try:
             salesforce.publish_draft(kav_id)
         except SalesforceError as e:
             easydita_bundle.set_error(e)
             raise
-    for image in easydita_bundle.images:
+    for image in easydita_bundle.images.all():
         s3.copy_to_production(image.filename)
     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHED
+    easydita_bundle.time_published = now()
     easydita_bundle.save()
     process_queue.delay()
     msg = 'Published all drafts from easyDITA bundle (pk={})'.format(
