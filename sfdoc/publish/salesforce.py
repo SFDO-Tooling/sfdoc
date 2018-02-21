@@ -96,14 +96,12 @@ class Salesforce:
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         kav = kav_api.get(kav_id)
         body = update_image_links_production(kav[settings.SALESFORCE_ARTICLE_BODY_FIELD])
+        kav_api.update(kav_id, {settings.SALESFORCE_ARTICLE_BODY_FIELD: body})
         url = (
             self.api.base_url +
             'knowledgeManagement/articleVersions/masterVersions/{}'
         ).format(kav_id)
-        data = {
-            'publishStatus': 'online',
-            settings.SALESFORCE_ARTICLE_BODY_FIELD: body,
-        }
+        data = {'publishStatus': 'online'}
         result = self.api._call_salesforce('PATCH', url, json=data)
         if result.status_code != HTTPStatus.NO_CONTENT:
             raise SalesforceError((
