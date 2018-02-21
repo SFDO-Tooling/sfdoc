@@ -26,7 +26,7 @@ def process_easydita_bundle(easydita_bundle_pk):
     easydita_bundle.time_processed = now()
     easydita_bundle.save()
     salesforce = Salesforce()
-    s3 = S3(draft=True)
+    s3 = S3()
     with TemporaryDirectory() as tempdir:
         easydita_bundle.download(tempdir)
         easydita_bundle.process(tempdir, salesforce, s3)
@@ -108,7 +108,7 @@ def publish_drafts(easydita_bundle_pk):
     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
     easydita_bundle.save()
     salesforce = Salesforce()
-    s3 = S3(draft=False)
+    s3 = S3()
     n_articles = easydita_bundle.articles.count()
     for n, article in enumerate(easydita_bundle.articles.all(), start=1):
         logger.info('Publishing article {} of {}'.format(n, n_articles))

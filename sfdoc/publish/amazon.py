@@ -14,9 +14,8 @@ logger = logging.getLogger(__name__)
 
 class S3:
 
-    def __init__(self, draft):
+    def __init__(self):
         self.api = boto3.resource('s3')
-        self.draft = bool(draft)
 
     def copy_to_production(self, filename):
         """
@@ -38,16 +37,14 @@ class S3:
     def process_image(self, filename, easydita_bundle):
         """Upload image file to S3 if needed."""
         basename = os.path.basename(filename)
-        key = basename
-        if self.draft:
-            key = settings.S3_IMAGES_DRAFT_DIR + key
+        key = settings.S3_IMAGES_DRAFT_DIR + basename
         with TemporaryDirectory() as tempdir:
             s3localname = os.path.join(tempdir, basename)
             try:
-                # download image by name
+                # download image from root (production) dir for comparison
                 self.api.meta.client.download_file(
                     settings.AWS_STORAGE_BUCKET_NAME,
-                    key,
+                    basename,
                     s3localname,
                 )
             except botocore.exceptions.ClientError as e:
@@ -61,7 +58,7 @@ class S3:
                     return True
                 else:
                     raise
-            # image exists on S3 already, compare it to local image
+            # image already in production; compare it to local image
             if filecmp.cmp(filename, s3localname):
                 # files are the same, no update
                 return False
