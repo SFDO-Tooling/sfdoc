@@ -110,4 +110,6 @@ HTML_WHITELIST = {
 }
 URL_WHITELIST = []
 
+SKIP_FILES = '["index.html"]'
+
 HEROKU_APP_NAME = 'sfdoc.example.com'
