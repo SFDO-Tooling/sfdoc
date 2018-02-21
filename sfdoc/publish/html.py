@@ -80,7 +80,7 @@ class HTML:
         for img in soup('img'):
             image_path = img['src'].replace(
                 settings.IMAGES_URL_PLACEHOLDER,
-                '../images/',
+                '../images',
             )
             image_paths.add(image_path)
         return image_paths
