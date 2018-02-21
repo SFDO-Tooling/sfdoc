@@ -80,9 +80,9 @@ class HTML:
     def update_image_links(self):
         """Replace the image URL placeholder."""
         logger.info('Updating image links to point at draft images')
-        images_path = urljoin(
-            settings.AWS_S3_URL,
+        images_path = 'https://{}.s3.amazonaws.com/{}'.format(
             settings.AWS_STORAGE_BUCKET_NAME,
+            settings.S3_IMAGES_DRAFT_DIR,
         )
         soup = BeautifulSoup(self.body, 'html.parser')
         for img in soup('img'):
