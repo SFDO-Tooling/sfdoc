@@ -1,5 +1,4 @@
 from io import BytesIO
-import logging
 import os
 
 from django.conf import settings
@@ -10,8 +9,6 @@ from .exceptions import HtmlError
 from .html import scrub_html
 from .utils import skip_file
 from .utils import unzip
-
-logger = logging.getLogger(__name__)
 
 
 class Article(models.Model):
@@ -74,7 +71,7 @@ class EasyditaBundle(models.Model):
 
     def download(self, path):
         """Download bundle ZIP and extract to given directory."""
-        logger.info('Downloading easyDITA bundle from {}'.format(self.url))
+        print('Downloading easyDITA bundle from {}'.format(self.url))
         auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
         response = requests.get(self.url, auth=auth)
         zip_file = BytesIO(response.content)
@@ -85,18 +82,18 @@ class EasyditaBundle(models.Model):
 
     def process(self, path, salesforce, s3):
         # check all HTML files
-        logger.info('Scrubbing all HTML files in easyDITA bundle {}'.format(
+        print('Scrubbing all HTML files in easyDITA bundle {}'.format(
             self.pk,
         ))
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if skip_file(filename):
-                    logger.info('Skipping file: {}'.format(filename))
+                    print('Skipping file: {}'.format(filename))
                     continue
                 name, ext = os.path.splitext(filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     filename_full = os.path.join(dirpath, filename)
-                    logger.info('Scrubbing file: {}'.format(filename_full))
+                    print('Scrubbing file: {}'.format(filename_full))
                     with open(filename_full, 'r') as f:
                         html = f.read()
                     try:
@@ -105,19 +102,19 @@ class EasyditaBundle(models.Model):
                         self.set_error(e, filename=filename_full)
                         raise
         # upload draft articles and images
-        logger.info('Uploading draft articles and images')
+        print('Uploading draft articles and images')
         publish_queue = []
         changed = False
         images = set([])
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if skip_file(filename):
-                    logger.info('Skipping file: {}'.format(filename))
+                    print('Skipping file: {}'.format(filename))
                     continue
                 name, ext = os.path.splitext(filename)
                 filename_full = os.path.join(dirpath, filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
-                    logger.info('Processing HTML file: {}'.format(filename_full))
+                    print('Processing HTML file: {}'.format(filename_full))
                     with open(filename_full, 'r') as f:
                         html_raw = f.read()
                     html = HTML(html_raw)
@@ -131,7 +128,7 @@ class EasyditaBundle(models.Model):
                     for image_path in html.get_image_paths():
                         images.add(os.path.join(dirpath, image_path))
         for image in images:
-            logger.info('Processing image: {}'.format(image))
+            print('Processing image: {}'.format(image))
             try:
                 changed_1 = s3.process_image(image, self)
             except Exception as e:
@@ -151,7 +148,7 @@ class EasyditaBundle(models.Model):
 
     def set_error(self, e, filename=None):
         """Set error status and message."""
-        logger.error(str(e))
+        print('ERROR: {}'.format(e))
         self.status = self.STATUS_ERROR
         if filename:
             self.error_message = '{}: {}'.format(filename, e)

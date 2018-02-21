@@ -1,7 +1,6 @@
 from calendar import timegm
 from datetime import datetime
 from http import HTTPStatus
-import logging
 from urllib.parse import urljoin
 from urllib.parse import urlparse
 
@@ -16,8 +15,6 @@ from .html import HTML
 from .html import update_image_links_production
 from .models import Article
 
-logger = logging.getLogger(__name__)
-
 
 class Salesforce:
     """Interact with a Salesforce org."""
@@ -27,7 +24,6 @@ class Salesforce:
 
     def _get_salesforce_api(self):
         """Get an instance of the Salesforce REST API."""
-        logger.info('Getting Salesforce API')
         url = settings.SALESFORCE_LOGIN_URL
         if settings.SALESFORCE_SANDBOX:
             url = url.replace('login', 'test')
@@ -63,7 +59,6 @@ class Salesforce:
 
     def create_article(self, html):
         """Create a new article in draft state."""
-        logger.info('Creating new article')
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         data = html.create_article_data()
         result = kav_api.create(data=data)
@@ -90,7 +85,7 @@ class Salesforce:
 
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
-        logger.info('Publishing draft KnowledgeArticleVersion {}'.format(
+        print('Publishing draft KnowledgeArticleVersion {}'.format(
             kav_id,
         ))
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
