@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 from urllib.parse import urljoin
 from urllib.parse import urlparse
@@ -10,15 +9,12 @@ from django.conf import settings
 from .exceptions import HtmlError
 from .utils import is_url_whitelisted
 
-logger = logging.getLogger(__name__)
-
 
 class HTML:
     """Article HTML utility class."""
 
     def __init__(self, html):
         """Parse article fields from HTML."""
-        logger.info('Parsing article fields from HTML')
         soup = BeautifulSoup(html, 'html.parser')
 
         # meta (URL name, summary, visibility settings)
@@ -77,9 +73,20 @@ class HTML:
             settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD: self.author_override,
         }
 
+    def get_image_paths(self):
+        """Get paths to linked images."""
+        image_paths = set([])
+        soup = BeautifulSoup(self.body, 'html.parser')
+        for img in soup('img'):
+            image_path = img['src'].replace(
+                settings.IMAGES_URL_PLACEHOLDER,
+                '../images/',
+            )
+            image_paths.add(image_path)
+        return image_paths
+
     def update_image_links(self):
         """Replace the image URL placeholder."""
-        logger.info('Updating image links to point at draft images')
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
             settings.AWS_STORAGE_BUCKET_NAME,
             settings.S3_IMAGES_DRAFT_DIR,
@@ -164,7 +171,6 @@ def get_tags(path, print_json=False, body_only=True):
 
 def scrub_html(html_raw):
     """Scrub article body using whitelists for tags/attributes and links."""
-    logger.info('Scrubbing HTML')
     html = HTML(html_raw)
     soup = BeautifulSoup(html.body, 'html.parser')
 
@@ -191,7 +197,6 @@ def scrub_html(html_raw):
 
 def update_image_links_production(html):
     """Update image links to point at production images."""
-    logger.info('Updating image links to point at production images')
     soup = BeautifulSoup(html, 'html.parser')
     for img in soup('img'):
         img['src'] = img['src'].replace(settings.S3_IMAGES_DRAFT_DIR, '')
