@@ -8,6 +8,7 @@ import requests
 
 from .exceptions import HtmlError
 from .html import scrub_html
+from .utils import skip_file
 from .utils import unzip
 
 logger = logging.getLogger(__name__)
@@ -89,6 +90,9 @@ class EasyditaBundle(models.Model):
         ))
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
+                if skip_file(filename):
+                    logger.info('Skipping file: {}'.format(filename))
+                    continue
                 name, ext = os.path.splitext(filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     filename_full = os.path.join(dirpath, filename)
@@ -106,7 +110,7 @@ class EasyditaBundle(models.Model):
         changed = False
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
-                if filename in settings.HTML_SKIP_FILES:
+                if skip_file(filename):
                     logger.info('Skipping file: {}'.format(filename))
                     continue
                 name, ext = os.path.splitext(filename)
