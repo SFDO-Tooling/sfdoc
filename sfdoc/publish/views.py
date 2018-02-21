@@ -1,6 +1,6 @@
 import logging
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from django.core.paginator import Paginator
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 @never_cache
-@login_required
+@staff_member_required
 def bundle(request, pk):
     easydita_bundle = get_object_or_404(EasyditaBundle, pk=pk)
     context = {'bundle': easydita_bundle}
@@ -50,7 +50,7 @@ def bundle(request, pk):
 
 
 @never_cache
-@login_required
+@staff_member_required
 def bundles(request):
     qs = EasyditaBundle.objects.all().order_by('-pk')
     count = request.GET.get('count', 25)
@@ -79,7 +79,7 @@ def bundles(request):
 
 
 @never_cache
-@login_required
+@staff_member_required
 def index(request):
     qs_processing = EasyditaBundle.objects.filter(status__in=(
         EasyditaBundle.STATUS_PROCESSING,
