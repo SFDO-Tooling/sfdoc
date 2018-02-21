@@ -90,6 +90,9 @@ class EasyditaBundle(models.Model):
         ))
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
+                if skip_file(filename):
+                    logger.info('Skipping file: {}'.format(filename))
+                    continue
                 name, ext = os.path.splitext(filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     filename_full = os.path.join(dirpath, filename)
