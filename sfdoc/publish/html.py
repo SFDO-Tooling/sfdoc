@@ -116,7 +116,7 @@ def get_links(path, print_json=False, body_only=True):
     links = set([])
     for dirpath, dirnames, filenames in os.walk(path):
         for filename in filenames:
-            if filename in settings.HTML_SKIP_FILES:
+            if filename in settings.SKIP_FILES:
                 continue
             name, ext = os.path.splitext(filename)
             if ext.lower() in settings.HTML_EXTENSIONS:
@@ -147,7 +147,7 @@ def get_tags(path, print_json=False, body_only=True):
     tags = {}
     for dirpath, dirnames, filenames in os.walk(path):
         for filename in filenames:
-            if filename in settings.HTML_SKIP_FILES:
+            if filename in settings.SKIP_FILES:
                 continue
             name, ext = os.path.splitext(filename)
             if ext.lower() in settings.HTML_EXTENSIONS:
