@@ -6,6 +6,7 @@ from django.db import models
 import requests
 
 from .exceptions import HtmlError
+from .html import HTML
 from .html import scrub_html
 from .utils import skip_file
 from .utils import unzip
