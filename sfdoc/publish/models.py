@@ -5,7 +5,6 @@ from django.conf import settings
 from django.db import models
 import requests
 
-from .exceptions import HtmlError
 from .html import HTML
 from .html import scrub_html
 from .utils import skip_file
@@ -97,11 +96,7 @@ class EasyditaBundle(models.Model):
                     print('Scrubbing file: {}'.format(filename_full))
                     with open(filename_full, 'r') as f:
                         html = f.read()
-                    try:
-                        scrub_html(html)
-                    except Exception as e:
-                        self.set_error(e, filename=filename_full)
-                        raise
+                    scrub_html(html)
         # upload draft articles and images
         print('Uploading draft articles and images')
         publish_queue = []
@@ -119,22 +114,14 @@ class EasyditaBundle(models.Model):
                     with open(filename_full, 'r') as f:
                         html_raw = f.read()
                     html = HTML(html_raw)
-                    try:
-                        changed_1 = salesforce.process_article(html, self)
-                    except Exception as e:
-                        self.set_error(e, filename=filename_full)
-                        raise
+                    changed_1 = salesforce.process_article(html, self)
                     if changed_1:
                         changed = True
                     for image_path in html.get_image_paths():
                         images.add(os.path.join(dirpath, image_path))
         for image in images:
             print('Processing image: {}'.format(image))
-            try:
-                changed_1 = s3.process_image(image, self)
-            except Exception as e:
-                self.set_error(e, filename=filename_full)
-                raise
+            changed_1 = s3.process_image(image, self)
             if changed_1:
                 changed = True
         if changed:

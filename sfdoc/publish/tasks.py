@@ -26,7 +26,11 @@ def process_easydita_bundle(easydita_bundle_pk):
     s3 = S3()
     with TemporaryDirectory() as tempdir:
         easydita_bundle.download(tempdir)
-        easydita_bundle.process(tempdir, salesforce, s3)
+        try:
+            easydita_bundle.process(tempdir, salesforce, s3)
+        except Exception as e:
+            easydita_bundle.set_error(e)
+            raise
     return 'Processed easyDITA bundle (pk={})'.format(easydita_bundle.pk)
 
 
