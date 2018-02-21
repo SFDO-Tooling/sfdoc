@@ -114,11 +114,11 @@ class EasyditaBundle(models.Model):
                     with open(filename_full, 'r') as f:
                         html_raw = f.read()
                     html = HTML(html_raw)
+                    for image_path in html.get_image_paths():
+                        images.add(os.path.join(dirpath, image_path))
                     changed_1 = salesforce.process_article(html, self)
                     if changed_1:
                         changed = True
-                    for image_path in html.get_image_paths():
-                        images.add(os.path.join(dirpath, image_path))
         for image in images:
             print('Processing image: {}'.format(image))
             changed_1 = s3.process_image(image, self)
