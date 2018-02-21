@@ -17,6 +17,13 @@ def is_url_whitelisted(url):
     return False
 
 
+def skip_file(filename):
+    for skip_item in settings.HTML_SKIP_FILES:
+        if fnmatch.fnmatch(filename, skip_item):
+            return True
+    return False
+
+
 def unzip(zipfile, path, recursive=False):
     """Recursive unzip."""
     with ZipFile(zipfile) as f:
