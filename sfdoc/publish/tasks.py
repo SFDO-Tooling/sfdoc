@@ -47,9 +47,14 @@ def process_queue():
         msg = 'Already processing an easyDITA bundle!'
         logger.info(msg)
         return msg
-    easydita_bundle = EasyditaBundle.objects.filter(
-        status=EasyditaBundle.STATUS_QUEUED,
-    ).earliest('time_queued')
+    try:
+        easydita_bundle = EasyditaBundle.objects.filter(
+            status=EasyditaBundle.STATUS_QUEUED,
+        ).earliest('time_queued')
+    except EasyditaBundle.DoesNotExist as e:
+        msg = 'No bundles in queue'
+        logger.info(msg)
+        return msg
     process_easydita_bundle.delay(easydita_bundle.pk)
     msg = 'Started processing next easyDITA bundle in queue (pk={})'.format(
         easydita_bundle.pk,
