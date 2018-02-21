@@ -108,6 +108,7 @@ class EasyditaBundle(models.Model):
         logger.info('Uploading draft articles and images')
         publish_queue = []
         changed = False
+        images = set([])
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if skip_file(filename):
@@ -118,7 +119,8 @@ class EasyditaBundle(models.Model):
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     logger.info('Processing HTML file: {}'.format(filename_full))
                     with open(filename_full, 'r') as f:
-                        html = f.read()
+                        html_raw = f.read()
+                    html = HTML(html_raw)
                     try:
                         changed_1 = salesforce.process_article(html, self)
                     except Exception as e:
@@ -126,15 +128,17 @@ class EasyditaBundle(models.Model):
                         raise
                     if changed_1:
                         changed = True
-                elif ext.lower() in settings.IMAGE_EXTENSIONS:
-                    logger.info('Processing image: {}'.format(filename_full))
-                    try:
-                        changed_1 = s3.process_image(filename_full, self)
-                    except Exception as e:
-                        self.set_error(e, filename=filename_full)
-                        raise
-                    if changed_1:
-                        changed = True
+                    for image_path in html.get_image_paths():
+                        images.add(os.path.join(dirpath, image_path))
+        for image in images:
+            logger.info('Processing image: {}'.format(image))
+            try:
+                changed_1 = s3.process_image(image, self)
+            except Exception as e:
+                self.set_error(e, filename=filename_full)
+                raise
+            if changed_1:
+                changed = True
         if changed:
             self.status = self.STATUS_DRAFT
         else:

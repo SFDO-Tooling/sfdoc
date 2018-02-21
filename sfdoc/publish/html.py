@@ -77,6 +77,18 @@ class HTML:
             settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD: self.author_override,
         }
 
+    def get_image_paths(self):
+        """Get paths to linked images."""
+        image_paths = set([])
+        soup = BeautifulSoup(self.body, 'html.parser')
+        for img in soup('img'):
+            image_path = img['src'].replace(
+                settings.IMAGES_URL_PLACEHOLDER,
+                '../images/',
+            )
+            image_paths.add(image_path)
+        return image_paths
+
     def update_image_links(self):
         """Replace the image URL placeholder."""
         logger.info('Updating image links to point at draft images')

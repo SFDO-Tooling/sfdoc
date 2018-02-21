@@ -155,11 +155,8 @@ class Salesforce:
             ).format(kav_id))
         return result
 
-    def process_article(self, html_raw, easydita_bundle):
+    def process_article(self, html, easydita_bundle):
         """Create a draft KnowledgeArticleVersion."""
-
-        # init HTML utility class
-        html = HTML(html_raw)
 
         # update image links to use Amazon S3
         html.update_image_links()
