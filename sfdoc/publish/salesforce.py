@@ -177,8 +177,8 @@ class Salesforce:
             else:
                 same_summary = html.summary == record['Summary']
             same_body = (
-                update_image_links_production(html.body) ==
-                record[settings.SALESFORCE_ARTICLE_BODY_FIELD]
+                update_image_links_production(html.body).strip() ==
+                record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip()
             )
             if same_title and same_summary and same_body:
                 # no update
