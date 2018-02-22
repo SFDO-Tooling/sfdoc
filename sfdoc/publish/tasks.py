@@ -101,7 +101,7 @@ def publish_drafts(easydita_bundle_pk):
     s3 = S3()
     n_articles = easydita_bundle.articles.count()
     for n, article in enumerate(easydita_bundle.articles.all(), start=1):
-        print('Publishing article {} of {}'.format(n, n_articles))
+        print('Publishing version {} ({} of {})'.format(kav_id, n, n_articles))
         try:
             salesforce.publish_draft(article.kav_id)
         except Exception as e:
