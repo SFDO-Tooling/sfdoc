@@ -41,7 +41,7 @@ class TestArticle(TestCase):
     def test_article_str(self):
         self.assertEqual(
             str(self.article),
-            'Article {}: {}'.format(self.article.pk, self.article.title),
+            '{} ({})'.format(self.article.title, self.article.url_name),
         )
 
 
