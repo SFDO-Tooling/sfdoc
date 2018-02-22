@@ -170,11 +170,13 @@ class Salesforce:
             # new draft of existing article
             record = result['records'][0]
 
+            # compare body using production image links
+            body = update_image_links_production(html.body)
             # check for changes in article fields
             if (
                 html.title == record['Title'] and
                 html.summary == record['Summary'] and
-                html.body == record[settings.SALESFORCE_ARTICLE_BODY_FIELD]
+                body == record[settings.SALESFORCE_ARTICLE_BODY_FIELD]
             ):
                 # no update
                 return False
