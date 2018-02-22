@@ -78,25 +78,18 @@ class HTML:
         image_paths = set([])
         soup = BeautifulSoup(self.body, 'html.parser')
         for img in soup('img'):
-            image_path = img['src'].replace(
-                settings.IMAGES_URL_PLACEHOLDER,
-                '../images/',
-            )
-            image_paths.add(image_path)
+            image_paths.add(img['src'])
         return image_paths
 
     def update_image_links(self):
-        """Replace the image URL placeholder."""
+        """Replace image URLs with S3 draft location."""
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
             settings.AWS_STORAGE_BUCKET_NAME,
             settings.S3_IMAGES_DRAFT_DIR,
         )
         soup = BeautifulSoup(self.body, 'html.parser')
         for img in soup('img'):
-            img['src'] = img['src'].replace(
-                settings.IMAGES_URL_PLACEHOLDER,
-                images_path,
-            )
+            img['src'] = images_path + os.path.basename(img['src'])
         self.body = soup.prettify()
 
 
