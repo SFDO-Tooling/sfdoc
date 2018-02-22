@@ -25,10 +25,11 @@ class S3:
             'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
             'Key': settings.S3_IMAGES_DRAFT_DIR + filename,
         }
-        self.api.meta.client.copy(
-            copy_source,
-            settings.AWS_STORAGE_BUCKET_NAME,
-            filename,
+        self.api.meta.client.copy_object(
+            ACL='public-read',
+            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+            CopySource=copy_source,
+            Key=filename,
         )
 
     def process_image(self, filename, easydita_bundle):
