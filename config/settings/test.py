@@ -69,7 +69,6 @@ EASYDITA_PASSWORD = 'testpass'
 ARTICLE_AUTHOR = 'article-author'
 ARTICLE_AUTHOR_OVERRIDE = 'article-author-override'
 ARTICLE_BODY_CLASS = 'article-body-class'
-IMAGES_URL_PLACEHOLDER = 'ARTICLE_IMAGES_URL/'
 
 # Salesforce
 SALESFORCE_CLIENT_ID = 'abc123'
