@@ -8,15 +8,18 @@ class LogStream(object):
 
     def __init__(self, model):
         self.model = model
+        self.message_buffer = ''
 
     def flush(self, force=False):
-        pass
+        if self.message_buffer:
+            models.Log.objects.create(
+                content_object=self.model,
+                message=self.message_buffer.strip(),
+            )
+            self.message_buffer = ''
 
     def write(self, message):
-        models.Log.objects.create(
-            content_object=self.model,
-            message=message,
-        )
+        self.message_buffer += message
 
 
 def get_logger(model):
