@@ -19,8 +19,6 @@ from .tasks import process_queue
 from .tasks import process_webhook
 from .tasks import publish_drafts
 
-logger = logging.getLogger(__name__)
-
 
 @never_cache
 @staff_member_required
@@ -46,6 +44,7 @@ def bundle(request, pk):
         context['form'] = form
         return render(request, 'publish_form.html', context=context)
     else:
+        context['logs'] = easydita_bundle.logs.all().order_by('time')
         return render(request, 'bundle.html', context=context)
 
 

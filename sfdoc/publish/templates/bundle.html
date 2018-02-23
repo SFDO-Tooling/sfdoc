@@ -21,9 +21,21 @@
     <td>{{ bundle.time_published }}</td>
   </tr>
 </table>
+
 {% if bundle.error_message %}
+<br>
 <h5>Error Message</h5>
 <p>{{ bundle.error_message }}</p>
+{% endif %}
+
+{% if logs %}
+<br>
+<h5>Logs</h5>
+<span class="border">
+<pre>
+{% for log in logs %}{{ log.get_message }}
+{% endfor %}</pre>
+</span>
 {% endif %}
 
 {% endblock content %}
