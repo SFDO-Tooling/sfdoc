@@ -36,6 +36,10 @@ def get_logger(model):
     # set handler levels
     handler.setLevel(logging.INFO)
     handler_console.setLevel(logging.ERROR)
+    # set format
+    formatter = logging.Formatter('[%(levelname)s] %(message)s')
+    handler.setFormatter(formatter)
+    handler_console.setFormatter(formatter)
     # add handlers to logger
     logger.addHandler(handler)
     logger.addHandler(handler_console)
