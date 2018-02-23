@@ -32,7 +32,7 @@ def process_easydita_bundle(easydita_bundle_pk):
         except Exception as e:
             easydita_bundle.set_error(e)
             raise
-    return 'Processed easyDITA bundle (pk={})'.format(easydita_bundle.pk)
+    logger.info('Processed {}'.format(easydita_bundle))
 
 
 @job
@@ -43,17 +43,14 @@ def process_queue():
         EasyditaBundle.STATUS_DRAFT,
         EasyditaBundle.STATUS_PUBLISHING,
     )):
-        return 'Already processing an easyDITA bundle!'
+        return
     try:
         easydita_bundle = EasyditaBundle.objects.filter(
             status=EasyditaBundle.STATUS_QUEUED,
         ).earliest('time_queued')
     except EasyditaBundle.DoesNotExist as e:
-        return 'No bundles in queue'
+        return
     process_easydita_bundle.delay(easydita_bundle.pk)
-    return 'Started processing next easyDITA bundle in queue (pk={})'.format(
-        easydita_bundle.pk,
-    )
 
 
 @job
@@ -87,7 +84,7 @@ def process_webhook(pk):
         logger.info('Webhook rejected (not dita-ot success)')
         webhook.status = Webhook.STATUS_REJECTED
     webhook.save()
-    return 'Processed webhook (pk={})'.format(webhook.pk)
+    logger.info('Processed {}'.format(webhook))
 
 
 @job('default', timeout=600)
@@ -125,7 +122,5 @@ def publish_drafts(easydita_bundle_pk):
     easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHED
     easydita_bundle.time_published = now()
     easydita_bundle.save()
+    logger.info('Published all drafts for {}'.format(easydita_bundle))
     process_queue.delay()
-    return 'Published all drafts from easyDITA bundle (pk={})'.format(
-        easydita_bundle.pk,
-    )
