@@ -181,6 +181,12 @@ class Log(models.Model):
     object_id = models.PositiveIntegerField()
     time = models.DateTimeField(auto_now_add=True)
 
+    def get_message(self):
+        return '{} {}'.format(
+            self.time.strftime('%Y-%m-%dT%H:%M'),
+            self.message,
+        )
+
 
 class Webhook(models.Model):
     STATUS_NEW = 'N'        # not yet processed
