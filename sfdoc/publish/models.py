@@ -193,7 +193,7 @@ class Log(models.Model):
 
     def get_message(self):
         return '{} {}'.format(
-            self.time.strftime('%Y-%m-%dT%H:%M'),
+            self.time.strftime('%Y-%m-%dT%H:%M:%S'),
             self.message,
         )
 
