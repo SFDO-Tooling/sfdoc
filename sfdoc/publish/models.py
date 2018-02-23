@@ -88,47 +88,57 @@ class EasyditaBundle(models.Model):
 
     def process(self, path, salesforce, s3):
         logger = get_logger(self)
-        # check all HTML files
-        logger.info('Scrubbing all HTML files in {}'.format(self))
+        # collect paths to all HTML files
+        html_files = []
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
+                filename_full = os.path.join(dirpath, filename)
                 if skip_file(filename):
-                    logger.info('Skipping file: {}'.format(filename))
+                    logger.info('Skipping HTML file: {}'.format(filename_full))
                     continue
                 name, ext = os.path.splitext(filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
-                    filename_full = os.path.join(dirpath, filename)
-                    logger.info('Scrubbing file: {}'.format(filename_full))
-                    with open(filename_full, 'r') as f:
-                        html = f.read()
-                    scrub_html(html)
+                    html_files.append(filename_full)
+        # check all HTML files
+        logger.info('Scrubbing all HTML files in {}'.format(self))
+        for n, html_file in enumerate(html_files, start=1):
+            logger.info('Scrubbing HTML file {} of {}: {}'.format(
+                n,
+                len(html_files),
+                html_file,
+            ))
+            with open(html_file) as f:
+                html_raw = f.read()
+            scrub_html(html_raw)
         # upload draft articles and images
         logger.info('Uploading draft articles and images')
         publish_queue = []
         changed = False
         images = set([])
-        for dirpath, dirnames, filenames in os.walk(path):
-            for filename in filenames:
-                if skip_file(filename):
-                    logger.info('Skipping file: {}'.format(filename))
-                    continue
-                name, ext = os.path.splitext(filename)
-                filename_full = os.path.join(dirpath, filename)
-                if ext.lower() in settings.HTML_EXTENSIONS:
-                    logger.info('Processing HTML file: {}'.format(filename_full))
-                    with open(filename_full, 'r') as f:
-                        html_raw = f.read()
-                    html = HTML(html_raw)
-                    for image_path in html.get_image_paths():
-                        images.add(os.path.abspath(os.path.join(
-                            dirpath,
-                            image_path,
-                        )))
-                    changed_1 = salesforce.process_article(html, self)
-                    if changed_1:
-                        changed = True
-        for image in images:
-            logger.info('Processing image: {}'.format(image))
+        for n, html_file in enumerate(html_files, start=1):
+            logger.info('Processing HTML file {} of {}: {}'.format(
+                n,
+                len(html_files),
+                html_file,
+            ))
+            name, ext = os.path.splitext(html_file)
+            with open(html_file) as f:
+                html_raw = f.read()
+            html = HTML(html_raw)
+            for image_path in html.get_image_paths():
+                images.add(os.path.abspath(os.path.join(
+                    dirpath,
+                    image_path,
+                )))
+            changed_1 = salesforce.process_article(html, self)
+            if changed_1:
+                changed = True
+        for n, image in enumerate(images, start=1):
+            logger.info('Processing image file {} of {}: {}'.format(
+                n,
+                len(images),
+                image,
+            ))
             changed_1 = s3.process_image(image, self)
             if changed_1:
                 changed = True
