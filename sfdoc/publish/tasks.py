@@ -6,6 +6,7 @@ from django_rq import job
 
 from .amazon import S3
 from .exceptions import SalesforceError
+from .logger import get_logger
 from .models import EasyditaBundle
 from .models import Webhook
 from .salesforce import Salesforce
