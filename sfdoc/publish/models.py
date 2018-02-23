@@ -2,11 +2,15 @@ from io import BytesIO
 import os
 
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 import requests
 
 from .html import HTML
 from .html import scrub_html
+from .logger import get_logger
 from .utils import skip_file
 from .utils import unzip
 
@@ -41,6 +45,7 @@ class EasyditaBundle(models.Model):
     easydita_id = models.CharField(max_length=255, unique=True)
     easydita_resource_id = models.CharField(max_length=255)
     error_message = models.TextField(default='')
+    logs = GenericRelation('Log')
     status = models.CharField(
         max_length=1,
         choices=(
@@ -71,7 +76,8 @@ class EasyditaBundle(models.Model):
 
     def download(self, path):
         """Download bundle ZIP and extract to given directory."""
-        print('Downloading easyDITA bundle from {}'.format(self.url))
+        logger = get_logger(self)
+        logger.info('Downloading easyDITA bundle from {}'.format(self.url))
         auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
         response = requests.get(self.url, auth=auth)
         zip_file = BytesIO(response.content)
@@ -81,36 +87,35 @@ class EasyditaBundle(models.Model):
         return '/publish/bundles/{}/'.format(self.pk)
 
     def process(self, path, salesforce, s3):
+        logger = get_logger(self)
         # check all HTML files
-        print('Scrubbing all HTML files in easyDITA bundle {}'.format(
-            self.pk,
-        ))
+        logger.info('Scrubbing all HTML files in {}'.format(self))
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if skip_file(filename):
-                    print('Skipping file: {}'.format(filename))
+                    logger.info('Skipping file: {}'.format(filename))
                     continue
                 name, ext = os.path.splitext(filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
                     filename_full = os.path.join(dirpath, filename)
-                    print('Scrubbing file: {}'.format(filename_full))
+                    logger.info('Scrubbing file: {}'.format(filename_full))
                     with open(filename_full, 'r') as f:
                         html = f.read()
                     scrub_html(html)
         # upload draft articles and images
-        print('Uploading draft articles and images')
+        logger.info('Uploading draft articles and images')
         publish_queue = []
         changed = False
         images = set([])
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 if skip_file(filename):
-                    print('Skipping file: {}'.format(filename))
+                    logger.info('Skipping file: {}'.format(filename))
                     continue
                 name, ext = os.path.splitext(filename)
                 filename_full = os.path.join(dirpath, filename)
                 if ext.lower() in settings.HTML_EXTENSIONS:
-                    print('Processing HTML file: {}'.format(filename_full))
+                    logger.info('Processing HTML file: {}'.format(filename_full))
                     with open(filename_full, 'r') as f:
                         html_raw = f.read()
                     html = HTML(html_raw)
@@ -123,7 +128,7 @@ class EasyditaBundle(models.Model):
                     if changed_1:
                         changed = True
         for image in images:
-            print('Processing image: {}'.format(image))
+            logger.info('Processing image: {}'.format(image))
             changed_1 = s3.process_image(image, self)
             if changed_1:
                 changed = True
@@ -139,13 +144,14 @@ class EasyditaBundle(models.Model):
 
     def set_error(self, e, filename=None):
         """Set error status and message."""
-        print('ERROR: {}'.format(e))
         self.status = self.STATUS_ERROR
         if filename:
             self.error_message = '{}: {}'.format(filename, e)
         else:
             self.error_message = str(e)
         self.save()
+        logger = get_logger(self)
+        logger.error(self.error_message)
 
     @property
     def url(self):
@@ -166,6 +172,14 @@ class Image(models.Model):
 
     def __str__(self):
         return 'Image {}: {}'.format(self.pk, self.filename)
+
+
+class Log(models.Model):
+    content_object = GenericForeignKey('content_type', 'object_id')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    message = models.TextField()
+    object_id = models.PositiveIntegerField()
+    time = models.DateTimeField(auto_now_add=True)
 
 
 class Webhook(models.Model):
