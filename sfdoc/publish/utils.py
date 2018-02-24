@@ -6,6 +6,14 @@ from zipfile import ZipFile
 from django.conf import settings
 
 
+def is_html(filename):
+    name, ext = os.path.splitext(filename)
+    if ext.lower() in ('.htm', '.html'):
+        return True
+    else:
+        return False
+
+
 def is_url_whitelisted(url):
     """Determine if a URL is whitelisted."""
     if not urlparse(url).scheme:

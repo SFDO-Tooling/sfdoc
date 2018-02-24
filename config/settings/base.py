@@ -284,7 +284,5 @@ RQ_QUEUES = {
     },
 }
 
-HTML_EXTENSIONS = ('.htm', '.html')
-
 # Salesforce
 SALESFORCE_LOGIN_URL = 'https://login.salesforce.com'

@@ -11,6 +11,7 @@ import requests
 from .html import HTML
 from .html import scrub_html
 from .logger import get_logger
+from .utils import is_html
 from .utils import skip_file
 from .utils import unzip
 
@@ -96,8 +97,7 @@ class EasyditaBundle(models.Model):
                 if skip_file(filename):
                     logger.info('Skipping HTML file: {}'.format(filename_full))
                     continue
-                name, ext = os.path.splitext(filename)
-                if ext.lower() in settings.HTML_EXTENSIONS:
+                if is_html(filename):
                     html_files.append(filename_full)
         # check all HTML files
         logger.info('Scrubbing all HTML files in {}'.format(self))
@@ -121,13 +121,12 @@ class EasyditaBundle(models.Model):
                 len(html_files),
                 html_file,
             ))
-            name, ext = os.path.splitext(html_file)
             with open(html_file) as f:
                 html_raw = f.read()
             html = HTML(html_raw)
             for image_path in html.get_image_paths():
                 images.add(os.path.abspath(os.path.join(
-                    dirpath,
+                    os.path.dirname(html_file),
                     image_path,
                 )))
             changed_1 = salesforce.process_article(html, self)
