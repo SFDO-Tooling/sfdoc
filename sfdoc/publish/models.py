@@ -126,7 +126,7 @@ class EasyditaBundle(models.Model):
             html = HTML(html_raw)
             for image_path in html.get_image_paths():
                 images.add(os.path.abspath(os.path.join(
-                    dirpath,
+                    os.path.dirname(html_file),
                     image_path,
                 )))
             changed_1 = salesforce.process_article(html, self)
