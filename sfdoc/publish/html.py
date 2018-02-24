@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 
 from .exceptions import HtmlError
+from .utils import is_html
 from .utils import is_url_whitelisted
 
 
@@ -111,8 +112,7 @@ def get_links(path, print_json=False, body_only=True):
         for filename in filenames:
             if filename in settings.SKIP_FILES:
                 continue
-            name, ext = os.path.splitext(filename)
-            if ext.lower() in settings.HTML_EXTENSIONS:
+            if is_html(filename):
                 filename_full = os.path.join(dirpath, filename)
                 with open(filename_full, 'r') as f:
                     html = f.read()
@@ -142,8 +142,7 @@ def get_tags(path, print_json=False, body_only=True):
         for filename in filenames:
             if filename in settings.SKIP_FILES:
                 continue
-            name, ext = os.path.splitext(filename)
-            if ext.lower() in settings.HTML_EXTENSIONS:
+            if is_html(filename):
                 filename_full = os.path.join(dirpath, filename)
                 with open(filename_full, 'r') as f:
                     html = f.read()
