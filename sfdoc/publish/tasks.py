@@ -1,4 +1,6 @@
+from io import BytesIO
 import json
+import os
 from tempfile import TemporaryDirectory
 
 from django.utils.timezone import now
@@ -6,10 +8,90 @@ from django_rq import job
 
 from .amazon import S3
 from .exceptions import SalesforceError
+from .html import HTML
+from .html import scrub_html
 from .logger import get_logger
 from .models import Bundle
 from .models import Webhook
 from .salesforce import Salesforce
+from .logger import get_logger
+from .utils import is_html
+from .utils import skip_file
+from .utils import unzip
+
+
+def _process_bundle(bundle, path):
+    logger = get_logger(bundle)
+    # get APIs
+    salesforce = Salesforce()
+    s3 = S3()
+    # download bundle
+    logger.info('Downloading easyDITA bundle from {}'.format(bundle.url))
+    auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
+    response = requests.get(bundle.url, auth=auth)
+    zip_file = BytesIO(response.content)
+    unzip(zip_file, path, recursive=True)
+    # collect paths to all HTML files
+    html_files = []
+    for dirpath, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            filename_full = os.path.join(dirpath, filename)
+            if skip_file(filename):
+                logger.info('Skipping HTML file: {}'.format(filename_full))
+                continue
+            if is_html(filename):
+                html_files.append(filename_full)
+    # check all HTML files
+    logger.info('Scrubbing all HTML files in {}'.format(bundle))
+    for n, html_file in enumerate(html_files, start=1):
+        logger.info('Scrubbing HTML file {} of {}: {}'.format(
+            n,
+            len(html_files),
+            html_file,
+        ))
+        with open(html_file) as f:
+            html_raw = f.read()
+        scrub_html(html_raw)
+    # upload draft articles and images
+    logger.info('Uploading draft articles and images')
+    publish_queue = []
+    changed = False
+    images = set([])
+    for n, html_file in enumerate(html_files, start=1):
+        logger.info('Processing HTML file {} of {}: {}'.format(
+            n,
+            len(html_files),
+            html_file,
+        ))
+        with open(html_file) as f:
+            html_raw = f.read()
+        html = HTML(html_raw)
+        for image_path in html.get_image_paths():
+            images.add(os.path.abspath(os.path.join(
+                os.path.dirname(html_file),
+                image_path,
+            )))
+        changed_1 = salesforce.process_article(html, bundle)
+        if changed_1:
+            changed = True
+    for n, image in enumerate(images, start=1):
+        logger.info('Processing image file {} of {}: {}'.format(
+            n,
+            len(images),
+            image,
+        ))
+        changed_1 = s3.process_image(image, bundle)
+        if changed_1:
+            changed = True
+    if changed:
+        bundle.status = bundle.STATUS_DRAFT
+    else:
+        bundle.status = bundle.STATUS_REJECTED
+        bundle.error_message = (
+            'No articles or images were updated, so the bundle was '
+            'automatically rejected.'
+        )
+    bundle.save()
 
 
 @job('default', timeout=600)
@@ -24,12 +106,9 @@ def process_bundle(bundle_pk):
     bundle.save()
     logger = get_logger(bundle)
     logger.info('Processing easyDITA bundle {}'.format(bundle_pk))
-    salesforce = Salesforce()
-    s3 = S3()
     with TemporaryDirectory() as tempdir:
-        bundle.download(tempdir)
         try:
-            bundle.process(tempdir, salesforce, s3)
+            _process_bundle(bundle, tempdir)
         except Exception as e:
             bundle.set_error(e)
             raise
