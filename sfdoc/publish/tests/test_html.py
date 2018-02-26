@@ -1,8 +1,6 @@
 from test_plus.test import TestCase
 
 from ..html import HTML
-from ..html import get_links
-from ..html import get_tags
 
 from . import utils
 
