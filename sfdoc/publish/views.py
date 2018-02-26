@@ -40,7 +40,7 @@ def bundle(request, pk):
             return HttpResponseRedirect('./')
         else:
             form = PublishToProductionForm()
-        context['articles'] = easydita_bundle.articles.all().order_by('title')
+        context['articles'] = easydita_bundle.articles.all().order_by('url_name')
         context['images'] = easydita_bundle.images.all().order_by('filename')
         context['form'] = form
         return render(request, 'publish_form.html', context=context)
