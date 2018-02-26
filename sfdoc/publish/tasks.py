@@ -25,7 +25,7 @@ def _process_bundle(bundle, path):
     salesforce = Salesforce()
     s3 = S3()
     # download bundle
-    logger.info('Downloading easyDITA bundle from {}'.format(bundle.url))
+    logger.info('Downloading easyDITA bundle from %s', bundle.url)
     auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
     response = requests.get(bundle.url, auth=auth)
     zip_file = BytesIO(response.content)
@@ -36,18 +36,18 @@ def _process_bundle(bundle, path):
         for filename in filenames:
             filename_full = os.path.join(dirpath, filename)
             if skip_file(filename):
-                logger.info('Skipping HTML file: {}'.format(filename_full))
+                logger.info('Skipping HTML file: %s', filename_full)
                 continue
             if is_html(filename):
                 html_files.append(filename_full)
     # check all HTML files
-    logger.info('Scrubbing all HTML files in {}'.format(bundle))
+    logger.info('Scrubbing all HTML files in %s', bundle)
     for n, html_file in enumerate(html_files, start=1):
-        logger.info('Scrubbing HTML file {} of {}: {}'.format(
+        logger.info('Scrubbing HTML file %d of %d: %s',
             n,
             len(html_files),
             html_file,
-        ))
+        )
         with open(html_file) as f:
             html_raw = f.read()
         html = HTML(html_raw)
@@ -58,11 +58,11 @@ def _process_bundle(bundle, path):
     changed = False
     images = set([])
     for n, html_file in enumerate(html_files, start=1):
-        logger.info('Processing HTML file {} of {}: {}'.format(
+        logger.info('Processing HTML file %d of %d: %s',
             n,
             len(html_files),
             html_file,
-        ))
+        )
         with open(html_file) as f:
             html_raw = f.read()
         html = HTML(html_raw)
@@ -75,11 +75,11 @@ def _process_bundle(bundle, path):
         if changed_1:
             changed = True
     for n, image in enumerate(images, start=1):
-        logger.info('Processing image file {} of {}: {}'.format(
+        logger.info('Processing image file %d of %d: %s',
             n,
             len(images),
             image,
-        ))
+        )
         changed_1 = s3.process_image(image, bundle)
         if changed_1:
             changed = True
@@ -105,14 +105,14 @@ def process_bundle(bundle_pk):
     bundle.time_processed = now()
     bundle.save()
     logger = get_logger(bundle)
-    logger.info('Processing easyDITA bundle {}'.format(bundle_pk))
+    logger.info('Processing %s', bundle)
     with TemporaryDirectory() as tempdir:
         try:
             _process_bundle(bundle, tempdir)
         except Exception as e:
             bundle.set_error(e)
             raise
-    logger.info('Processed {}'.format(bundle))
+    logger.info('Processed %s', bundle)
 
 
 @job
@@ -138,7 +138,7 @@ def process_webhook(pk):
     """Process an easyDITA webhook."""
     webhook = Webhook.objects.get(pk=pk)
     logger = get_logger(webhook)
-    logger.info('Processing webhook {}'.format(pk))
+    logger.info('Processing %s', webhook)
     data = json.loads(webhook.body)
     if (
         data['event_id'] == 'dita-ot-publish-complete'
@@ -164,7 +164,7 @@ def process_webhook(pk):
         logger.info('Webhook rejected (not dita-ot success)')
         webhook.status = Webhook.STATUS_REJECTED
     webhook.save()
-    logger.info('Processed {}'.format(webhook))
+    logger.info('Processed %s', webhook)
 
 
 @job('default', timeout=600)
@@ -174,18 +174,16 @@ def publish_drafts(bundle_pk):
     bundle.status = Bundle.STATUS_PUBLISHING
     bundle.save()
     logger = get_logger(bundle)
-    logger.info(
-        'Publishing drafts for easyDITA bundle {}'.format(bundle_pk)
-    )
+    logger.info('Publishing drafts for %s', bundle)
     salesforce = Salesforce()
     s3 = S3()
     n_articles = bundle.articles.count()
     for n, article in enumerate(bundle.articles.all(), start=1):
-        logger.info('Publishing article {} of {}: {}'.format(
+        logger.info('Publishing article %d of %d: %s',
             n,
             n_articles,
             article,
-        ))
+        )
         try:
             salesforce.publish_draft(article.kav_id)
         except Exception as e:
@@ -193,14 +191,14 @@ def publish_drafts(bundle_pk):
             raise
     n_images = bundle.images.count()
     for n, image in enumerate(bundle.images.all(), start=1):
-        logger.info('Publishing image {} of {}: {}'.format(
+        logger.info('Publishing image %d of %d: %s',
             n,
             n_images,
             image,
-        ))
+        )
         s3.copy_to_production(image.filename)
     bundle.status = Bundle.STATUS_PUBLISHED
     bundle.time_published = now()
     bundle.save()
-    logger.info('Published all drafts for {}'.format(bundle))
+    logger.info('Published all drafts for %s', bundle)
     process_queue.delay()
