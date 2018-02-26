@@ -18,6 +18,15 @@ from .utils import unzip
 
 class Article(models.Model):
     """Tracks created/updated articles per bundle."""
+    STATUS_NEW = 'N'
+    STATUS_CHANGED = 'C'
+    status = models.CharField(
+        max_length=1,
+        choices=(
+            (STATUS_NEW, 'New'),
+            (STATUS_CHANGED, 'Changed'),
+        ),
+    )
     draft_preview_url = models.CharField(max_length=255, default='')
     easydita_bundle = models.ForeignKey(
         'EasyditaBundle',
@@ -172,6 +181,15 @@ class EasyditaBundle(models.Model):
 
 
 class Image(models.Model):
+    STATUS_NEW = 'N'
+    STATUS_CHANGED = 'C'
+    status = models.CharField(
+        max_length=1,
+        choices=(
+            (STATUS_NEW, 'New'),
+            (STATUS_CHANGED, 'Changed'),
+        ),
+    )
     easydita_bundle = models.ForeignKey(
         'EasyditaBundle',
         on_delete=models.CASCADE,

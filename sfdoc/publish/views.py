@@ -13,7 +13,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from .forms import PublishToProductionForm
+from .models import Article
 from .models import EasyditaBundle
+from .models import Image
 from .models import Webhook
 from .tasks import process_queue
 from .tasks import process_webhook
@@ -40,8 +42,18 @@ def bundle(request, pk):
             return HttpResponseRedirect('./')
         else:
             form = PublishToProductionForm()
-        context['articles'] = easydita_bundle.articles.all().order_by('title')
-        context['images'] = easydita_bundle.images.all().order_by('filename')
+        context['articles_new'] = easydita_bundle.articles.filter(
+            status=Article.STATUS_NEW,
+        ).order_by('url_name')
+        context['articles_changed'] = easydita_bundle.articles.filter(
+            status=Article.STATUS_CHANGED,
+        ).order_by('url_name')
+        context['images_new'] = easydita_bundle.images.filter(
+            status=Image.STATUS_NEW,
+        ).order_by('filename')
+        context['images_changed'] = easydita_bundle.images.filter(
+            status=Image.STATUS_CHANGED,
+        ).order_by('filename')
         context['form'] = form
         return render(request, 'publish_form.html', context=context)
     else:

@@ -1,36 +1,59 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h4>Publish drafts from easyDITA bundle {{ bundle.pk }}</h4>
+<h4>Review draft articles and images from easyDITA bundle {{ bundle.pk }}</h4>
 <br>
 
-{% if articles %}
-<br>
-<h5>Article Draft Previews</h5>
+{% if articles_new %}
+<h5>New Articles</h5>
 <p>
   <ul>
-{% for article in articles %}
-    <li><a href="{{ article.draft_preview_url }}" target="_blank">{{ article }}</a></li>
+{% for article in articles_new %}
+    <li><a href="{{ article.draft_preview_url }}" target="_blank">{{ article.url_name }}</a></li>
 {% endfor %}
   </ul>
 </p>
+<br>
 {% endif %}
 
-{% if images %}
-<br>
-<h5>Image Previews</h5>
+{% if articles_changed %}
+<h5>Changed Articles</h5>
 <p>
   <ul>
-{% for image in images %}
+{% for article in articles_changed %}
+    <li><a href="{{ article.draft_preview_url }}" target="_blank">{{ article.url_name }}</a></li>
+{% endfor %}
+  </ul>
+</p>
+<br>
+{% endif %}
+
+{% if images_new %}
+<h5>New Images</h5>
+<p>
+  <ul>
+{% for image in images_new %}
     <li><a href="{{ image.draft_preview_url }}" target="_blank">{{ image.filename }}</a></li>
 {% endfor %}
   </ul>
 </p>
+<br>
+{% endif %}
+
+{% if images_changed %}
+<h5>Changed Images</h5>
+<p>
+  <ul>
+{% for image in images_changed %}
+    <li><a href="{{ image.draft_preview_url }}" target="_blank">{{ image.filename }}</a></li>
+{% endfor %}
+  </ul>
+</p>
+<br>
 {% endif %}
 
 <form action="" method="post">
     {% csrf_token %}
-    <br>
     {{ form.as_p }}
     <p><input type="submit" value="Submit" /></p>
 </form>
