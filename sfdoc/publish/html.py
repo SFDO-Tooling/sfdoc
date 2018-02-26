@@ -82,6 +82,23 @@ class HTML:
             image_paths.add(img['src'])
         return image_paths
 
+    def scrub(self):
+        """Scrub article body using whitelists for tags/attributes and links."""
+        def scrub_tree(tree):
+            for child in tree.children:
+                if hasattr(child, 'contents'):
+                    if child.name not in settings.HTML_WHITELIST:
+                        raise HtmlError('Tag "{}" not in whitelist'.format(child.name))
+                    for attr in child.attrs:
+                        if attr not in settings.HTML_WHITELIST[child.name]:
+                            raise HtmlError(('Tag "{}" attribute "{}" not in whitelist').format(child.name, attr))
+                        if attr in ('href', 'src'):
+                            if not is_url_whitelisted(child[attr]):
+                                raise HtmlError('URL {} not whitelisted'.format(child[attr]))
+                    scrub_tree(child)
+        soup = BeautifulSoup(self.body, 'html.parser')
+        scrub_tree(soup)
+
     def update_image_links(self):
         """Replace image URLs with S3 draft location."""
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
@@ -159,32 +176,6 @@ def get_tags(path, print_json=False, body_only=True):
                 tags_json[tag].append(item)
         print(json.dumps(tags_json, indent=2))
     return tags
-
-
-def scrub_html(html_raw):
-    """Scrub article body using whitelists for tags/attributes and links."""
-    html = HTML(html_raw)
-    soup = BeautifulSoup(html.body, 'html.parser')
-
-    def scrub_tree(tree):
-        for child in tree.children:
-            if hasattr(child, 'contents'):
-                if child.name not in settings.HTML_WHITELIST:
-                    raise HtmlError('Tag "{}" not in whitelist'.format(
-                        child.name,
-                    ))
-                for attr in child.attrs:
-                    if attr not in settings.HTML_WHITELIST[child.name]:
-                        raise HtmlError((
-                            'Tag "{}" attribute "{}" not in whitelist'
-                        ).format(child.name, attr))
-                    if attr in ('href', 'src'):
-                        if not is_url_whitelisted(child[attr]):
-                            raise HtmlError('URL {} not whitelisted'.format(
-                                child[attr],
-                            ))
-                scrub_tree(child)
-    scrub_tree(soup)
 
 
 def update_image_links_production(html):

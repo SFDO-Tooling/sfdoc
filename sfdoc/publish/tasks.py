@@ -9,7 +9,6 @@ from django_rq import job
 from .amazon import S3
 from .exceptions import SalesforceError
 from .html import HTML
-from .html import scrub_html
 from .logger import get_logger
 from .models import Bundle
 from .models import Webhook
@@ -51,7 +50,8 @@ def _process_bundle(bundle, path):
         ))
         with open(html_file) as f:
             html_raw = f.read()
-        scrub_html(html_raw)
+        html = HTML(html_raw)
+        html.scrub()
     # upload draft articles and images
     logger.info('Uploading draft articles and images')
     publish_queue = []
