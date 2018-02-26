@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import Article
-from .models import EasyditaBundle
+from .models import Bundle
 from .models import Image
 from .models import Webhook
 
@@ -17,7 +17,7 @@ class ArticleAdmin(admin.ModelAdmin):
 admin.site.register(Article, ArticleAdmin)
 
 
-class EasyditaBundleAdmin(admin.ModelAdmin):
+class BundleAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
         'easydita_id',
@@ -29,7 +29,7 @@ class EasyditaBundleAdmin(admin.ModelAdmin):
     ]
     list_filter = ('status',)
     view_on_site = False
-admin.site.register(EasyditaBundle, EasyditaBundleAdmin)
+admin.site.register(Bundle, BundleAdmin)
 
 
 class ImageAdmin(admin.ModelAdmin):

@@ -80,7 +80,7 @@ def mock_create_draft(instance_url, ka_id, kav_id):
     )
 
 
-def mock_easydita_bundle_download(url, articles):
+def mock_bundle_download(url, articles):
     """Mock the response from easyDITA to provide the bundle."""
     zip_buff = BytesIO()
     with ZipFile(zip_buff, mode='w') as f_zip:
