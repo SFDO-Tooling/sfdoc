@@ -52,6 +52,7 @@ class S3:
                     Image.objects.create(
                         easydita_bundle=easydita_bundle,
                         filename=basename,
+                        status=Image.STATUS_NEW,
                     )
                     return True
                 else:
@@ -66,6 +67,7 @@ class S3:
                 Image.objects.create(
                     easydita_bundle=easydita_bundle,
                     filename=basename,
+                    status=Image.STATUS_CHANGED,
                 )
                 return True
 

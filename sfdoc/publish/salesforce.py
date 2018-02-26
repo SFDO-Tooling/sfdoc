@@ -115,7 +115,7 @@ class Salesforce:
         result = self.api.query(query_str)
         return result
 
-    def save_article(self, kav_id, html, easydita_bundle):
+    def save_article(self, kav_id, html, easydita_bundle, status):
         """Create an Article object from parsed HTML."""
         ka_id = self.get_ka_id(kav_id, 'draft')
         o = urlparse(self.api.base_url)
@@ -132,6 +132,7 @@ class Salesforce:
             ka_id=ka_id,
             kav_id=kav_id,
             draft_preview_url=draft_preview_url,
+            status=status,
             title=html.title,
             url_name=html.url_name,
         )
@@ -158,7 +159,12 @@ class Salesforce:
         if result['totalSize'] == 1:  # cannot be > 1
             kav_id = result['records'][0]['Id']
             self.update_draft(kav_id, html)
-            self.save_article(kav_id, html, easydita_bundle)
+            self.save_article(
+                kav_id,
+                html,
+                easydita_bundle,
+                Article.STATUS_CHANGED,
+            )
             return True
 
         # no drafts found. search for published article
@@ -166,6 +172,7 @@ class Salesforce:
         if result['totalSize'] == 0:
             # new article
             kav_id = self.create_article(html)
+            status = Article.STATUS_NEW
         elif result['totalSize'] == 1:
             # new draft of existing article
             record = result['records'][0]
@@ -198,6 +205,7 @@ class Salesforce:
                 raise(e)
             kav_id = result.json()['id']
             self.update_draft(kav_id, html)
+            status = Article.STATUS_CHANGED
 
-        self.save_article(kav_id, html, easydita_bundle)
+        self.save_article(kav_id, html, easydita_bundle, status)
         return True
