@@ -4,7 +4,9 @@
 <h4>Publish drafts from easyDITA bundle {{ bundle.pk }}</h4>
 <br>
 
-<h5>Draft Previews</h5>
+{% if articles %}
+<br>
+<h5>Article Draft Previews</h5>
 <p>
   <ul>
 {% for article in articles %}
@@ -12,6 +14,19 @@
 {% endfor %}
   </ul>
 </p>
+{% endif %}
+
+{% if images %}
+<br>
+<h5>Image Previews</h5>
+<p>
+  <ul>
+{% for image in images %}
+    <li><a href="{{ image.draft_preview_url }}" target="_blank">{{ image.filename }}</a></li>
+{% endfor %}
+  </ul>
+</p>
+{% endif %}
 
 <form action="" method="post">
     {% csrf_token %}
