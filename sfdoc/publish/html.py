@@ -110,6 +110,14 @@ class HTML:
             img['src'] = images_path + os.path.basename(img['src'])
         self.body = soup.prettify()
 
+    @staticmethod
+    def update_image_links_production(html):
+        """Update image links to point at production images."""
+        soup = BeautifulSoup(html, 'html.parser')
+        for img in soup('img'):
+            img['src'] = img['src'].replace(settings.S3_IMAGES_DRAFT_DIR, '')
+        return soup.prettify()
+
 
 def get_links(path, print_json=False, body_only=True):
     """Find all the links (href, src) in all HTML files under the path."""
@@ -178,9 +186,3 @@ def get_tags(path, print_json=False, body_only=True):
     return tags
 
 
-def update_image_links_production(html):
-    """Update image links to point at production images."""
-    soup = BeautifulSoup(html, 'html.parser')
-    for img in soup('img'):
-        img['src'] = img['src'].replace(settings.S3_IMAGES_DRAFT_DIR, '')
-    return soup.prettify()
