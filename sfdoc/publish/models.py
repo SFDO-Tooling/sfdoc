@@ -182,6 +182,14 @@ class Image(models.Model):
     def __str__(self):
         return 'Image {}: {}'.format(self.pk, self.filename)
 
+    @property
+    def draft_preview_url(self):
+        images_path = 'https://{}.s3.amazonaws.com/{}'.format(
+            settings.AWS_STORAGE_BUCKET_NAME,
+            settings.S3_IMAGES_DRAFT_DIR,
+        )
+        return images_path + self.filename
+
 
 class Log(models.Model):
     content_object = GenericForeignKey('content_type', 'object_id')

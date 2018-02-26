@@ -41,6 +41,7 @@ def bundle(request, pk):
         else:
             form = PublishToProductionForm()
         context['articles'] = easydita_bundle.articles.all().order_by('title')
+        context['images'] = easydita_bundle.images.all().order_by('filename')
         context['form'] = form
         return render(request, 'publish_form.html', context=context)
     else:
