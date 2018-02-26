@@ -32,7 +32,7 @@ class S3:
             Key=filename,
         )
 
-    def process_image(self, filename, easydita_bundle):
+    def process_image(self, filename, bundle):
         """Upload image file to S3 if needed."""
         basename = os.path.basename(filename)
         key = settings.S3_IMAGES_DRAFT_DIR + basename
@@ -50,7 +50,7 @@ class S3:
                     # image does not exist on S3, create a new one
                     self.upload_image(filename, key)
                     Image.objects.create(
-                        easydita_bundle=easydita_bundle,
+                        bundle=bundle,
                         filename=basename,
                         status=Image.STATUS_NEW,
                     )
@@ -65,7 +65,7 @@ class S3:
                 # files differ, update image
                 self.upload_image(filename, key)
                 Image.objects.create(
-                    easydita_bundle=easydita_bundle,
+                    bundle=bundle,
                     filename=basename,
                     status=Image.STATUS_CHANGED,
                 )

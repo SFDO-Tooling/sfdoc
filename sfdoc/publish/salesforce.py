@@ -115,7 +115,7 @@ class Salesforce:
         result = self.api.query(query_str)
         return result
 
-    def save_article(self, kav_id, html, easydita_bundle, status):
+    def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
         ka_id = self.get_ka_id(kav_id, 'draft')
         o = urlparse(self.api.base_url)
@@ -128,7 +128,7 @@ class Salesforce:
             ka_id[:15],  # reduce to 15 char ID
         )
         Article.objects.create(
-            easydita_bundle=easydita_bundle,
+            bundle=bundle,
             ka_id=ka_id,
             kav_id=kav_id,
             draft_preview_url=draft_preview_url,
@@ -148,7 +148,7 @@ class Salesforce:
             ).format(kav_id))
         return result
 
-    def process_article(self, html, easydita_bundle):
+    def process_article(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
 
         # update image links to use Amazon S3
@@ -162,7 +162,7 @@ class Salesforce:
             self.save_article(
                 kav_id,
                 html,
-                easydita_bundle,
+                bundle,
                 Article.STATUS_CHANGED,
             )
             return True
@@ -207,5 +207,5 @@ class Salesforce:
             self.update_draft(kav_id, html)
             status = Article.STATUS_CHANGED
 
-        self.save_article(kav_id, html, easydita_bundle, status)
+        self.save_article(kav_id, html, bundle, status)
         return True

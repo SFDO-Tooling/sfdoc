@@ -28,8 +28,8 @@ class Article(models.Model):
         ),
     )
     draft_preview_url = models.CharField(max_length=255, default='')
-    easydita_bundle = models.ForeignKey(
-        'EasyditaBundle',
+    bundle = models.ForeignKey(
+        'Bundle',
         on_delete=models.CASCADE,
         related_name='articles',
     )
@@ -42,7 +42,7 @@ class Article(models.Model):
         return '{} ({})'.format(self.title, self.url_name)
 
 
-class EasyditaBundle(models.Model):
+class Bundle(models.Model):
     """Represents a ZIP file of HTML and images from easyDITA."""
     STATUS_NEW = 'N'            # newly received webhook from easyDITA
     STATUS_QUEUED = 'Q'         # added to processing queue
@@ -190,8 +190,8 @@ class Image(models.Model):
             (STATUS_CHANGED, 'Changed'),
         ),
     )
-    easydita_bundle = models.ForeignKey(
-        'EasyditaBundle',
+    bundle = models.ForeignKey(
+        'Bundle',
         on_delete=models.CASCADE,
         related_name='images',
     )
@@ -228,8 +228,8 @@ class Webhook(models.Model):
     STATUS_ACCEPTED = 'A'   # webhook added bundle to processing queue
     STATUS_REJECTED = 'R'   # bundle already processing or queued
     body = models.TextField()
-    easydita_bundle = models.ForeignKey(
-        'EasyditaBundle',
+    bundle = models.ForeignKey(
+        'Bundle',
         on_delete=models.CASCADE,
         related_name='webhooks',
         null=True,

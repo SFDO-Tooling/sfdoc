@@ -7,51 +7,51 @@ from django_rq import job
 from .amazon import S3
 from .exceptions import SalesforceError
 from .logger import get_logger
-from .models import EasyditaBundle
+from .models import Bundle
 from .models import Webhook
 from .salesforce import Salesforce
 
 
 @job('default', timeout=600)
-def process_easydita_bundle(easydita_bundle_pk):
+def process_bundle(bundle_pk):
     """
     Get the bundle from easyDITA and process the contents.
     HTML files are checked for issues first, then uploaded as drafts.
     """
-    easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
-    easydita_bundle.status = EasyditaBundle.STATUS_PROCESSING
-    easydita_bundle.time_processed = now()
-    easydita_bundle.save()
-    logger = get_logger(easydita_bundle)
-    logger.info('Processing easyDITA bundle {}'.format(easydita_bundle_pk))
+    bundle = Bundle.objects.get(pk=bundle_pk)
+    bundle.status = Bundle.STATUS_PROCESSING
+    bundle.time_processed = now()
+    bundle.save()
+    logger = get_logger(bundle)
+    logger.info('Processing easyDITA bundle {}'.format(bundle_pk))
     salesforce = Salesforce()
     s3 = S3()
     with TemporaryDirectory() as tempdir:
-        easydita_bundle.download(tempdir)
+        bundle.download(tempdir)
         try:
-            easydita_bundle.process(tempdir, salesforce, s3)
+            bundle.process(tempdir, salesforce, s3)
         except Exception as e:
-            easydita_bundle.set_error(e)
+            bundle.set_error(e)
             raise
-    logger.info('Processed {}'.format(easydita_bundle))
+    logger.info('Processed {}'.format(bundle))
 
 
 @job
 def process_queue():
     """Process the next easyDITA bundle in the queue."""
-    if EasyditaBundle.objects.filter(status__in=(
-        EasyditaBundle.STATUS_PROCESSING,
-        EasyditaBundle.STATUS_DRAFT,
-        EasyditaBundle.STATUS_PUBLISHING,
+    if Bundle.objects.filter(status__in=(
+        Bundle.STATUS_PROCESSING,
+        Bundle.STATUS_DRAFT,
+        Bundle.STATUS_PUBLISHING,
     )):
         return
     try:
-        easydita_bundle = EasyditaBundle.objects.filter(
-            status=EasyditaBundle.STATUS_QUEUED,
+        bundle = Bundle.objects.filter(
+            status=Bundle.STATUS_QUEUED,
         ).earliest('time_queued')
-    except EasyditaBundle.DoesNotExist as e:
+    except Bundle.DoesNotExist as e:
         return
-    process_easydita_bundle.delay(easydita_bundle.pk)
+    process_bundle.delay(bundle.pk)
 
 
 @job
@@ -65,18 +65,18 @@ def process_webhook(pk):
         data['event_id'] == 'dita-ot-publish-complete'
         and data['event_data']['publish-result'] == 'success'
     ):
-        easydita_bundle, created = EasyditaBundle.objects.get_or_create(
+        bundle, created = Bundle.objects.get_or_create(
             easydita_id=data['event_data']['output-uuid'],
             defaults={'easydita_resource_id': data['resource_id']},
         )
-        webhook.easydita_bundle = easydita_bundle
-        if created or easydita_bundle.is_complete():
+        webhook.bundle = bundle
+        if created or bundle.is_complete():
             logger.info('Webhook accepted')
             webhook.status = Webhook.STATUS_ACCEPTED
             webhook.save()
-            easydita_bundle.status = EasyditaBundle.STATUS_QUEUED
-            easydita_bundle.time_queued = now()
-            easydita_bundle.save()
+            bundle.status = Bundle.STATUS_QUEUED
+            bundle.time_queued = now()
+            bundle.save()
             process_queue.delay()
         else:
             logger.info('Webhook rejected (already processing)')
@@ -89,19 +89,19 @@ def process_webhook(pk):
 
 
 @job('default', timeout=600)
-def publish_drafts(easydita_bundle_pk):
+def publish_drafts(bundle_pk):
     """Publish all drafts related to an easyDITA bundle."""
-    easydita_bundle = EasyditaBundle.objects.get(pk=easydita_bundle_pk)
-    easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
-    easydita_bundle.save()
-    logger = get_logger(easydita_bundle)
+    bundle = Bundle.objects.get(pk=bundle_pk)
+    bundle.status = Bundle.STATUS_PUBLISHING
+    bundle.save()
+    logger = get_logger(bundle)
     logger.info(
-        'Publishing drafts for easyDITA bundle {}'.format(easydita_bundle_pk)
+        'Publishing drafts for easyDITA bundle {}'.format(bundle_pk)
     )
     salesforce = Salesforce()
     s3 = S3()
-    n_articles = easydita_bundle.articles.count()
-    for n, article in enumerate(easydita_bundle.articles.all(), start=1):
+    n_articles = bundle.articles.count()
+    for n, article in enumerate(bundle.articles.all(), start=1):
         logger.info('Publishing article {} of {}: {}'.format(
             n,
             n_articles,
@@ -110,18 +110,18 @@ def publish_drafts(easydita_bundle_pk):
         try:
             salesforce.publish_draft(article.kav_id)
         except Exception as e:
-            easydita_bundle.set_error(e)
+            bundle.set_error(e)
             raise
-    n_images = easydita_bundle.images.count()
-    for n, image in enumerate(easydita_bundle.images.all(), start=1):
+    n_images = bundle.images.count()
+    for n, image in enumerate(bundle.images.all(), start=1):
         logger.info('Publishing image {} of {}: {}'.format(
             n,
             n_images,
             image,
         ))
         s3.copy_to_production(image.filename)
-    easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHED
-    easydita_bundle.time_published = now()
-    easydita_bundle.save()
-    logger.info('Published all drafts for {}'.format(easydita_bundle))
+    bundle.status = Bundle.STATUS_PUBLISHED
+    bundle.time_published = now()
+    bundle.save()
+    logger.info('Published all drafts for {}'.format(bundle))
     process_queue.delay()

@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST
 
 from .forms import PublishToProductionForm
 from .models import Article
-from .models import EasyditaBundle
+from .models import Bundle
 from .models import Image
 from .models import Webhook
 from .tasks import process_queue
@@ -25,46 +25,46 @@ from .tasks import publish_drafts
 @never_cache
 @staff_member_required
 def bundle(request, pk):
-    easydita_bundle = get_object_or_404(EasyditaBundle, pk=pk)
-    context = {'bundle': easydita_bundle}
-    if easydita_bundle.status == EasyditaBundle.STATUS_DRAFT:
+    bundle = get_object_or_404(Bundle, pk=pk)
+    context = {'bundle': bundle}
+    if bundle.status == Bundle.STATUS_DRAFT:
         if request.method == 'POST':
             form = PublishToProductionForm(request.POST)
             if form.is_valid():
                 if form.approved():
-                    easydita_bundle.status = EasyditaBundle.STATUS_PUBLISHING
-                    easydita_bundle.save()
-                    publish_drafts.delay(easydita_bundle.pk)
+                    bundle.status = Bundle.STATUS_PUBLISHING
+                    bundle.save()
+                    publish_drafts.delay(bundle.pk)
                 else:
-                    easydita_bundle.status = EasyditaBundle.STATUS_REJECTED
-                    easydita_bundle.save()
+                    bundle.status = Bundle.STATUS_REJECTED
+                    bundle.save()
                     process_queue.delay()
             return HttpResponseRedirect('./')
         else:
             form = PublishToProductionForm()
-        context['articles_new'] = easydita_bundle.articles.filter(
+        context['articles_new'] = bundle.articles.filter(
             status=Article.STATUS_NEW,
         ).order_by('url_name')
-        context['articles_changed'] = easydita_bundle.articles.filter(
+        context['articles_changed'] = bundle.articles.filter(
             status=Article.STATUS_CHANGED,
         ).order_by('url_name')
-        context['images_new'] = easydita_bundle.images.filter(
+        context['images_new'] = bundle.images.filter(
             status=Image.STATUS_NEW,
         ).order_by('filename')
-        context['images_changed'] = easydita_bundle.images.filter(
+        context['images_changed'] = bundle.images.filter(
             status=Image.STATUS_CHANGED,
         ).order_by('filename')
         context['form'] = form
         return render(request, 'publish_form.html', context=context)
     else:
-        context['logs'] = easydita_bundle.logs.all().order_by('time')
+        context['logs'] = bundle.logs.all().order_by('time')
         return render(request, 'bundle.html', context=context)
 
 
 @never_cache
 @staff_member_required
 def bundles(request):
-    qs = EasyditaBundle.objects.all().order_by('-pk')
+    qs = Bundle.objects.all().order_by('-pk')
     count = request.GET.get('count', 25)
     page = request.GET.get('page')
     paginator = Paginator(qs, count)
@@ -93,13 +93,13 @@ def bundles(request):
 @never_cache
 @staff_member_required
 def index(request):
-    qs_processing = EasyditaBundle.objects.filter(status__in=(
-        EasyditaBundle.STATUS_PROCESSING,
-        EasyditaBundle.STATUS_DRAFT,
-        EasyditaBundle.STATUS_PUBLISHING,
+    qs_processing = Bundle.objects.filter(status__in=(
+        Bundle.STATUS_PROCESSING,
+        Bundle.STATUS_DRAFT,
+        Bundle.STATUS_PUBLISHING,
     ))
-    qs_queued = EasyditaBundle.objects.filter(
-        status=EasyditaBundle.STATUS_QUEUED,
+    qs_queued = Bundle.objects.filter(
+        status=Bundle.STATUS_QUEUED,
     )
     context = {
         'processing': qs_processing.order_by('time_queued'),
