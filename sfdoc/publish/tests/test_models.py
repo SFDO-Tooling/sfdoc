@@ -55,31 +55,6 @@ class TestBundle(TestCase):
         )
         self.articles = [utils.gen_article(n) for n in range(1, 3)]
 
-    @responses.activate
-    def test_download(self):
-        bundle = Bundle.objects.create(
-            easydita_id=self.bundle_id,
-        )
-        utils.mock_bundle_download(
-            bundle.url,
-            self.articles,
-        )
-        with TemporaryDirectory() as d:
-            bundle.download(d)
-            items = sorted(os.listdir(d))
-            self.assertEqual(len(items), len(self.articles))
-            for article, item in zip(self.articles, items):
-                self.assertEqual(item, article['filename'])
-                content = utils.create_test_html(
-                    article['url_name'],
-                    article['title'],
-                    article['summary'],
-                    article['body'],
-                )
-                with open(os.path.join(d, item)) as f:
-                    self.assertEqual(f.read(), content)
-        self.assertEqual(len(responses.calls), 1)
-
 
 class TestImage(TestCase):
 

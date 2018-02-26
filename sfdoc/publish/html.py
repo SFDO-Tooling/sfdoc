@@ -82,6 +82,23 @@ class HTML:
             image_paths.add(img['src'])
         return image_paths
 
+    def scrub(self):
+        """Scrub article body using whitelists for tags/attributes and links."""
+        def scrub_tree(tree):
+            for child in tree.children:
+                if hasattr(child, 'contents'):
+                    if child.name not in settings.HTML_WHITELIST:
+                        raise HtmlError('Tag "{}" not in whitelist'.format(child.name))
+                    for attr in child.attrs:
+                        if attr not in settings.HTML_WHITELIST[child.name]:
+                            raise HtmlError(('Tag "{}" attribute "{}" not in whitelist').format(child.name, attr))
+                        if attr in ('href', 'src'):
+                            if not is_url_whitelisted(child[attr]):
+                                raise HtmlError('URL {} not whitelisted'.format(child[attr]))
+                    scrub_tree(child)
+        soup = BeautifulSoup(self.body, 'html.parser')
+        scrub_tree(soup)
+
     def update_image_links(self):
         """Replace image URLs with S3 draft location."""
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
@@ -93,103 +110,10 @@ class HTML:
             img['src'] = images_path + os.path.basename(img['src'])
         self.body = soup.prettify()
 
-
-def get_links(path, print_json=False, body_only=True):
-    """Find all the links (href, src) in all HTML files under the path."""
-    def proc(tree, links):
-        for child in tree.children:
-            if not hasattr(child, 'contents'):
-                continue
-            for attr in child.attrs:
-                if attr in ('href', 'src'):
-                    if not urlparse(child[attr]).scheme:
-                        # not an external link, implicitly whitelisted
-                        continue
-                    links.add(child[attr])
-            proc(child, links)
-    links = set([])
-    for dirpath, dirnames, filenames in os.walk(path):
-        for filename in filenames:
-            if filename in settings.SKIP_FILES:
-                continue
-            if is_html(filename):
-                filename_full = os.path.join(dirpath, filename)
-                with open(filename_full, 'r') as f:
-                    html = f.read()
-                if body_only:
-                    html = HTML(html)
-                    html = html.body
-                soup = BeautifulSoup(html, 'html.parser')
-                proc(soup, links)
-    if print_json:
-        print(json.dumps(sorted(list(links)), indent=2))
-    return links
-
-
-def get_tags(path, print_json=False, body_only=True):
-    """Find all HTML tags/attributes in all HTML files under the path."""
-    def proc(tree, tags):
-        for child in tree.children:
-            if not hasattr(child, 'contents'):
-                continue
-            if child.name not in tags:
-                tags[child.name] = set([])
-            for attr in child.attrs:
-                tags[child.name].add(attr)
-            proc(child, tags)
-    tags = {}
-    for dirpath, dirnames, filenames in os.walk(path):
-        for filename in filenames:
-            if filename in settings.SKIP_FILES:
-                continue
-            if is_html(filename):
-                filename_full = os.path.join(dirpath, filename)
-                with open(filename_full, 'r') as f:
-                    html = f.read()
-                if body_only:
-                    html = HTML(html)
-                    html = html.body
-                soup = BeautifulSoup(html, 'html.parser')
-                proc(soup, tags)
-    if print_json:
-        tags_json = {}
-        for tag in sorted(tags.keys()):
-            tags_json[tag] = []
-            for item in sorted(list(tags[tag])):
-                tags_json[tag].append(item)
-        print(json.dumps(tags_json, indent=2))
-    return tags
-
-
-def scrub_html(html_raw):
-    """Scrub article body using whitelists for tags/attributes and links."""
-    html = HTML(html_raw)
-    soup = BeautifulSoup(html.body, 'html.parser')
-
-    def scrub_tree(tree):
-        for child in tree.children:
-            if hasattr(child, 'contents'):
-                if child.name not in settings.HTML_WHITELIST:
-                    raise HtmlError('Tag "{}" not in whitelist'.format(
-                        child.name,
-                    ))
-                for attr in child.attrs:
-                    if attr not in settings.HTML_WHITELIST[child.name]:
-                        raise HtmlError((
-                            'Tag "{}" attribute "{}" not in whitelist'
-                        ).format(child.name, attr))
-                    if attr in ('href', 'src'):
-                        if not is_url_whitelisted(child[attr]):
-                            raise HtmlError('URL {} not whitelisted'.format(
-                                child[attr],
-                            ))
-                scrub_tree(child)
-    scrub_tree(soup)
-
-
-def update_image_links_production(html):
-    """Update image links to point at production images."""
-    soup = BeautifulSoup(html, 'html.parser')
-    for img in soup('img'):
-        img['src'] = img['src'].replace(settings.S3_IMAGES_DRAFT_DIR, '')
-    return soup.prettify()
+    @staticmethod
+    def update_image_links_production(html):
+        """Update image links to point at production images."""
+        soup = BeautifulSoup(html, 'html.parser')
+        for img in soup('img'):
+            img['src'] = img['src'].replace(settings.S3_IMAGES_DRAFT_DIR, '')
+        return soup.prettify()

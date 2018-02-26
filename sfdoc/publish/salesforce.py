@@ -12,7 +12,6 @@ from simple_salesforce import Salesforce as SimpleSalesforce
 from .exceptions import HtmlError
 from .exceptions import SalesforceError
 from .html import HTML
-from .html import update_image_links_production
 from .models import Article
 
 
@@ -87,7 +86,8 @@ class Salesforce:
         """Publish a draft KnowledgeArticleVersion."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         kav = kav_api.get(kav_id)
-        body = update_image_links_production(kav[settings.SALESFORCE_ARTICLE_BODY_FIELD])
+        body = kav[settings.SALESFORCE_ARTICLE_BODY_FIELD]
+        body = HTML.update_image_links_production(body)
         kav_api.update(kav_id, {settings.SALESFORCE_ARTICLE_BODY_FIELD: body})
         url = (
             self.api.base_url +
@@ -183,8 +183,9 @@ class Salesforce:
                 same_summary = True
             else:
                 same_summary = html.summary == record['Summary']
+            body = HTML.update_image_links_production(html.body)
             same_body = (
-                update_image_links_production(html.body).strip() ==
+                body.strip() ==
                 record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip()
             )
             if same_title and same_summary and same_body:

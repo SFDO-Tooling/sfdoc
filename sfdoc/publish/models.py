@@ -1,5 +1,3 @@
-from io import BytesIO
-import os
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -8,12 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 import requests
 
-from .html import HTML
-from .html import scrub_html
 from .logger import get_logger
-from .utils import is_html
-from .utils import skip_file
-from .utils import unzip
 
 
 class Article(models.Model):
@@ -84,81 +77,8 @@ class Bundle(models.Model):
             self.STATUS_ERROR,
         )
 
-    def download(self, path):
-        """Download bundle ZIP and extract to given directory."""
-        logger = get_logger(self)
-        logger.info('Downloading easyDITA bundle from {}'.format(self.url))
-        auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
-        response = requests.get(self.url, auth=auth)
-        zip_file = BytesIO(response.content)
-        unzip(zip_file, path, recursive=True)
-
     def get_absolute_url(self):
         return '/publish/bundles/{}/'.format(self.pk)
-
-    def process(self, path, salesforce, s3):
-        logger = get_logger(self)
-        # collect paths to all HTML files
-        html_files = []
-        for dirpath, dirnames, filenames in os.walk(path):
-            for filename in filenames:
-                filename_full = os.path.join(dirpath, filename)
-                if skip_file(filename):
-                    logger.info('Skipping HTML file: {}'.format(filename_full))
-                    continue
-                if is_html(filename):
-                    html_files.append(filename_full)
-        # check all HTML files
-        logger.info('Scrubbing all HTML files in {}'.format(self))
-        for n, html_file in enumerate(html_files, start=1):
-            logger.info('Scrubbing HTML file {} of {}: {}'.format(
-                n,
-                len(html_files),
-                html_file,
-            ))
-            with open(html_file) as f:
-                html_raw = f.read()
-            scrub_html(html_raw)
-        # upload draft articles and images
-        logger.info('Uploading draft articles and images')
-        publish_queue = []
-        changed = False
-        images = set([])
-        for n, html_file in enumerate(html_files, start=1):
-            logger.info('Processing HTML file {} of {}: {}'.format(
-                n,
-                len(html_files),
-                html_file,
-            ))
-            with open(html_file) as f:
-                html_raw = f.read()
-            html = HTML(html_raw)
-            for image_path in html.get_image_paths():
-                images.add(os.path.abspath(os.path.join(
-                    os.path.dirname(html_file),
-                    image_path,
-                )))
-            changed_1 = salesforce.process_article(html, self)
-            if changed_1:
-                changed = True
-        for n, image in enumerate(images, start=1):
-            logger.info('Processing image file {} of {}: {}'.format(
-                n,
-                len(images),
-                image,
-            ))
-            changed_1 = s3.process_image(image, self)
-            if changed_1:
-                changed = True
-        if changed:
-            self.status = self.STATUS_DRAFT
-        else:
-            self.status = self.STATUS_REJECTED
-            self.error_message = (
-                'No articles or images were updated, so the bundle was '
-                'automatically rejected.'
-            )
-        self.save()
 
     def set_error(self, e, filename=None):
         """Set error status and message."""
