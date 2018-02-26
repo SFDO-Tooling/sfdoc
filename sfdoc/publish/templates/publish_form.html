@@ -5,7 +5,6 @@
 <br>
 
 {% if articles %}
-<br>
 <h5>Article Draft Previews</h5>
 <p>
   <ul>
@@ -14,10 +13,10 @@
 {% endfor %}
   </ul>
 </p>
+<br>
 {% endif %}
 
 {% if images %}
-<br>
 <h5>Image Previews</h5>
 <p>
   <ul>
@@ -26,11 +25,11 @@
 {% endfor %}
   </ul>
 </p>
+<br>
 {% endif %}
 
 <form action="" method="post">
     {% csrf_token %}
-    <br>
     {{ form.as_p }}
     <p><input type="submit" value="Submit" /></p>
 </form>
