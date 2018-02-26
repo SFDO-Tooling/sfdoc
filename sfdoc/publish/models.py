@@ -66,6 +66,7 @@ class Bundle(models.Model):
     time_queued = models.DateTimeField(null=True, blank=True)
     time_processed = models.DateTimeField(null=True, blank=True)
     time_published = models.DateTimeField(null=True, blank=True)
+    time_last_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return 'easyDITA bundle {}'.format(self.pk)
