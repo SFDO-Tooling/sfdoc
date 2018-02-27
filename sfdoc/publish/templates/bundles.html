@@ -2,9 +2,8 @@
 
 {% block content %}
 <h4>easyDITA Bundles</h4>
-<br>
 
-{% if bundles %}
+<br>
 <table class="table">
   <tr>
     <th>#</th>
@@ -36,10 +35,6 @@
 {% endif %}
 </ul>
 <p>Page {{ bundles.number }} of {{ bundles.paginator.num_pages }}</p>
-{% endif %}
-
-{% else %}
-<h5>There are no easyDITA bundles in the system.</h5>
 {% endif %}
 
 {% endblock content %}
