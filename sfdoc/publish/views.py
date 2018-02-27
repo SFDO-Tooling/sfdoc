@@ -26,39 +26,12 @@ from .tasks import publish_drafts
 @staff_member_required
 def bundle(request, pk):
     bundle = get_object_or_404(Bundle, pk=pk)
-    context = {'bundle': bundle}
-    if bundle.status == Bundle.STATUS_DRAFT:
-        if request.method == 'POST':
-            form = PublishToProductionForm(request.POST)
-            if form.is_valid():
-                if form.approved():
-                    bundle.status = Bundle.STATUS_PUBLISHING
-                    bundle.save()
-                    publish_drafts.delay(bundle.pk)
-                else:
-                    bundle.status = Bundle.STATUS_REJECTED
-                    bundle.save()
-                    process_queue.delay()
-            return HttpResponseRedirect('./')
-        else:
-            form = PublishToProductionForm()
-        context['articles_new'] = bundle.articles.filter(
-            status=Article.STATUS_NEW,
-        ).order_by('url_name')
-        context['articles_changed'] = bundle.articles.filter(
-            status=Article.STATUS_CHANGED,
-        ).order_by('url_name')
-        context['images_new'] = bundle.images.filter(
-            status=Image.STATUS_NEW,
-        ).order_by('filename')
-        context['images_changed'] = bundle.images.filter(
-            status=Image.STATUS_CHANGED,
-        ).order_by('filename')
-        context['form'] = form
-        return render(request, 'publish_form.html', context=context)
-    else:
-        context['logs'] = bundle.logs.all().order_by('time')
-        return render(request, 'bundle.html', context=context)
+    context = {
+        'bundle': bundle,
+        'logs': bundle.logs.all().order_by('time'),
+        'ready_for_review': bundle.status == Bundle.STATUS_DRAFT,
+    }
+    return render(request, 'bundle.html', context=context)
 
 
 @never_cache
@@ -106,6 +79,46 @@ def index(request):
         'queued': qs_queued.order_by('time_queued'),
     }
     return render(request, 'index.html', context=context)
+
+
+@never_cache
+@staff_member_required
+def review(request, pk):
+    bundle = get_object_or_404(Bundle, pk=pk)
+    if bundle.status != Bundle.STATUS_DRAFT:
+        return HttpResponseRedirect('../')
+    context = {'bundle': bundle}
+    if request.method == 'POST':
+        form = PublishToProductionForm(request.POST)
+        if form.is_valid():
+            if form.approved():
+                bundle.status = Bundle.STATUS_PUBLISHING
+                bundle.save()
+                publish_drafts.delay(bundle.pk)
+            else:
+                bundle.status = Bundle.STATUS_REJECTED
+                bundle.save()
+                process_queue.delay()
+        return HttpResponseRedirect('../')
+    else:
+        form = PublishToProductionForm()
+    context = {
+        'bundle': bundle,
+        'form': form,
+        'articles_new': bundle.articles.filter(
+            status=Article.STATUS_NEW
+        ).order_by('url_name'),
+        'articles_changed': bundle.articles.filter(
+            status=Article.STATUS_CHANGED
+        ).order_by('url_name'),
+        'images_new': bundle.images.filter(
+            status=Image.STATUS_NEW
+        ).order_by('filename'),
+        'images_changed': bundle.images.filter(
+            status=Image.STATUS_CHANGED
+        ).order_by('filename'),
+    }
+    return render(request, 'publish_form.html', context=context)
 
 
 @never_cache

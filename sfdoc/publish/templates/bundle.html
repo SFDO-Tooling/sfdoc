@@ -18,6 +18,12 @@
   </tr>
 </table>
 
+{% if ready_for_review %}
+<br>
+<h5>Ready for review</h5>
+<p><a href="review/">Review draft articles and images<a></p>
+{% endif %}
+
 {% if bundle.error_message %}
 <br>
 <h5>Error Message</h5>
