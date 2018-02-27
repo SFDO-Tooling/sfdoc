@@ -151,8 +151,8 @@ class Salesforce:
     def process_article(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
 
-        # update image links to use Amazon S3
-        html.update_image_links()
+        # update links to draft versions
+        html.update_links_draft()
 
         # search for existing draft. if found, update fields and return
         result = self.query_articles(html.url_name, 'draft')

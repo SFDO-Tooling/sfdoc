@@ -99,7 +99,7 @@ class HTML:
         soup = BeautifulSoup(self.body, 'html.parser')
         scrub_tree(soup)
 
-    def update_image_links(self):
+    def update_links_draft(self):
         """Replace image URLs with S3 draft location."""
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
             settings.AWS_STORAGE_BUCKET_NAME,
