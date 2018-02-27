@@ -61,9 +61,10 @@ def _process_bundle(bundle, path):
                 os.path.dirname(html_file),
                 image_path,
             )))
-        if html.url_name not in html_map:
-            html_map[html.url_name] = []
-        html_map[html.url_name].append(html_file)
+        url_name = html.url_name.lower()
+        if url_name not in html_map:
+            html_map[url_name] = []
+        html_map[url_name].append(html_file)
     # check for duplicate URL names
     if any(map(lambda x: len(x) > 1, html_map.values())):
         msg = 'Found URL name duplicates:'
@@ -78,7 +79,7 @@ def _process_bundle(bundle, path):
     image_map = {}
     duplicate_images = False
     for image in images:
-        basename = os.path.basename(image)
+        basename = os.path.basename(image).lower()
         if basename not in image_map:
             image_map[basename] = []
         image_map[basename].append(image)
