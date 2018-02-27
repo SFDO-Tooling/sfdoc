@@ -43,6 +43,7 @@ def _process_bundle(bundle, path):
             if is_html(filename):
                 html_files.append(filename_full)
     # check all HTML files and create list of image files
+    html_map = {}
     images = set([])
     logger.info('Scrubbing all HTML files in %s', bundle)
     for n, html_file in enumerate(html_files, start=1):
@@ -60,11 +61,25 @@ def _process_bundle(bundle, path):
                 os.path.dirname(html_file),
                 image_path,
             )))
+        url_name = html.url_name.lower()
+        if url_name not in html_map:
+            html_map[url_name] = []
+        html_map[url_name].append(html_file)
+    # check for duplicate URL names
+    if any(map(lambda x: len(x) > 1, html_map.values())):
+        msg = 'Found URL name duplicates:'
+        for url_name in sorted(html_map.keys()):
+            if len(html_map[url_name]) == 1:
+                continue
+            msg += '\n{}'.format(url_name)
+            for html_file in sorted(html_map[url_name]):
+                msg += '\n\t{}'.format(html_file)
+        raise SfdocError(msg)
     # check for duplicate image filenames
     image_map = {}
     duplicate_images = False
     for image in images:
-        basename = os.path.basename(image)
+        basename = os.path.basename(image).lower()
         if basename not in image_map:
             image_map[basename] = []
         image_map[basename].append(image)

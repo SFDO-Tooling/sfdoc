@@ -87,7 +87,7 @@ class Salesforce:
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         kav = kav_api.get(kav_id)
         body = kav[settings.SALESFORCE_ARTICLE_BODY_FIELD]
-        body = HTML.update_image_links_production(body)
+        body = HTML.update_links_production(body)
         kav_api.update(kav_id, {settings.SALESFORCE_ARTICLE_BODY_FIELD: body})
         url = (
             self.api.base_url +
@@ -151,8 +151,8 @@ class Salesforce:
     def process_article(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
 
-        # update image links to use Amazon S3
-        html.update_image_links()
+        # update links to draft versions
+        html.update_links_draft()
 
         # search for existing draft. if found, update fields and return
         result = self.query_articles(html.url_name, 'draft')
@@ -183,7 +183,7 @@ class Salesforce:
                 same_summary = True
             else:
                 same_summary = html.summary == record['Summary']
-            body = HTML.update_image_links_production(html.body)
+            body = HTML.update_links_production(html.body)
             same_body = (
                 body.strip() ==
                 record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip()
