@@ -23,9 +23,6 @@ class BundleAdmin(admin.ModelAdmin):
         'easydita_id',
         'easydita_resource_id',
         'status',
-        'time_queued',
-        'time_processed',
-        'time_published',
     ]
     list_filter = ('status',)
     view_on_site = False

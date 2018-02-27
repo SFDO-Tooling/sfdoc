@@ -1,7 +1,11 @@
 
-class HtmlError(Exception):
+class SfdocError(Exception):
     pass
 
 
-class SalesforceError(Exception):
+class HtmlError(SfdocError):
+    pass
+
+
+class SalesforceError(SfdocError):
     pass

@@ -2,9 +2,9 @@
 
 {% block content %}
 <h4>Review draft articles and images from easyDITA bundle {{ bundle.pk }}</h4>
-<br>
 
 {% if articles_new %}
+<br>
 <h5>New Articles</h5>
 <p>
   <ul>
@@ -13,10 +13,10 @@
 {% endfor %}
   </ul>
 </p>
-<br>
 {% endif %}
 
 {% if articles_changed %}
+<br>
 <h5>Changed Articles</h5>
 <p>
   <ul>
@@ -25,10 +25,10 @@
 {% endfor %}
   </ul>
 </p>
-<br>
 {% endif %}
 
 {% if images_new %}
+<br>
 <h5>New Images</h5>
 <p>
   <ul>
@@ -37,10 +37,10 @@
 {% endfor %}
   </ul>
 </p>
-<br>
 {% endif %}
 
 {% if images_changed %}
+<br>
 <h5>Changed Images</h5>
 <p>
   <ul>
@@ -49,9 +49,9 @@
 {% endfor %}
   </ul>
 </p>
-<br>
 {% endif %}
 
+<br>
 <form action="" method="post">
     {% csrf_token %}
     {{ form.as_p }}

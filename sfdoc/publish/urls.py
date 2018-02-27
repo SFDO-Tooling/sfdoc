@@ -19,6 +19,11 @@ urlpatterns = [
         name='bundle',
     ),
     url(
+        regex=r'^bundles/(?P<pk>\d+)/review/$',
+        view=views.review,
+        name='review',
+    ),
+    url(
         regex=r'^webhook/$',
         view=views.webhook,
         name='webhook',

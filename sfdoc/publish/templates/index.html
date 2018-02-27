@@ -3,9 +3,9 @@
 {% block content %}
 <h4>easyDITA Bundle Processing Queue</h4>
 <p><a href="{% url 'publish:bundles' %}">View all bundles</a></p>
-<br>
 
 {% if processing %}
+<br>
 <h5>Processing</h5>
 <ul>
 {% for bundle in processing %}
@@ -24,7 +24,7 @@
 {% endif %}
 
 {% if not processing and not queued %}
-<p>There are no easyDITA bundles in the queue.</p>
+<p>There are no easyDITA bundles in the queue</p>
 {% endif %}
 
 {% endblock content %}

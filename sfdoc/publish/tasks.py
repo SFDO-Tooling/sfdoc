@@ -7,7 +7,7 @@ from django.utils.timezone import now
 from django_rq import job
 
 from .amazon import S3
-from .exceptions import SalesforceError
+from .exceptions import SfdocError
 from .html import HTML
 from .logger import get_logger
 from .models import Bundle
@@ -40,7 +40,8 @@ def _process_bundle(bundle, path):
                 continue
             if is_html(filename):
                 html_files.append(filename_full)
-    # check all HTML files
+    # check all HTML files and create list of image files
+    images = set([])
     logger.info('Scrubbing all HTML files in %s', bundle)
     for n, html_file in enumerate(html_files, start=1):
         logger.info('Scrubbing HTML file %d of %d: %s',
@@ -52,11 +53,33 @@ def _process_bundle(bundle, path):
             html_raw = f.read()
         html = HTML(html_raw)
         html.scrub()
+        for image_path in html.get_image_paths():
+            images.add(os.path.abspath(os.path.join(
+                os.path.dirname(html_file),
+                image_path,
+            )))
+    # check for duplicate image filenames
+    image_map = {}
+    duplicate_images = False
+    for image in images:
+        basename = os.path.basename(image)
+        if basename not in image_map:
+            image_map[basename] = []
+        image_map[basename].append(image)
+        if len(image_map[basename]) > 1:
+            duplicate_images = True
+    if duplicate_images:
+        msg = 'Found image duplicates:'
+        for basename in sorted(image_map.keys()):
+            msg += '\n{}'.format(basename)
+            for image in sorted(image_map[basename]):
+                msg += '\n\t{}'.format(image)
+        raise SfdocError(msg)
     # upload draft articles and images
     logger.info('Uploading draft articles and images')
     publish_queue = []
     changed = False
-    images = set([])
+    # process HTML files
     for n, html_file in enumerate(html_files, start=1):
         logger.info('Processing HTML file %d of %d: %s',
             n,
@@ -66,14 +89,10 @@ def _process_bundle(bundle, path):
         with open(html_file) as f:
             html_raw = f.read()
         html = HTML(html_raw)
-        for image_path in html.get_image_paths():
-            images.add(os.path.abspath(os.path.join(
-                os.path.dirname(html_file),
-                image_path,
-            )))
         changed_1 = salesforce.process_article(html, bundle)
         if changed_1:
             changed = True
+    # process images
     for n, image in enumerate(images, start=1):
         logger.info('Processing image file %d of %d: %s',
             n,
