@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 from django.conf import settings
 from django.utils.timezone import now
 from django_rq import job
+import requests
 
 from .amazon import S3
 from .exceptions import SfdocError
