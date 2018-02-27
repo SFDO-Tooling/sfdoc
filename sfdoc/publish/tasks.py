@@ -3,6 +3,7 @@ import json
 import os
 from tempfile import TemporaryDirectory
 
+from django.conf import settings
 from django.utils.timezone import now
 from django_rq import job
 
