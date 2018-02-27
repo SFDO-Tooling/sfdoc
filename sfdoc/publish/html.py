@@ -111,8 +111,8 @@ class HTML:
         self.body = soup.prettify()
 
     @staticmethod
-    def update_image_links_production(html):
-        """Update image links to point at production images."""
+    def update_links_production(html):
+        """Update links to production location."""
         soup = BeautifulSoup(html, 'html.parser')
         for img in soup('img'):
             img['src'] = img['src'].replace(settings.S3_IMAGES_DRAFT_DIR, '')
