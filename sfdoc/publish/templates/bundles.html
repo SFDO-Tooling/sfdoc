@@ -10,18 +10,14 @@
     <th>#</th>
     <th>easyDITA ID</th>
     <th>Status</th>
-    <th>Time Queued</th>
-    <th>Time Processed</th>
-    <th>Time Published</th>
+    <th>Time Last Modified</th>
   </tr>
 {% for bundle in bundles %}
   <tr>
     <td><a href="{{ bundle.get_absolute_url}} ">{{ bundle.pk }}</a></td>
     <td>{{ bundle.easydita_id }}</td>
     <td>{{ bundle.get_status_display }}</td>
-    <td>{{ bundle.time_queued }}</td>
-    <td>{{ bundle.time_processed }}</td>
-    <td>{{ bundle.time_published }}</td>
+    <td>{{ bundle.time_last_modified }}</td>
   </tr>
 {% endfor %}
 </table>
