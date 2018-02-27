@@ -102,14 +102,9 @@ def _process_bundle(bundle, path):
         changed_1 = s3.process_image(image, bundle)
         if changed_1:
             changed = True
-    if changed:
-        bundle.status = bundle.STATUS_DRAFT
-    else:
-        bundle.status = bundle.STATUS_REJECTED
-        bundle.error_message = (
-            'No articles or images were updated, so the bundle was '
-            'automatically rejected.'
-        )
+    if not changed:
+        raise SfdocError('No articles or images changed')
+    bundle.status = bundle.STATUS_DRAFT
     bundle.save()
 
 
