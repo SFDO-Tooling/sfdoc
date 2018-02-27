@@ -100,12 +100,28 @@ class HTML:
         scrub_tree(soup)
 
     def update_links_draft(self):
-        """Replace image URLs with S3 draft location."""
+        """Update links to draft location."""
+        soup = BeautifulSoup(self.body, 'html.parser')
+        # this is actually the production location for articles
+        # TODO: link to draft articles where possible
+        articles_path = 'https://{}/articles/{}/'.format(
+            settings.SALESFORCE_DOC_DOMAIN,
+            settings.SALESFORCE_ARTICLE_TYPE.replace('__kav', ''),
+        )
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
             settings.AWS_STORAGE_BUCKET_NAME,
             settings.S3_IMAGES_DRAFT_DIR,
         )
-        soup = BeautifulSoup(self.body, 'html.parser')
+        for a in soup('a'):
+            if 'href' in a.attrs:
+                o = urlparse(a['href'])
+                if o.scheme or not o.path:
+                    continue
+                basename = os.path.basename(o.path)
+                url_name = os.path.splitext(basename)[0]
+                a['href'] = articles_path + url_name
+                if o.fragment:
+                    a['href'] += '#' + o.fragment
         for img in soup('img'):
             img['src'] = images_path + os.path.basename(img['src'])
         self.body = soup.prettify()
