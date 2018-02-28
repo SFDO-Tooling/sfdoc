@@ -104,7 +104,8 @@ class Salesforce:
     def query_articles(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
         query_str = (
-            "SELECT Id,KnowledgeArticleId,Title,Summary,{} FROM {} "
+            "SELECT Id,KnowledgeArticleId,Title,Summary,"
+            "IsVisibleInCsp,IsVisibleInPkb,IsVisibleInPrm,{} FROM {} "
             "WHERE UrlName='{}' AND PublishStatus='{}' AND language='en_US'"
         ).format(
             settings.SALESFORCE_ARTICLE_BODY_FIELD,
@@ -188,7 +189,12 @@ class Salesforce:
                 body.strip() ==
                 record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip()
             )
-            if same_title and same_summary and same_body:
+            same_visibility = (
+                html.is_visible_in_csp == record['IsVisibleInCsp'] and
+                html.is_visible_in_pkb == record['IsVisibleInPkb'] and
+                html.is_visible_in_prm == record['IsVisibleInPrm']
+            )
+            if same_title and same_summary and same_body and same_visibility:
                 # no update
                 return False
 
