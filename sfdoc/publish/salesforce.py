@@ -104,10 +104,13 @@ class Salesforce:
     def query_articles(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
         query_str = (
-            "SELECT Id,KnowledgeArticleId,Title,Summary,{} FROM {} "
+            "SELECT Id,KnowledgeArticleId,Title,Summary,"
+            "IsVisibleInCsp,IsVisibleInPkb,IsVisibleInPrm,{},{},{} FROM {} "
             "WHERE UrlName='{}' AND PublishStatus='{}' AND language='en_US'"
         ).format(
             settings.SALESFORCE_ARTICLE_BODY_FIELD,
+            settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
+            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
             settings.SALESFORCE_ARTICLE_TYPE,
             url_name,
             publish_status,
@@ -178,17 +181,7 @@ class Salesforce:
             record = result['records'][0]
 
             # check for changes in article fields
-            same_title = html.title == record['Title']
-            if not html.summary and not record['Summary']:
-                same_summary = True
-            else:
-                same_summary = html.summary == record['Summary']
-            body = HTML.update_links_production(html.body)
-            same_body = (
-                body.strip() ==
-                record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip()
-            )
-            if same_title and same_summary and same_body:
+            if html.same_as_record(record):
                 # no update
                 return False
 

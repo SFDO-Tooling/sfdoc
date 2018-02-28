@@ -29,7 +29,7 @@ class HTML:
         ):
             tag = soup.find('meta', attrs={'name': tag_name})
             if optional and (not tag or not tag['content']):
-                setattr(self, attr, '')
+                setattr(self, attr, None)
                 continue
             if not tag:
                 raise HtmlError('Meta tag name={} not found'.format(tag_name))
@@ -39,12 +39,21 @@ class HTML:
                 ))
             setattr(self, attr, tag['content'])
 
+        # convert some attributes to booleans
+        for attr in (
+            'is_visible_in_csp',
+            'is_visible_in_pkb',
+            'is_visible_in_prm',
+        ):
+            val = True if getattr(self, attr).lower() == 'true' else False
+            setattr(self, attr, val)
+
         # author override (Salesforce org user ID)
         tag = soup.find(
             'meta',
             attrs={'name': settings.ARTICLE_AUTHOR_OVERRIDE},
         )
-        self.author_override = tag['content'] if tag else ''
+        self.author_override = tag.get('content')
 
         # title
         if not soup.title:
@@ -81,6 +90,20 @@ class HTML:
         for img in soup('img'):
             image_paths.add(img['src'])
         return image_paths
+
+    def same_as_record(self, record):
+        """Compare this object with an article from a Salesforce query."""
+        body_production = self.update_links_production(self.body)
+        return (
+            self.title == record['Title'] and
+            self.summary == record['Summary'] and
+            self.is_visible_in_csp == record['IsVisibleInCsp'] and
+            self.is_visible_in_pkb == record['IsVisibleInPkb'] and
+            self.is_visible_in_prm == record['IsVisibleInPrm'] and
+            self.author == record[settings.SALESFORCE_ARTICLE_AUTHOR_FIELD] and
+            self.author_override == record[settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD] and
+            body_production.strip() == record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip()
+        )
 
     def scrub(self):
         """Scrub article body using whitelists for tags/attributes and links."""
