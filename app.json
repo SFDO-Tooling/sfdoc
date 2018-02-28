@@ -17,9 +17,78 @@
     "heroku-redis"
   ],
   "env": {
+    "ARTICLE_AUTHOR": {
+      "description": "Name attribute of meta tag to use as author info (easyDITA user ID)"
+    },
+    "ARTICLE_AUTHOR_OVERRIDE": {
+      "description": "Name attribute of meta tag to use as author info override (Salesforce Community user ID)"
+    },
+    "ARTICLE_BODY_CLASS": {
+      "description": "Class attribute of div tag used to identify the article"
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "description": "Amazon Web Services access key ID"
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+      "description": "Amazon Web Services secret access key"
+    },
+    "AWS_STORAGE_BUCKET_NAME": {
+      "description": "Name of the storage bucket on AWS"
+    },
+    "DATABASE_URL": {
+      "description": "The URL of the Postgres database"
+    },
+    "EASYDITA_INSTANCE_URL": {
+      "description": "The URL of your easyDITA instance"
+    },
+    "EASYDITA_PASSWORD": {
+      "description": "easyDITA user password"
+    },
+    "EASYDITA_USERNAME": {
+      "description": "easyDITA user name (needed for API access)"
+    },
+    "HTML_WHITELIST": {
+      "description": "JSON key-value object whose keys are the whitelisted HTML tags, and the values are lists of whitelisted attributes for that tag"
+    },
+    "S3_IMAGES_DRAFT_DIR": {
+      "description": "Name to use for the S3 directory where draft images are located"
+    },
+    "SALESFORCE_API_VERSION": {
+      "description": "Salesforce API version"
+    },
+    "SALESFORCE_ARTICLE_AUTHOR_FIELD": {
+      "description": "Salesforce custom field on KnowledgeArticleVersion for the easyDITA author ID"
+    },
+    "SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD": {
+      "description": "Salesforce custom field on KnowledgeArticleVersion for the Salesforce Community user ID"
+    },
+    "SALESFORCE_ARTICLE_BODY_FIELD": {
+      "description": "Salesforce custom field on KnowledgeArticleVersion for the article body"
+    },
+    "SALESFORCE_ARTICLE_TYPE": {
+      "description": "Salesforce article type e.g. Info__kav"
+    },
+    "SALESFORCE_CLIENT_ID": {
+      "description": "Salesforce connected app Client ID"
+    },
+    "SALESFORCE_JWT_PRIVATE_KEY": {
+      "description": "Salesforce connected app JWT private key"
+    },
+    "SALESFORCE_SANDBOX": {
+      "description": "Is the connected Salesforce org a sandbox? True/False"
+    },
+    "SALESFORCE_USERNAME": {
+      "description": "Salesforce org username for API access"
+    },
     "SECRET_KEY": {
       "description": "The secret key for the Django application.",
       "generator": "secret"
+    },
+    "SKIP_FILES": {
+      "description": "JSON list of HTML filenames to skip when processing (wildcards supported)"
+    },
+    "URL_WHITELIST": {
+      "description": "JSON list of URLs that may be linked to from articles (wildcards supported)"
     }
   },
   "formation": {
