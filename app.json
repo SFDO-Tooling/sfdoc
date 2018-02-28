@@ -50,7 +50,7 @@
     "WHITELIST_HTML": {
       "description": "JSON key-value object whose keys are the whitelisted HTML tags, and the values are lists of whitelisted attributes for that tag"
     },
-    "S3_IMAGES_DRAFT_DIR": {
+    "AWS_S3_DRAFT_DIR": {
       "description": "Name to use for the S3 directory where draft images are located"
     },
     "SALESFORCE_API_VERSION": {

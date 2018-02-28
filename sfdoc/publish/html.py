@@ -104,7 +104,7 @@ class HTML:
         soup = BeautifulSoup(self.body, 'html.parser')
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
             settings.AWS_S3_BUCKET,
-            settings.S3_IMAGES_DRAFT_DIR,
+            settings.AWS_S3_DRAFT_DIR,
         )
         for a in soup('a'):
             if 'href' in a.attrs:
@@ -124,5 +124,5 @@ class HTML:
         """Update links to production location."""
         soup = BeautifulSoup(html, 'html.parser')
         for img in soup('img'):
-            img['src'] = img['src'].replace(settings.S3_IMAGES_DRAFT_DIR, '')
+            img['src'] = img['src'].replace(settings.AWS_S3_DRAFT_DIR, '')
         return soup.prettify()
