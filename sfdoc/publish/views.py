@@ -141,7 +141,7 @@ def review(request, pk):
             status=Image.STATUS_CHANGED
         ).order_by('filename'),
     }
-    return render(request, 'publish_form.html', context=context)
+    return render(request, 'publish.html', context=context)
 
 
 @never_cache
