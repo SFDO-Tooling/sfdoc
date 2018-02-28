@@ -37,13 +37,13 @@ def _process_bundle(bundle, path):
     for dirpath, dirnames, filenames in os.walk(path):
         for filename in filenames:
             filename_full = os.path.join(dirpath, filename)
-            if skip_file(filename):
-                logger.info(
-                    'Skipping HTML file: %s',
-                    filename_full.replace(path + os.sep, ''),
-                )
-                continue
             if is_html(filename):
+                if skip_file(filename):
+                    logger.info(
+                        'Skipping file: %s',
+                        filename_full.replace(path + os.sep, ''),
+                    )
+                    continue
                 html_files.append(filename_full)
     # check all HTML files and create list of image files
     html_map = {}
