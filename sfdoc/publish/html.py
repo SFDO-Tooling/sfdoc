@@ -87,10 +87,10 @@ class HTML:
         def scrub_tree(tree):
             for child in tree.children:
                 if hasattr(child, 'contents'):
-                    if child.name not in settings.HTML_WHITELIST:
+                    if child.name not in settings.WHITELIST_HTML:
                         raise HtmlError('Tag "{}" not in whitelist'.format(child.name))
                     for attr in child.attrs:
-                        if attr not in settings.HTML_WHITELIST[child.name]:
+                        if attr not in settings.WHITELIST_HTML[child.name]:
                             raise HtmlError(('Tag "{}" attribute "{}" not in whitelist').format(child.name, attr))
                         if attr in ('href', 'src'):
                             if not is_url_whitelisted(child[attr]):

@@ -87,7 +87,7 @@ AWS_SECRET_ACCESS_KEY = 'XYZ789'
 AWS_S3_BUCKET = 'sfdoc-test'
 S3_IMAGES_DRAFT_DIR = 'draft/'
 
-HTML_WHITELIST = {
+WHITELIST_HTML = {
     'a': ['href'],
     'body': [],
     'br': [],

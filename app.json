@@ -47,7 +47,7 @@
     "EASYDITA_USERNAME": {
       "description": "easyDITA user name (needed for API access)"
     },
-    "HTML_WHITELIST": {
+    "WHITELIST_HTML": {
       "description": "JSON key-value object whose keys are the whitelisted HTML tags, and the values are lists of whitelisted attributes for that tag"
     },
     "S3_IMAGES_DRAFT_DIR": {
