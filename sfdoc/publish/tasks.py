@@ -17,7 +17,7 @@ from .models import Webhook
 from .salesforce import Salesforce
 from .logger import get_logger
 from .utils import is_html
-from .utils import skip_file
+from .utils import skip_html_file
 from .utils import unzip
 
 
@@ -38,7 +38,7 @@ def _process_bundle(bundle, path):
         for filename in filenames:
             filename_full = os.path.join(dirpath, filename)
             if is_html(filename):
-                if skip_file(filename):
+                if skip_html_file(filename):
                     logger.info(
                         'Skipping file: %s',
                         filename_full.replace(path + os.sep, ''),
