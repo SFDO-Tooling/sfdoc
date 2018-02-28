@@ -87,10 +87,10 @@ class HTML:
         def scrub_tree(tree):
             for child in tree.children:
                 if hasattr(child, 'contents'):
-                    if child.name not in settings.HTML_WHITELIST:
+                    if child.name not in settings.WHITELIST_HTML:
                         raise HtmlError('Tag "{}" not in whitelist'.format(child.name))
                     for attr in child.attrs:
-                        if attr not in settings.HTML_WHITELIST[child.name]:
+                        if attr not in settings.WHITELIST_HTML[child.name]:
                             raise HtmlError(('Tag "{}" attribute "{}" not in whitelist').format(child.name, attr))
                         if attr in ('href', 'src'):
                             if not is_url_whitelisted(child[attr]):
@@ -103,8 +103,8 @@ class HTML:
         """Update links to draft location."""
         soup = BeautifulSoup(self.body, 'html.parser')
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
-            settings.AWS_STORAGE_BUCKET_NAME,
-            settings.S3_IMAGES_DRAFT_DIR,
+            settings.AWS_S3_BUCKET,
+            settings.AWS_S3_DRAFT_DIR,
         )
         for a in soup('a'):
             if 'href' in a.attrs:
@@ -124,5 +124,5 @@ class HTML:
         """Update links to production location."""
         soup = BeautifulSoup(html, 'html.parser')
         for img in soup('img'):
-            img['src'] = img['src'].replace(settings.S3_IMAGES_DRAFT_DIR, '')
+            img['src'] = img['src'].replace(settings.AWS_S3_DRAFT_DIR, '')
         return soup.prettify()

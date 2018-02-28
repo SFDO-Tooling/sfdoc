@@ -123,8 +123,8 @@ class Image(models.Model):
     @property
     def draft_preview_url(self):
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
-            settings.AWS_STORAGE_BUCKET_NAME,
-            settings.S3_IMAGES_DRAFT_DIR,
+            settings.AWS_S3_BUCKET,
+            settings.AWS_S3_DRAFT_DIR,
         )
         return images_path + self.filename
 

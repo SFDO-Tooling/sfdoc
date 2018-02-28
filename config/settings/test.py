@@ -84,10 +84,10 @@ SALESFORCE_API_VERSION = '41.0'
 # AWS
 AWS_ACCESS_KEY_ID = 'ABC123'
 AWS_SECRET_ACCESS_KEY = 'XYZ789'
-AWS_STORAGE_BUCKET_NAME = 'sfdoc-test'
-S3_IMAGES_DRAFT_DIR = 'draft/'
+AWS_S3_BUCKET = 'sfdoc-test'
+AWS_S3_DRAFT_DIR = 'draft/'
 
-HTML_WHITELIST = {
+WHITELIST_HTML = {
     'a': ['href'],
     'body': [],
     'br': [],
@@ -107,8 +107,8 @@ HTML_WHITELIST = {
     'title': [],
     'ul': []
 }
-URL_WHITELIST = []
+WHITELIST_URL = []
 
-SKIP_FILES = '["index.html"]'
+SKIP_HTML_FILES = '["index.html"]'
 
 HEROKU_APP_NAME = 'sfdoc.example.com'
