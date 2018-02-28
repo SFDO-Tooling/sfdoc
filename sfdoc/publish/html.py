@@ -39,6 +39,15 @@ class HTML:
                 ))
             setattr(self, attr, tag['content'])
 
+        # convert some attributes to booleans
+        for attr in (
+            'is_visible_in_csp',
+            'is_visible_in_pkb',
+            'is_visible_in_prm',
+        ):
+            val = True if getattr(self, attr).lower() == 'true' else False
+            setattr(self, attr, val)
+
         # author override (Salesforce org user ID)
         tag = soup.find(
             'meta',
