@@ -105,10 +105,12 @@ class Salesforce:
         """Query KnowledgeArticleVersion objects."""
         query_str = (
             "SELECT Id,KnowledgeArticleId,Title,Summary,"
-            "IsVisibleInCsp,IsVisibleInPkb,IsVisibleInPrm,{} FROM {} "
+            "IsVisibleInCsp,IsVisibleInPkb,IsVisibleInPrm,{},{},{} FROM {} "
             "WHERE UrlName='{}' AND PublishStatus='{}' AND language='en_US'"
         ).format(
             settings.SALESFORCE_ARTICLE_BODY_FIELD,
+            settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
+            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
             settings.SALESFORCE_ARTICLE_TYPE,
             url_name,
             publish_status,
@@ -194,7 +196,11 @@ class Salesforce:
                 html.is_visible_in_pkb == record['IsVisibleInPkb'] and
                 html.is_visible_in_prm == record['IsVisibleInPrm']
             )
-            if same_title and same_summary and same_body and same_visibility:
+            same_authors = (
+                html.author == record[settings.SALESFORCE_ARTICLE_AUTHOR_FIELD] and
+                html.author_override == record[settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD]
+            )
+            if same_title and same_summary and same_body and same_visibility and same_authors:
                 # no update
                 return False
 
