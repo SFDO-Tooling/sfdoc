@@ -65,8 +65,6 @@ sfdoc uses environment variables for configuration, whether the site is run loca
   * Salesforce  - e.g. "Info__kav"
 * SALESFORCE_CLIENT_ID
   * Salesforce connected app Client ID
-* SALESFORCE_DOC_DOMAIN
-  * The domain used for linking to production articles
 * SALESFORCE_JWT_PRIVATE_KEY
   * Salesforce connected app JWT private key
 * SALESFORCE_SANDBOX
