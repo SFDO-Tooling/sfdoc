@@ -19,6 +19,11 @@ urlpatterns = [
         name='bundle',
     ),
     url(
+        regex=r'^bundles/(?P<pk>\d+)/requeue/$',
+        view=views.requeue,
+        name='requeue',
+    ),
+    url(
         regex=r'^bundles/(?P<pk>\d+)/review/$',
         view=views.review,
         name='review',

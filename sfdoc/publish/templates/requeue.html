@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h4>Requeue {{ bundle }}</h4>
+
+<br>
+<h5>Are you sure you want to requeue {{ bundle }}?</h5>
+<br>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" name="choice" class="btn btn-secondary" value="Cancel"  />
+    <input type="submit" name="choice" class="btn btn-primary"   value="Requeue" />
+</form>
+
+{% endblock content %}
