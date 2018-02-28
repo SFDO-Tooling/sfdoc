@@ -2,6 +2,12 @@
 
 sfdoc is a Django web app that securely integrates easyDITA with Salesforce to enable automated publishing for documentation writers.
 
+## easyDITA
+
+sfdoc assumes that easyDITA has been configured to use their Notify Pull Publishing feature, where the webhook has been configured to be sent to your sfdoc instance at `/publish/webhook/`. Publish from the top-level DITA map to ensure that related changes are propagated through the system.
+
+The easyDITA bundle referenced by the webhook must contain HTML files which are create with the DITA Open Toolkit in easyDITA. The HTML must have certain tags and attributes, and sfdoc will tell you which are missing.
+
 ## Run the app locally
 
 Local interactions with any Django app are done using the manage.py file.
