@@ -75,3 +75,7 @@ sfdoc uses environment variables for configuration, whether the site is run loca
   * JSON list of HTML filenames to skip when processing (wildcards supported) - e.g. `["index.html", "*-ignore.html"]`
 * URL_WHITELIST
   * JSON list of URLs that may be linked to from articles (wildcards supported) - e.g. `["*.salesforce.com/*", "*.salesforce.org/nonprofit"]`
+
+## Administration
+
+Users must have staff permissions to view the publish app.
