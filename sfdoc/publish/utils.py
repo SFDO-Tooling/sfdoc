@@ -26,7 +26,7 @@ def is_url_whitelisted(url):
 
 
 def skip_html_file(filename):
-    for skip_item in settings.SKIP_FILES:
+    for skip_item in settings.SKIP_HTML_FILES:
         if fnmatch.fnmatch(filename, skip_item):
             return True
     return False

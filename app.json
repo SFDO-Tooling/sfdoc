@@ -84,7 +84,7 @@
       "description": "The secret key for the Django application.",
       "generator": "secret"
     },
-    "SKIP_FILES": {
+    "SKIP_HTML_FILES": {
       "description": "JSON list of HTML filenames to skip when processing (wildcards supported)"
     },
     "WHITELIST_URL": {

@@ -109,6 +109,6 @@ WHITELIST_HTML = {
 }
 WHITELIST_URL = []
 
-SKIP_FILES = '["index.html"]'
+SKIP_HTML_FILES = '["index.html"]'
 
 HEROKU_APP_NAME = 'sfdoc.example.com'
