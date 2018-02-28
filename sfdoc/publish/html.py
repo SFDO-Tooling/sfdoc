@@ -93,16 +93,35 @@ class HTML:
 
     def same_as_record(self, record):
         """Compare this object with an article from a Salesforce query."""
-        body_production = self.update_links_production(self.body)
-        return (
-            self.title == record['Title'] and
-            self.summary == record['Summary'] and
-            self.is_visible_in_csp == record['IsVisibleInCsp'] and
-            self.is_visible_in_pkb == record['IsVisibleInPkb'] and
-            self.is_visible_in_prm == record['IsVisibleInPrm'] and
-            self.author == record[settings.SALESFORCE_ARTICLE_AUTHOR_FIELD] and
-            self.author_override == record[settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD] and
-            body_production.strip() == record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip()
+        def same(item1, item2):
+            if not item1 and not item2:
+                return True
+            else:
+                return item1 == item2
+        return same(
+            self.author,
+            record[settings.SALESFORCE_ARTICLE_AUTHOR_FIELD],
+        ) and same(
+            self.author_override,
+            record[settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD],
+        ) and same(
+            self.is_visible_in_csp,
+            record['IsVisibleInCsp'],
+        ) and same(
+            self.is_visible_in_pkb,
+            record['IsVisibleInPkb'],
+        ) and same(
+            self.is_visible_in_prm,
+            record['IsVisibleInPrm'],
+        ) and same(
+            self.title,
+            record['Title'],
+        ) and same(
+            self.summary,
+            record['Summary'],
+        ) and same(
+            self.update_links_production(self.body).strip(),
+            record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip(),
         )
 
     def scrub(self):
