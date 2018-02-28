@@ -19,15 +19,15 @@ class S3:
         Copy image from draft to production on S3.
         Production images are located in the root of the bucket.
         Draft images are located in a directory specified by environment
-        variable AWS_STORAGE_BUCKET_NAME.
+        variable AWS_S3_BUCKET.
         """
         copy_source = {
-            'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+            'Bucket': settings.AWS_S3_BUCKET,
             'Key': settings.S3_IMAGES_DRAFT_DIR + filename,
         }
         self.api.meta.client.copy_object(
             ACL='public-read',
-            Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+            Bucket=settings.AWS_S3_BUCKET,
             CopySource=copy_source,
             Key=filename,
         )
@@ -41,7 +41,7 @@ class S3:
             try:
                 # download image from root (production) dir for comparison
                 self.api.meta.client.download_file(
-                    settings.AWS_STORAGE_BUCKET_NAME,
+                    settings.AWS_S3_BUCKET,
                     basename,
                     s3localname,
                 )
@@ -76,6 +76,6 @@ class S3:
             self.api.meta.client.put_object(
                 ACL='public-read',
                 Body=f,
-                Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+                Bucket=settings.AWS_S3_BUCKET,
                 Key=key,
             )

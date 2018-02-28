@@ -32,7 +32,7 @@
     "AWS_SECRET_ACCESS_KEY": {
       "description": "Amazon Web Services secret access key"
     },
-    "AWS_STORAGE_BUCKET_NAME": {
+    "AWS_S3_BUCKET": {
       "description": "Name of the storage bucket on AWS"
     },
     "DATABASE_URL": {

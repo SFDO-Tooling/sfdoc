@@ -103,7 +103,7 @@ class HTML:
         """Update links to draft location."""
         soup = BeautifulSoup(self.body, 'html.parser')
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
-            settings.AWS_STORAGE_BUCKET_NAME,
+            settings.AWS_S3_BUCKET,
             settings.S3_IMAGES_DRAFT_DIR,
         )
         for a in soup('a'):
