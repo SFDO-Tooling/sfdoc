@@ -87,7 +87,7 @@
     "SKIP_FILES": {
       "description": "JSON list of HTML filenames to skip when processing (wildcards supported)"
     },
-    "URL_WHITELIST": {
+    "WHITELIST_URL": {
       "description": "JSON list of URLs that may be linked to from articles (wildcards supported)"
     }
   },

@@ -19,7 +19,7 @@ def is_url_whitelisted(url):
     if not urlparse(url).scheme:
         # not an external link, implicitly whitelisted
         return True
-    for wl_item in settings.URL_WHITELIST:
+    for wl_item in settings.WHITELIST_URL:
         if fnmatch.fnmatch(url, wl_item):
             return True
     return False

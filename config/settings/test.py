@@ -107,7 +107,7 @@ WHITELIST_HTML = {
     'title': [],
     'ul': []
 }
-URL_WHITELIST = []
+WHITELIST_URL = []
 
 SKIP_FILES = '["index.html"]'
 
