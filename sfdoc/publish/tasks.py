@@ -38,7 +38,10 @@ def _process_bundle(bundle, path):
         for filename in filenames:
             filename_full = os.path.join(dirpath, filename)
             if skip_file(filename):
-                logger.info('Skipping HTML file: %s', filename_full)
+                logger.info(
+                    'Skipping HTML file: %s',
+                    filename_full.replace(path + os.sep, ''),
+                )
                 continue
             if is_html(filename):
                 html_files.append(filename_full)
@@ -50,7 +53,7 @@ def _process_bundle(bundle, path):
         logger.info('Scrubbing HTML file %d of %d: %s',
             n,
             len(html_files),
-            html_file,
+            html_file.replace(path + os.sep, ''),
         )
         with open(html_file) as f:
             html_raw = f.read()
@@ -101,7 +104,7 @@ def _process_bundle(bundle, path):
         logger.info('Processing HTML file %d of %d: %s',
             n,
             len(html_files),
-            html_file,
+            html_file.replace(path + os.sep, ''),
         )
         with open(html_file) as f:
             html_raw = f.read()
@@ -114,7 +117,7 @@ def _process_bundle(bundle, path):
         logger.info('Processing image file %d of %d: %s',
             n,
             len(images),
-            image,
+            image.replace(path + os.sep, ''),
         )
         changed_1 = s3.process_image(image, bundle)
         if changed_1:

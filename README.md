@@ -2,7 +2,7 @@
 
 sfdoc is a Django web app that securely integrates easyDITA with Salesforce to enable automated publishing for documentation writers.
 
-## Running the app locally
+## Run the app locally
 
 Local interactions with any Django app are done using the manage.py file.
 
@@ -25,56 +25,32 @@ $ python manage.py createsuperuser  # create a superuser
 $ python manage.py runserver        # run the app locally
 ```
 
+## Run the app on Heroku
+
+### Prerequisites
+
+Your Salesforce org should have a user to use for API access. This should probably be a dedicated user for sfdoc. Make sure Knowledge is enabled in the org and that the API user is marked as Knowledge user.
+
+You will need to create a connected app in the Salesforce org to use for API access. Follow these steps to create the connected app in your Salesforce org:
+
+1. [Create a Private Key and Self-Signed Digital Certificate](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_auth_key_and_cert.htm)
+2. [Create a Connected App](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_auth_connected_app.htm)
+
+Use the client ID and private key when setting up the environment variables.
+
+Several custom fields need to be created on the Knowledge article object. See the `env` section of this project's [app.json](app.json) for details.
+
+### Deploy to Heroku
+
+Use this button to deploy your own instance of sfdoc to Heroku.
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ## Environment variables
 
-sfdoc uses environment variables for configuration, whether the site is run locally or on a server. As a Django app sfdoc supports the standard [Django settings](https://docs.djangoproject.com/en/1.11/topics/settings/). Additionally, the following variables are required:
+sfdoc uses environment variables for configuration, whether the site is run locally or on a server. As a Django app sfdoc supports the standard [Django settings](https://docs.djangoproject.com/en/1.11/topics/settings/).
 
-* ARTICLE_AUTHOR
-  * Name attribute of meta tag to use as author info (easyDITA user ID) - e.g. "article-author"
-* ARTICLE_AUTHOR_OVERRIDE
-  * Name attribute of meta tag to use as author info override (Salesforce Community user ID) - e.g. "article-author-override"
-* ARTICLE_BODY_CLASS
-  * Class attribute of div tag used to identify the article body - e.g. "article-body"
-* AWS_ACCESS_KEY_ID
-  * Amazon Web Services access key ID
-* AWS_SECRET_ACCESS_KEY
-  * Amazon Web Services secret access key
-* AWS_STORAGE_BUCKET_NAME
-  * Name of the storage bucket on AWS (used for article image hosting)
-* DATABASE_URL
-  * The URL of the Postgres database
-* EASYDITA_INSTANCE_URL
-  * The URL of your easyDITA instance - e.g. "https://example.easydita.com"
-* EASYDITA_PASSWORD
-  * easyDITA user password (needed for API access)
-* EASYDITA_USERNAME
-  * easyDITA user name (needed for API access)
-* HTML_WHITELIST
-  * JSON object whose keys are the whitelisted HTML tags, and the associated values are the whitelisted attributes for that tag - e.g. `{"div": ["class", "id"]}`
-* S3_IMAGES_DRAFT_DIR
-  * Name to use for the S3 directory where draft images are located - e.g. "draft"
-* SALESFORCE_API_VERSION
-  * Salesforce API version - e.g. "41.0"
-* SALESFORCE_ARTICLE_AUTHOR_FIELD
-  * Salesforce article field for the easyDITA author ID - e.g. "ArticleAuthor__c"
-* SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD
-  * Salesforce article field for the Salesforce Community user ID - e.g. "ArticleAuthorOverride__c"
-* SALESFORCE_ARTICLE_BODY_FIELD
-  * Salesforce article field for the article body - e.g. "ArticleBody__c"
-* SALESFORCE_ARTICLE_TYPE
-  * Salesforce  - e.g. "Info__kav"
-* SALESFORCE_CLIENT_ID
-  * Salesforce connected app Client ID
-* SALESFORCE_JWT_PRIVATE_KEY
-  * Salesforce connected app JWT private key
-* SALESFORCE_SANDBOX
-  * Is the connected Salesforce org a sandbox? True/False
-* SALESFORCE_USERNAME
-  * Salesforce org username for API access
-* SKIP_FILES
-  * JSON list of HTML filenames to skip when processing (wildcards supported) - e.g. `["index.html", "*-ignore.html"]`
-* URL_WHITELIST
-  * JSON list of URLs that may be linked to from articles (wildcards supported) - e.g. `["*.salesforce.com/*", "*.salesforce.org/nonprofit"]`
+Further required environment variables are listed in the `env` section of this project's [app.json](app.json) file.
 
 ## Administration
 
