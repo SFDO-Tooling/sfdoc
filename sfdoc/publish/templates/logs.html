@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h4>{{ bundle }} Logs</h4>
+<p><a href="../">Back to bundle overview</a></p>
+
+{% if logs %}
+<br>
+<h5>Logs</h5>
+<span class="border">
+<pre>
+{% for log in logs %}{{ log.get_message }}
+{% endfor %}</pre>
+</span>
+{% endif %}
+
+{% endblock content %}
