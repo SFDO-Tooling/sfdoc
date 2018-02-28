@@ -2,8 +2,8 @@ from django import forms
 
 
 class PublishToProductionForm(forms.Form):
-    APPROVE = 'approve'
-    REJECT = 'reject'
+    APPROVE = 'A'
+    REJECT = 'R'
     confirm = forms.BooleanField(label='I have reviewed all changes')
     choice = forms.ChoiceField(
         choices=((APPROVE, 'Approve'), (REJECT, 'Reject')),
@@ -12,3 +12,7 @@ class PublishToProductionForm(forms.Form):
 
     def approved(self):
         return self.cleaned_data['choice'] == self.APPROVE
+
+
+class RequeueBundleForm(forms.Form):
+    pass

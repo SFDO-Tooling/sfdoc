@@ -22,6 +22,10 @@
 <br>
 <h5>Ready for review</h5>
 <p><a href="review/">Review draft articles and images<a></p>
+{% elif bundle.is_complete %}
+<br>
+<button type="button" class="btn btn-primary" onclick="location.href='requeue/'">Requeue</button>
+<br>
 {% endif %}
 
 {% if bundle.error_message %}

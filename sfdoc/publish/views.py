@@ -13,6 +13,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from .forms import PublishToProductionForm
+from .forms import RequeueBundleForm
+from .logger import get_logger
 from .models import Article
 from .models import Bundle
 from .models import Image
@@ -83,6 +85,27 @@ def index(request):
 
 @never_cache
 @staff_member_required
+def requeue(request, pk):
+    bundle = get_object_or_404(Bundle, pk=pk)
+    if not bundle.is_complete():
+        return HttpResponseRedirect('../')
+    context = {'bundle': bundle}
+    if request.method == 'POST':
+        form = RequeueBundleForm(request.POST)
+        if form.is_valid() and request.POST['choice'] == 'Requeue':
+            bundle.status = Bundle.STATUS_QUEUED
+            bundle.save()
+            logger = get_logger(bundle)
+            logger.info('Requeued %s', bundle)
+            process_queue.delay()
+        return HttpResponseRedirect('../')
+    else:
+        form = RequeueBundleForm()
+    return render(request, 'requeue.html', context=context)
+
+
+@never_cache
+@staff_member_required
 def review(request, pk):
     bundle = get_object_or_404(Bundle, pk=pk)
     if bundle.status != Bundle.STATUS_DRAFT:
@@ -118,7 +141,7 @@ def review(request, pk):
             status=Image.STATUS_CHANGED
         ).order_by('filename'),
     }
-    return render(request, 'publish_form.html', context=context)
+    return render(request, 'publish.html', context=context)
 
 
 @never_cache
