@@ -181,26 +181,7 @@ class Salesforce:
             record = result['records'][0]
 
             # check for changes in article fields
-            same_title = html.title == record['Title']
-            if not html.summary and not record['Summary']:
-                same_summary = True
-            else:
-                same_summary = html.summary == record['Summary']
-            body = HTML.update_links_production(html.body)
-            same_body = (
-                body.strip() ==
-                record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip()
-            )
-            same_visibility = (
-                html.is_visible_in_csp == record['IsVisibleInCsp'] and
-                html.is_visible_in_pkb == record['IsVisibleInPkb'] and
-                html.is_visible_in_prm == record['IsVisibleInPrm']
-            )
-            same_authors = (
-                html.author == record[settings.SALESFORCE_ARTICLE_AUTHOR_FIELD] and
-                html.author_override == record[settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD]
-            )
-            if same_title and same_summary and same_body and same_visibility and same_authors:
+            if html.same_as_record(record):
                 # no update
                 return False
 
