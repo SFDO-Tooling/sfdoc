@@ -4,6 +4,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils.timezone import now
 
 from .logger import get_logger
 
@@ -79,6 +80,12 @@ class Bundle(models.Model):
 
     def get_absolute_url(self):
         return '/publish/bundles/{}/'.format(self.pk)
+
+    def queue(self):
+        self.status = self.STATUS_QUEUED
+        self.time_queued = now()
+        self.error_message = ''
+        self.save()
 
     def set_error(self, e, filename=None):
         """Set error status and message."""
