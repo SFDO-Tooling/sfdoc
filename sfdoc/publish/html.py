@@ -53,7 +53,7 @@ class HTML:
             'meta',
             attrs={'name': settings.ARTICLE_AUTHOR_OVERRIDE},
         )
-        self.author_override = tag.get('content')
+        self.author_override = tag['content'] if tag else None
 
         # title
         if not soup.title:
