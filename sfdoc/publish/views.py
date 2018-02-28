@@ -28,9 +28,10 @@ from .tasks import publish_drafts
 @staff_member_required
 def bundle(request, pk):
     bundle = get_object_or_404(Bundle, pk=pk)
+    logs = reversed(bundle.logs.all().order_by('-time')[:10])
     context = {
         'bundle': bundle,
-        'logs': bundle.logs.all().order_by('time'),
+        'logs': logs,
         'ready_for_review': bundle.status == Bundle.STATUS_DRAFT,
     }
     return render(request, 'bundle.html', context=context)
@@ -81,6 +82,18 @@ def index(request):
         'queued': qs_queued.order_by('time_queued'),
     }
     return render(request, 'index.html', context=context)
+
+
+@never_cache
+@staff_member_required
+def logs(request, pk):
+    bundle = get_object_or_404(Bundle, pk=pk)
+    logs = bundle.logs.all().order_by('time')
+    context = {
+        'bundle': bundle,
+        'logs': logs,
+    }
+    return render(request, 'logs.html', context=context)
 
 
 @never_cache
