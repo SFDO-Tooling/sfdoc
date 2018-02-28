@@ -3,7 +3,22 @@
 {% block content %}
 <h4>Welcome to the sfdoc documentation publishing system</h4>
 <br>
-<p>Developed by <a href="http://www.salesforce.org/">Salesforce.org</a></p>
-<p><a href="https://github.com/SalesforceFoundation/sfdoc">GitHub repository</a></p>
+
+{% if not request.user.is_staff %}
+<div class="alert alert-warning" role="alert">
+  You must be logged into a user account with staff permissions to view the publishing features of sfdoc.
+</div>
+{% endif %}
+
+<h5>Publish Process</h5>
+<ol>
+  <li>Publish the top-level map in easyDITA</li>
+  <li>After the easyDITA publish completes, check back here to view the processing status</li>
+  <li>Approve or reject the article and image drafts when ready for review</li>
+  <li>If the drafts are approved, they are published to production</li>
+</ol>
+<br>
+<p>Please file any issues or enhancement requests at the <a href="https://github.com/SalesforceFoundation/sfdoc">GitHub repository</a></p>
 <p>All times shown are UTC</p>
+
 {% endblock content %}
