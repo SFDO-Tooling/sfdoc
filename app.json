@@ -35,6 +35,9 @@
     "AWS_S3_BUCKET": {
       "description": "Name of the storage bucket on AWS"
     },
+    "AWS_S3_DRAFT_DIR": {
+      "description": "Name to use for the S3 directory where draft images are located"
+    },
     "DATABASE_URL": {
       "description": "The URL of the Postgres database"
     },
@@ -46,12 +49,6 @@
     },
     "EASYDITA_USERNAME": {
       "description": "easyDITA user name (needed for API access)"
-    },
-    "WHITELIST_HTML": {
-      "description": "JSON key-value object whose keys are the whitelisted HTML tags, and the values are lists of whitelisted attributes for that tag"
-    },
-    "AWS_S3_DRAFT_DIR": {
-      "description": "Name to use for the S3 directory where draft images are located"
     },
     "SALESFORCE_API_VERSION": {
       "description": "Salesforce API version"
@@ -86,6 +83,9 @@
     },
     "SKIP_HTML_FILES": {
       "description": "JSON list of HTML filenames to skip when processing (wildcards supported)"
+    },
+    "WHITELIST_HTML": {
+      "description": "JSON key-value object whose keys are the whitelisted HTML tags, and the values are lists of whitelisted attributes for that tag"
     },
     "WHITELIST_URL": {
       "description": "JSON list of URLs that may be linked to from articles (wildcards supported)"
