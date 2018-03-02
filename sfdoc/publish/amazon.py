@@ -32,6 +32,13 @@ class S3:
             Key=filename,
         )
 
+    def delete(self, filename):
+        """Delete an image from production location."""
+        self.api.meta.client.delete_object(
+            Bucket=settings.AWS_S3_BUCKET,
+            Key=filename,
+        )
+
     def process_image(self, filename, bundle):
         """Upload image file to S3 if needed."""
         basename = os.path.basename(filename)
