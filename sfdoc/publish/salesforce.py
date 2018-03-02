@@ -64,6 +64,22 @@ class Salesforce:
         kav_id = result['id']
         return kav_id
 
+    def create_draft(self, ka_id):
+        """Create a draft copy of a published article."""
+        url = (
+            self.api.base_url +
+            'knowledgeManagement/articleVersions/masterVersions'
+        )
+        data = {'articleId': ka_id}
+        result = self.api._call_salesforce('POST', url, json=data)
+        if result.status_code != HTTPStatus.CREATED:
+            e = SalesforceError((
+                'Error creating new draft for KnowlegeArticle (ID={})'
+            ).format(ka_id))
+            raise(e)
+        kav_id = result.json()['id']
+        return kav_id
+
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
         query_str = (
@@ -188,18 +204,7 @@ class Salesforce:
                 return False
 
             # create draft copy of published article
-            url = (
-                self.api.base_url +
-                'knowledgeManagement/articleVersions/masterVersions'
-            )
-            data = {'articleId': record['KnowledgeArticleId']}
-            result = self.api._call_salesforce('POST', url, json=data)
-            if result.status_code != HTTPStatus.CREATED:
-                e = SalesforceError((
-                    'Error creating new draft for KnowlegeArticle (ID={})'
-                ).format(record['KnowledgeArticleId']))
-                raise(e)
-            kav_id = result.json()['id']
+            kav_id = self.create_draft(record['KnowledgeArticleId'])
             self.update_draft(kav_id, html)
             status = Article.STATUS_CHANGED
 
