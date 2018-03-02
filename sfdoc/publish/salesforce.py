@@ -98,6 +98,48 @@ class Salesforce:
         elif result['totalSize'] == 1:  # can only be 0 or 1
             return result['records'][0]['KnowledgeArticleId']
 
+    def process_article(self, html, bundle):
+        """Create a draft KnowledgeArticleVersion."""
+
+        # update links to draft versions
+        html.update_links_draft()
+
+        # search for existing draft. if found, update fields and return
+        result = self.query_articles(html.url_name, 'draft')
+        if result['totalSize'] == 1:  # cannot be > 1
+            kav_id = result['records'][0]['Id']
+            self.update_draft(kav_id, html)
+            self.save_article(
+                kav_id,
+                html,
+                bundle,
+                Article.STATUS_CHANGED,
+            )
+            return True
+
+        # no drafts found. search for published article
+        result = self.query_articles(html.url_name, 'online')
+        if result['totalSize'] == 0:
+            # new article
+            kav_id = self.create_article(html)
+            status = Article.STATUS_NEW
+        elif result['totalSize'] == 1:
+            # new draft of existing article
+            record = result['records'][0]
+
+            # check for changes in article fields
+            if html.same_as_record(record):
+                # no update
+                return False
+
+            # create draft copy of published article
+            kav_id = self.create_draft(record['KnowledgeArticleId'])
+            self.update_draft(kav_id, html)
+            status = Article.STATUS_CHANGED
+
+        self.save_article(kav_id, html, bundle, status)
+        return True
+
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
@@ -168,45 +210,3 @@ class Salesforce:
                 'Error updating draft KnowledgeArticleVersion (ID={})'
             ).format(kav_id))
         return result
-
-    def process_article(self, html, bundle):
-        """Create a draft KnowledgeArticleVersion."""
-
-        # update links to draft versions
-        html.update_links_draft()
-
-        # search for existing draft. if found, update fields and return
-        result = self.query_articles(html.url_name, 'draft')
-        if result['totalSize'] == 1:  # cannot be > 1
-            kav_id = result['records'][0]['Id']
-            self.update_draft(kav_id, html)
-            self.save_article(
-                kav_id,
-                html,
-                bundle,
-                Article.STATUS_CHANGED,
-            )
-            return True
-
-        # no drafts found. search for published article
-        result = self.query_articles(html.url_name, 'online')
-        if result['totalSize'] == 0:
-            # new article
-            kav_id = self.create_article(html)
-            status = Article.STATUS_NEW
-        elif result['totalSize'] == 1:
-            # new draft of existing article
-            record = result['records'][0]
-
-            # check for changes in article fields
-            if html.same_as_record(record):
-                # no update
-                return False
-
-            # create draft copy of published article
-            kav_id = self.create_draft(record['KnowledgeArticleId'])
-            self.update_draft(kav_id, html)
-            status = Article.STATUS_CHANGED
-
-        self.save_article(kav_id, html, bundle, status)
-        return True
