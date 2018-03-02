@@ -89,17 +89,7 @@ class Salesforce:
         body = kav[settings.SALESFORCE_ARTICLE_BODY_FIELD]
         body = HTML.update_links_production(body)
         kav_api.update(kav_id, {settings.SALESFORCE_ARTICLE_BODY_FIELD: body})
-        url = (
-            self.api.base_url +
-            'knowledgeManagement/articleVersions/masterVersions/{}'
-        ).format(kav_id)
-        data = {'publishStatus': 'online'}
-        result = self.api._call_salesforce('PATCH', url, json=data)
-        if result.status_code != HTTPStatus.NO_CONTENT:
-            raise SalesforceError((
-                'Error publishing KnowledgeArticleVersion (ID={})'
-            ).format(kav_id))
-        return result
+        self.set_publish_status(kav_id, 'online')
 
     def query_articles(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
@@ -139,6 +129,18 @@ class Salesforce:
             title=html.title,
             url_name=html.url_name,
         )
+
+    def set_publish_status(self, kav_id, status):
+        url = (
+            self.api.base_url +
+            'knowledgeManagement/articleVersions/masterVersions/{}'
+        ).format(kav_id)
+        data = {'publishStatus': status}
+        result = self.api._call_salesforce('PATCH', url, json=data)
+        if result.status_code != HTTPStatus.NO_CONTENT:
+            raise SalesforceError((
+                'Error setting status={} for KnowledgeArticleVersion (ID={})'
+            ).format(status, kav_id))
 
     def update_draft(self, kav_id, html):
         """Update the fields of an existing draft."""
