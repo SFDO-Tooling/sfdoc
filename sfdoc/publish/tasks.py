@@ -167,6 +167,7 @@ def process_bundle(bundle_pk):
             _process_bundle(bundle, tempdir)
         except Exception as e:
             bundle.set_error(e)
+            process_queue.delay()
             raise
     logger.info('Processed %s', bundle)
 
@@ -174,6 +175,8 @@ def process_bundle(bundle_pk):
 @job
 def process_queue():
     """Process the next easyDITA bundle in the queue."""
+    s3 = S3()
+    s3.delete_draft_images()
     if Bundle.objects.filter(status__in=(
         Bundle.STATUS_PROCESSING,
         Bundle.STATUS_DRAFT,
@@ -248,6 +251,7 @@ def publish_drafts(bundle_pk):
             salesforce.publish_draft(article.kav_id)
         except Exception as e:
             bundle.set_error(e)
+            process_queue.delay()
             raise
 
     # archive articles
@@ -265,6 +269,7 @@ def publish_drafts(bundle_pk):
             salesforce.set_publish_status(article.kav_id, 'archived')
         except Exception as e:
             bundle.set_error(e)
+            process_queue.delay()
             raise
 
     # publish images
@@ -283,6 +288,7 @@ def publish_drafts(bundle_pk):
             s3.copy_to_production(image.filename)
         except Exception as e:
             bundle.set_error(e)
+            process_queue.delay()
             raise
 
     # delete images
@@ -300,6 +306,7 @@ def publish_drafts(bundle_pk):
             s3.delete(image.filename)
         except Exception as e:
             bundle.set_error(e)
+            process_queue.delay()
             raise
 
     bundle.status = Bundle.STATUS_PUBLISHED

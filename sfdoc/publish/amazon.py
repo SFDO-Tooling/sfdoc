@@ -39,9 +39,22 @@ class S3:
             Key=filename,
         )
 
-    def ls(self):
+    def delete_draft_images(self, draft):
+        """Delete all draft images at once."""
+        objects = []
+        for item in self.ls(prefix=settings.AWS_S3_DRAFT_DIR):
+            objects.append({'Key': item['Key']})
+        if objects:
+            self.api.meta.client.delete_objects(
+                Bucket=settings.AWS_S3_BUCKET,
+                Delete={'Objects': objects},
+            )
+
+    def ls(self, prefix=None):
         """List all objects in the bucket."""
         kwargs = {'Bucket': settings.AWS_S3_BUCKET}
+        if prefix:
+            kwargs['Prefix'] = prefix
         while True:
             response = self.api.meta.client.list_objects_v2(**kwargs)
             for item in response['Contents']:
