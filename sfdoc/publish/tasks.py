@@ -174,6 +174,8 @@ def process_bundle(bundle_pk):
 @job
 def process_queue():
     """Process the next easyDITA bundle in the queue."""
+    s3 = S3()
+    s3.delete_draft_images()
     if Bundle.objects.filter(status__in=(
         Bundle.STATUS_PROCESSING,
         Bundle.STATUS_DRAFT,
