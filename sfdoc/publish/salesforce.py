@@ -98,6 +98,18 @@ class Salesforce:
         elif result['totalSize'] == 1:  # can only be 0 or 1
             return result['records'][0]['KnowledgeArticleId']
 
+    def get_articles(self, publish_status):
+        """Get all article versions with a given publish status."""
+        query_str = (
+            "SELECT Id,KnowledgeArticleId,Title,UrlName FROM {} "
+            "WHERE PublishStatus='{}' AND language='en_US'"
+        ).format(
+            settings.SALESFORCE_ARTICLE_TYPE,
+            publish_status,
+        )
+        result = self.api.query(query_str)
+        return result['records']
+
     def process_article(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
 

@@ -95,6 +95,28 @@ def _process_bundle(bundle, path):
             for image in sorted(image_map[basename]):
                 msg += '\n\t{}'.format(image)
         raise SfdocError(msg)
+    # build list of published articles to archive
+    for article in salesforce.get_articles('online'):
+        if article['UrlName'] not in html_map:
+            Article.objects.create(
+                bundle=bundle,
+                ka_id=article['KnowledgeArticleId'],
+                kav_id=article['Id'],
+                status=Article.STATUS_DELETED,
+                title=article['Title'],
+                url_name=article['UrlName'],
+            )
+    # build list of images to delete
+    for obj in s3.ls():
+        if (
+            not obj['Key'].startswith(settings.AWS_S3_DRAFT_DIR) and
+            obj['Key'] not in image_map
+        ):
+            Image.objects.create(
+                bundle=bundle,
+                filename=obj['Key'],
+                status=Image.STATUS_DELETED,
+            )
     # upload draft articles and images
     logger.info('Uploading draft articles and images')
     publish_queue = []
@@ -209,11 +231,17 @@ def publish_drafts(bundle_pk):
     logger.info('Publishing drafts for %s', bundle)
     salesforce = Salesforce()
     s3 = S3()
-    n_articles = bundle.articles.count()
-    for n, article in enumerate(bundle.articles.all(), start=1):
+
+    # publish articles
+    articles_publish = bundle.articles.filter(status__in=[
+        Article.STATUS_NEW,
+        Article.STATUS_CHANGED,
+    ])
+    n_articles_publish = articles_publish.count()
+    for n, article in enumerate(articles_publish.all(), start=1):
         logger.info('Publishing article %d of %d: %s',
             n,
-            n_articles,
+            n_articles_publish,
             article,
         )
         try:
@@ -221,14 +249,59 @@ def publish_drafts(bundle_pk):
         except Exception as e:
             bundle.set_error(e)
             raise
-    n_images = bundle.images.count()
-    for n, image in enumerate(bundle.images.all(), start=1):
+
+    # archive articles
+    articles_archive = bundle.articles.filter(status__in=[
+        Article.STATUS_DELETED,
+    ])
+    n_articles_archive = articles_archive.count()
+    for n, article in enumerate(articles_archive.all(), start=1):
+        logger.info('Archiving article %d of %d: %s',
+            n,
+            n_articles_archive,
+            article,
+        )
+        try:
+            salesforce.set_publish_status(article.kav_id, 'archived')
+        except Exception as e:
+            bundle.set_error(e)
+            raise
+
+    # publish images
+    images_publish = bundle.images.filter(status__in=[
+        Image.STATUS_NEW,
+        Image.STATUS_CHANGED,
+    ])
+    n_images_publish = images_publish.count()
+    for n, image in enumerate(images_publish.all(), start=1):
         logger.info('Publishing image %d of %d: %s',
             n,
-            n_images,
+            n_images_publish,
             image,
         )
-        s3.copy_to_production(image.filename)
+        try:
+            s3.copy_to_production(image.filename)
+        except Exception as e:
+            bundle.set_error(e)
+            raise
+
+    # delete images
+    images_delete = bundle.images.filter(status__in=[
+        Image.STATUS_DELETED,
+    ])
+    n_images_delete = images_delete.count()
+    for n, image in enumerate(images_delete.all(), start=1):
+        logger.info('Deleting image %d of %d: %s',
+            n,
+            n_images_delete,
+            image,
+        )
+        try:
+            s3.delete(image.filename)
+        except Exception as e:
+            bundle.set_error(e)
+            raise
+
     bundle.status = Bundle.STATUS_PUBLISHED
     bundle.time_published = now()
     bundle.save()

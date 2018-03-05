@@ -27,13 +27,25 @@
 </p>
 {% endif %}
 
+{% if articles_deleted %}
+<br>
+<h5>Deleted Articles</h5>
+<p>
+  <ul>
+{% for article in articles_deleted %}
+    <li><a href="{{ article.draft_preview_url }}" target="_blank">{{ article.url_name }}</li>
+{% endfor %}
+  </ul>
+</p>
+{% endif %}
+
 {% if images_new %}
 <br>
 <h5>New Images</h5>
 <p>
   <ul>
 {% for image in images_new %}
-    <li><a href="{{ image.draft_preview_url }}" target="_blank">{{ image.filename }}</a></li>
+    <li><a href="{{ image.url_draft }}" target="_blank">{{ image.filename }}</a></li>
 {% endfor %}
   </ul>
 </p>
@@ -45,7 +57,19 @@
 <p>
   <ul>
 {% for image in images_changed %}
-    <li><a href="{{ image.draft_preview_url }}" target="_blank">{{ image.filename }}</a></li>
+    <li><a href="{{ image.url_draft }}" target="_blank">{{ image.filename }}</a></li>
+{% endfor %}
+  </ul>
+</p>
+{% endif %}
+
+{% if images_deleted %}
+<br>
+<h5>Deleted Images</h5>
+<p>
+  <ul>
+{% for image in images_deleted %}
+    <li><a href="{{ image.url_production }}" target="_blank">{{ image.filename }}</a></li>
 {% endfor %}
   </ul>
 </p>
