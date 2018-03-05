@@ -12,6 +12,7 @@ from .amazon import S3
 from .exceptions import SfdocError
 from .html import HTML
 from .logger import get_logger
+from .models import Article
 from .models import Bundle
 from .models import Webhook
 from .salesforce import Salesforce

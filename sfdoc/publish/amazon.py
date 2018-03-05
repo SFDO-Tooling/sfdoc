@@ -57,6 +57,8 @@ class S3:
             kwargs['Prefix'] = prefix
         while True:
             response = self.api.meta.client.list_objects_v2(**kwargs)
+            if 'Contents' not in response:
+                break
             for item in response['Contents']:
                 yield item
             if response['IsTruncated']:
