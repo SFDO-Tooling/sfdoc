@@ -39,7 +39,7 @@ class S3:
             Key=filename,
         )
 
-    def delete_draft_images(self, draft):
+    def delete_draft_images(self):
         """Delete all draft images at once."""
         objects = []
         for item in self.ls(prefix=settings.AWS_S3_DRAFT_DIR):
