@@ -14,6 +14,7 @@ from .html import HTML
 from .logger import get_logger
 from .models import Article
 from .models import Bundle
+from .models import Image
 from .models import Webhook
 from .salesforce import Salesforce
 from .logger import get_logger
