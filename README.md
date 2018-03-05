@@ -51,7 +51,10 @@ Local interactions with any Django app are done using the manage.py file.
 
 ### Prerequisites
 
+On Mac OS, `brew` can install both of these.
+
 * [Postgres](https://www.postgresql.org/) must be installed and running, with a database created for the app
+* [Redis](https://redis.io/) must be installed and running
 
 ### Setup
 
