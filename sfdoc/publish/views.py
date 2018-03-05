@@ -146,11 +146,17 @@ def review(request, pk):
         'articles_changed': bundle.articles.filter(
             status=Article.STATUS_CHANGED
         ).order_by('url_name'),
+        'articles_deleted': bundle.articles.filter(
+            status=Article.STATUS_DELETED
+        ).order_by('url_name'),
         'images_new': bundle.images.filter(
             status=Image.STATUS_NEW
         ).order_by('filename'),
         'images_changed': bundle.images.filter(
             status=Image.STATUS_CHANGED
+        ).order_by('filename'),
+        'images_deleted': bundle.images.filter(
+            status=Image.STATUS_DELETED
         ).order_by('filename'),
     }
     return render(request, 'publish.html', context=context)

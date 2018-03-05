@@ -64,6 +64,22 @@ class Salesforce:
         kav_id = result['id']
         return kav_id
 
+    def create_draft(self, ka_id):
+        """Create a draft copy of a published article."""
+        url = (
+            self.api.base_url +
+            'knowledgeManagement/articleVersions/masterVersions'
+        )
+        data = {'articleId': ka_id}
+        result = self.api._call_salesforce('POST', url, json=data)
+        if result.status_code != HTTPStatus.CREATED:
+            e = SalesforceError((
+                'Error creating new draft for KnowlegeArticle (ID={})'
+            ).format(ka_id))
+            raise(e)
+        kav_id = result.json()['id']
+        return kav_id
+
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
         query_str = (
@@ -82,6 +98,60 @@ class Salesforce:
         elif result['totalSize'] == 1:  # can only be 0 or 1
             return result['records'][0]['KnowledgeArticleId']
 
+    def get_articles(self, publish_status):
+        """Get all article versions with a given publish status."""
+        query_str = (
+            "SELECT Id,KnowledgeArticleId,Title,UrlName FROM {} "
+            "WHERE PublishStatus='{}' AND language='en_US'"
+        ).format(
+            settings.SALESFORCE_ARTICLE_TYPE,
+            publish_status,
+        )
+        result = self.api.query(query_str)
+        return result['records']
+
+    def process_article(self, html, bundle):
+        """Create a draft KnowledgeArticleVersion."""
+
+        # update links to draft versions
+        html.update_links_draft()
+
+        # search for existing draft. if found, update fields and return
+        result = self.query_articles(html.url_name, 'draft')
+        if result['totalSize'] == 1:  # cannot be > 1
+            kav_id = result['records'][0]['Id']
+            self.update_draft(kav_id, html)
+            self.save_article(
+                kav_id,
+                html,
+                bundle,
+                Article.STATUS_CHANGED,
+            )
+            return True
+
+        # no drafts found. search for published article
+        result = self.query_articles(html.url_name, 'online')
+        if result['totalSize'] == 0:
+            # new article
+            kav_id = self.create_article(html)
+            status = Article.STATUS_NEW
+        elif result['totalSize'] == 1:
+            # new draft of existing article
+            record = result['records'][0]
+
+            # check for changes in article fields
+            if html.same_as_record(record):
+                # no update
+                return False
+
+            # create draft copy of published article
+            kav_id = self.create_draft(record['KnowledgeArticleId'])
+            self.update_draft(kav_id, html)
+            status = Article.STATUS_CHANGED
+
+        self.save_article(kav_id, html, bundle, status)
+        return True
+
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
@@ -89,17 +159,7 @@ class Salesforce:
         body = kav[settings.SALESFORCE_ARTICLE_BODY_FIELD]
         body = HTML.update_links_production(body)
         kav_api.update(kav_id, {settings.SALESFORCE_ARTICLE_BODY_FIELD: body})
-        url = (
-            self.api.base_url +
-            'knowledgeManagement/articleVersions/masterVersions/{}'
-        ).format(kav_id)
-        data = {'publishStatus': 'online'}
-        result = self.api._call_salesforce('PATCH', url, json=data)
-        if result.status_code != HTTPStatus.NO_CONTENT:
-            raise SalesforceError((
-                'Error publishing KnowledgeArticleVersion (ID={})'
-            ).format(kav_id))
-        return result
+        self.set_publish_status(kav_id, 'online')
 
     def query_articles(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
@@ -140,6 +200,18 @@ class Salesforce:
             url_name=html.url_name,
         )
 
+    def set_publish_status(self, kav_id, status):
+        url = (
+            self.api.base_url +
+            'knowledgeManagement/articleVersions/masterVersions/{}'
+        ).format(kav_id)
+        data = {'publishStatus': status}
+        result = self.api._call_salesforce('PATCH', url, json=data)
+        if result.status_code != HTTPStatus.NO_CONTENT:
+            raise SalesforceError((
+                'Error setting status={} for KnowledgeArticleVersion (ID={})'
+            ).format(status, kav_id))
+
     def update_draft(self, kav_id, html):
         """Update the fields of an existing draft."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
@@ -150,56 +222,3 @@ class Salesforce:
                 'Error updating draft KnowledgeArticleVersion (ID={})'
             ).format(kav_id))
         return result
-
-    def process_article(self, html, bundle):
-        """Create a draft KnowledgeArticleVersion."""
-
-        # update links to draft versions
-        html.update_links_draft()
-
-        # search for existing draft. if found, update fields and return
-        result = self.query_articles(html.url_name, 'draft')
-        if result['totalSize'] == 1:  # cannot be > 1
-            kav_id = result['records'][0]['Id']
-            self.update_draft(kav_id, html)
-            self.save_article(
-                kav_id,
-                html,
-                bundle,
-                Article.STATUS_CHANGED,
-            )
-            return True
-
-        # no drafts found. search for published article
-        result = self.query_articles(html.url_name, 'online')
-        if result['totalSize'] == 0:
-            # new article
-            kav_id = self.create_article(html)
-            status = Article.STATUS_NEW
-        elif result['totalSize'] == 1:
-            # new draft of existing article
-            record = result['records'][0]
-
-            # check for changes in article fields
-            if html.same_as_record(record):
-                # no update
-                return False
-
-            # create draft copy of published article
-            url = (
-                self.api.base_url +
-                'knowledgeManagement/articleVersions/masterVersions'
-            )
-            data = {'articleId': record['KnowledgeArticleId']}
-            result = self.api._call_salesforce('POST', url, json=data)
-            if result.status_code != HTTPStatus.CREATED:
-                e = SalesforceError((
-                    'Error creating new draft for KnowlegeArticle (ID={})'
-                ).format(record['KnowledgeArticleId']))
-                raise(e)
-            kav_id = result.json()['id']
-            self.update_draft(kav_id, html)
-            status = Article.STATUS_CHANGED
-
-        self.save_article(kav_id, html, bundle, status)
-        return True

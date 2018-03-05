@@ -13,11 +13,13 @@ class Article(models.Model):
     """Tracks created/updated articles per bundle."""
     STATUS_NEW = 'N'
     STATUS_CHANGED = 'C'
+    STATUS_DELETED = 'D'
     status = models.CharField(
         max_length=1,
         choices=(
             (STATUS_NEW, 'New'),
             (STATUS_CHANGED, 'Changed'),
+            (STATUS_DELETED, 'Deleted'),
         ),
     )
     draft_preview_url = models.CharField(max_length=255, default='')
@@ -110,11 +112,13 @@ class Bundle(models.Model):
 class Image(models.Model):
     STATUS_NEW = 'N'
     STATUS_CHANGED = 'C'
+    STATUS_DELETED = 'D'
     status = models.CharField(
         max_length=1,
         choices=(
             (STATUS_NEW, 'New'),
             (STATUS_CHANGED, 'Changed'),
+            (STATUS_DELETED, 'Deleted'),
         ),
     )
     bundle = models.ForeignKey(
@@ -127,13 +131,21 @@ class Image(models.Model):
     def __str__(self):
         return 'Image {}: {}'.format(self.pk, self.filename)
 
-    @property
-    def draft_preview_url(self):
-        images_path = 'https://{}.s3.amazonaws.com/{}'.format(
+    def _get_url(self, draft):
+        images_path = 'https://{}.s3.amazonaws.com/'.format(
             settings.AWS_S3_BUCKET,
-            settings.AWS_S3_DRAFT_DIR,
         )
+        if draft:
+            images_path += settings.AWS_S3_DRAFT_DIR
         return images_path + self.filename
+
+    @property
+    def url_draft(self):
+        return self._get_url(True)
+
+    @property
+    def url_production(self):
+        return self._get_url(False)
 
 
 class Log(models.Model):
