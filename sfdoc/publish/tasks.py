@@ -107,7 +107,7 @@ def _process_bundle(bundle, path):
                 url_name=article['UrlName'],
             )
     # build list of images to delete
-    for obj in s3.ls():
+    for obj in s3.iter_objects():
         if (
             not obj['Key'].startswith(settings.AWS_S3_DRAFT_DIR) and
             obj['Key'] not in image_map
@@ -183,13 +183,9 @@ def process_queue():
         Bundle.STATUS_PUBLISHING,
     )):
         return
-    try:
-        bundle = Bundle.objects.filter(
-            status=Bundle.STATUS_QUEUED,
-        ).earliest('time_queued')
-    except Bundle.DoesNotExist as e:
-        return
-    process_bundle.delay(bundle.pk)
+    bundles = Bundle.objects.filter(status=Bundle.STATUS_QUEUED)
+    if bundles:
+        process_bundle.delay(bundles.earliest('time_queued').pk)
 
 
 @job
