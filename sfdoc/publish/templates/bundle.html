@@ -31,7 +31,9 @@
 {% if bundle.error_message %}
 <br>
 <h5>Error Message</h5>
-<p>{{ bundle.error_message }}</p>
+<span class="border">
+  <pre>{{ bundle.error_message }}</pre>
+</span>
 {% endif %}
 
 {% if logs %}
