@@ -219,7 +219,7 @@ class Salesforce:
             bundle=bundle,
             ka_id=ka_id,
             kav_id=kav_id,
-            draft_preview_url=self.get_preview_url(ka_id),
+            preview_url=self.get_preview_url(ka_id),
             status=status,
             title=html.title,
             url_name=html.url_name,

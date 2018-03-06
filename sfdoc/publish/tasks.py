@@ -107,7 +107,7 @@ def _process_bundle(bundle, path):
                 status=Article.STATUS_DELETED,
                 title=article['Title'],
                 url_name=article['UrlName'],
-                draft_preview_url=salesforce.get_preview_url(
+                preview_url=salesforce.get_preview_url(
                     article['KnowledgeArticleId'],
                 ),
             )
