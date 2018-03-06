@@ -131,7 +131,7 @@ class Salesforce:
         result = self.api.query(query_str)
         return result['records']
 
-    def get_preview_url(self, ka_id):
+    def get_preview_url(self, ka_id, online=False):
         """Article preview URL."""
         o = urlparse(self.api.base_url)
         preview_url = (
@@ -142,6 +142,8 @@ class Salesforce:
             o.netloc,
             ka_id[:15],  # reduce to 15 char ID
         )
+        if online:
+            preview_url += '&pubstatus=o'
         return preview_url
 
     def process_article(self, html, bundle):

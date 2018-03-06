@@ -99,7 +99,7 @@ def _process_bundle(bundle, path):
         raise SfdocError(msg)
     # build list of published articles to archive
     for article in salesforce.get_articles('online'):
-        if article['UrlName'] not in html_map:
+        if article['UrlName'].lower() not in html_map:
             Article.objects.create(
                 bundle=bundle,
                 ka_id=article['KnowledgeArticleId'],
@@ -109,13 +109,14 @@ def _process_bundle(bundle, path):
                 url_name=article['UrlName'],
                 preview_url=salesforce.get_preview_url(
                     article['KnowledgeArticleId'],
+                    online=True,
                 ),
             )
     # build list of images to delete
     for obj in s3.iter_objects():
         if (
             not obj['Key'].startswith(settings.AWS_S3_DRAFT_DIR) and
-            obj['Key'] not in image_map
+            obj['Key'].lower() not in image_map
         ):
             Image.objects.create(
                 bundle=bundle,
