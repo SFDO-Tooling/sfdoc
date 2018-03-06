@@ -286,3 +286,6 @@ RQ_QUEUES = {
 
 # Salesforce
 SALESFORCE_LOGIN_URL = 'https://login.salesforce.com'
+
+# Amazon
+AWS_S3_DRAFT_DIR = 'draft/'
