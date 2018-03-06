@@ -99,7 +99,7 @@ def _process_bundle(bundle, path):
         raise SfdocError(msg)
     # build list of published articles to archive
     for article in salesforce.get_articles('online'):
-        if article['UrlName'] not in html_map:
+        if article['UrlName'].lower() not in html_map:
             Article.objects.create(
                 bundle=bundle,
                 ka_id=article['KnowledgeArticleId'],
