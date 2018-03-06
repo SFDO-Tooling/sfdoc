@@ -109,6 +109,7 @@ def _process_bundle(bundle, path):
                 url_name=article['UrlName'],
                 preview_url=salesforce.get_preview_url(
                     article['KnowledgeArticleId'],
+                    online=True,
                 ),
             )
     # build list of images to delete
