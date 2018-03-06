@@ -252,24 +252,6 @@ def publish_drafts(bundle_pk):
             process_queue.delay()
             raise
 
-    # archive articles
-    articles_archive = bundle.articles.filter(status__in=[
-        Article.STATUS_DELETED,
-    ])
-    n_articles_archive = articles_archive.count()
-    for n, article in enumerate(articles_archive.all(), start=1):
-        logger.info('Archiving article %d of %d: %s',
-            n,
-            n_articles_archive,
-            article,
-        )
-        try:
-            salesforce.set_publish_status(article.kav_id, 'archived')
-        except Exception as e:
-            bundle.set_error(e)
-            process_queue.delay()
-            raise
-
     # publish images
     images_publish = bundle.images.filter(status__in=[
         Image.STATUS_NEW,
@@ -284,6 +266,24 @@ def publish_drafts(bundle_pk):
         )
         try:
             s3.copy_to_production(image.filename)
+        except Exception as e:
+            bundle.set_error(e)
+            process_queue.delay()
+            raise
+
+    # archive articles
+    articles_archive = bundle.articles.filter(status__in=[
+        Article.STATUS_DELETED,
+    ])
+    n_articles_archive = articles_archive.count()
+    for n, article in enumerate(articles_archive.all(), start=1):
+        logger.info('Archiving article %d of %d: %s',
+            n,
+            n_articles_archive,
+            article,
+        )
+        try:
+            salesforce.set_publish_status(article.kav_id, 'archived')
         except Exception as e:
             bundle.set_error(e)
             process_queue.delay()
