@@ -24,15 +24,10 @@ class TestArticle(TestCase):
             easydita_id='0123456789',
             easydita_resource_id='9876543210',
         )
-        ka_id = 'kA0123456789012345'
-        draft_preview_url = (
-            'https://test1.salesforce.com/knowledge/publishing/'
-            'articlePreview.apexp?id={}'
-        ).format(ka_id[:15])  # reduce to 15 char ID
         return Article.objects.create(
-            draft_preview_url=draft_preview_url,
+            preview_url='',
             bundle=bundle,
-            ka_id=ka_id,
+            ka_id='kA0123456789012345',
             kav_id='ka9876543210987654',
             title='Test Article',
             url_name='Test-Article',
