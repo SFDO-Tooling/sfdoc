@@ -274,7 +274,7 @@ def publish_drafts(bundle_pk):
     logger = get_logger(bundle)
     logger.info('Publishing drafts for %s', bundle)
     try:
-        self._publish_drafts(bundle)
+        _publish_drafts(bundle)
     except Exception as e:
         bundle.set_error(e)
         process_queue.delay()
