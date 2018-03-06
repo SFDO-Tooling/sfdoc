@@ -35,9 +35,6 @@
     "AWS_S3_BUCKET": {
       "description": "Name of the storage bucket on AWS"
     },
-    "AWS_S3_DRAFT_DIR": {
-      "description": "Name to use for the S3 directory where draft images are located"
-    },
     "DATABASE_URL": {
       "description": "The URL of the Postgres database"
     },
