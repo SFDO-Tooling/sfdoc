@@ -88,6 +88,10 @@ class Bundle(models.Model):
         self.time_queued = now()
         self.error_message = ''
         self.save()
+        for article in self.articles:
+            article.delete()
+        for image in self.images:
+            image.delete()
 
     def set_error(self, e, filename=None):
         """Set error status and message."""
