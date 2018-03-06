@@ -1,3 +1,4 @@
+from traceback import format_exception
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -93,13 +94,10 @@ class Bundle(models.Model):
         for image in self.images.all():
             image.delete()
 
-    def set_error(self, e, filename=None):
+    def set_error(self, e):
         """Set error status and message."""
         self.status = self.STATUS_ERROR
-        if filename:
-            self.error_message = '{}: {}'.format(filename, e)
-        else:
-            self.error_message = str(e)
+        self.error_message = format_exception(None, e, e.__traceback__)
         self.save()
         logger = get_logger(self)
         logger.error(self.error_message)
