@@ -134,7 +134,7 @@ class Salesforce:
     def get_preview_url(self, ka_id):
         """Article preview URL."""
         o = urlparse(self.api.base_url)
-        draft_preview_url = (
+        preview_url = (
             '{}://{}/knowledge/publishing/'
             'articlePreview.apexp?id={}'
         ).format(
@@ -142,6 +142,7 @@ class Salesforce:
             o.netloc,
             ka_id[:15],  # reduce to 15 char ID
         )
+        return preview_url
 
     def process_article(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
