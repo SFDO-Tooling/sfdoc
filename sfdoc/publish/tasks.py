@@ -283,7 +283,7 @@ def publish_drafts(bundle_pk):
             article,
         )
         try:
-            salesforce.set_publish_status(article.kav_id, 'archived')
+            salesforce.archive(article.kav_id)
         except Exception as e:
             bundle.set_error(e)
             process_queue.delay()

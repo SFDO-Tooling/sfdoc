@@ -56,6 +56,22 @@ class Salesforce:
         )
         return sf
 
+    def archive(self, ka_id, kav_id):
+        """Archive a published article."""
+        # delete draft if it exists
+        query_str = (
+            "SELECT Id FROM {} WHERE KnowledgeArticleId='{}' "
+            "AND PublishStatus='draft' AND language='en_US'"
+        ).format(
+            settings.SALESFORCE_ARTICLE_TYPE,
+            ka_id,
+        )
+        result = self.api.query(query_str)
+        if result['totalSize'] > 0:
+            self.delete(result['records'][0]['Id'])
+        # archive published version
+        self.set_publish_status(kav_id, 'archived')
+
     def create_article(self, html):
         """Create a new article in draft state."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
@@ -79,6 +95,11 @@ class Salesforce:
             raise(e)
         kav_id = result.json()['id']
         return kav_id
+
+    def delete(self, kav_id):
+        """Delete a KnowledgeArticleVersion."""
+        kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
+        kav_api.delete(kav_id)
 
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
