@@ -88,9 +88,9 @@ class Bundle(models.Model):
         self.time_queued = now()
         self.error_message = ''
         self.save()
-        for article in self.articles:
+        for article in self.articles.all():
             article.delete()
-        for image in self.images:
+        for image in self.images.all():
             image.delete()
 
     def set_error(self, e, filename=None):
