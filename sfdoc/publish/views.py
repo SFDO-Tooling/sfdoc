@@ -120,6 +120,7 @@ def requeue(request, pk):
 @staff_member_required
 def review(request, pk):
     bundle = get_object_or_404(Bundle, pk=pk)
+    logger = get_logger(bundle)
     if bundle.status != Bundle.STATUS_DRAFT:
         return HttpResponseRedirect('../')
     context = {'bundle': bundle}
@@ -127,10 +128,12 @@ def review(request, pk):
         form = PublishToProductionForm(request.POST)
         if form.is_valid():
             if form.approved():
+                logger.info('Approved %s', bundle)
                 bundle.status = Bundle.STATUS_PUBLISHING
                 bundle.save()
                 publish_drafts.delay(bundle.pk)
             else:
+                logger.info('Rejected %s', bundle)
                 bundle.status = Bundle.STATUS_REJECTED
                 bundle.save()
                 process_queue.delay()
