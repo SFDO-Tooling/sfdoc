@@ -154,45 +154,36 @@ def _publish_drafts(bundle):
     logger = get_logger(bundle)
     salesforce = Salesforce()
     s3 = S3()
-    def proc(objects, fun, args, log_prefix):
-        N = objects.count()
-        for n, obj in enumerate(objects.all(), start=1):
-            logger.info('%s %d of %d: %s', log_prefix, n, N, obj)
-            fun(*args)
     # publish articles
-    proc(
-        bundle.articles.filter(status__in=[
-            Article.STATUS_NEW,
-            Article.STATUS_CHANGED,
-        ]),
-        salesforce.publish_draft,
-        [article.kav_id],
-        'Publishing article',
-    )
+    articles = bundle.articles.filter(status__in=[
+        Article.STATUS_NEW,
+        Article.STATUS_CHANGED,
+    ])
+    N = articles.count()
+    for n, article in enumerate(articles.all(), start=1):
+        logger.info('Publishing article %d of %d: %s', n, N, article)
+        salesforce.publish_draft(article.kav_id)
     # publish images
-    proc(
-        bundle.images.filter(status__in=[
-            Image.STATUS_NEW,
-            Image.STATUS_CHANGED,
-        ]),
-        s3.copy_to_production,
-        [image.filename],
-        'Publishing image',
-    )
+    images = bundle.images.filter(status__in=[
+        Image.STATUS_NEW,
+        Image.STATUS_CHANGED,
+    ])
+    N = images.count()
+    for n, image in enumerate(images.all(), start=1):
+        logger.info('Publishing image %d of %d: %s', n, N, image)
+        s3.copy_to_production(image.filename)
     # archive articles
-    proc(
-        bundle.articles.filter(status=Article.STATUS_DELETED),
-        salesforce.archive,
-        [article.ka_id, article.kav_id],
-        'Archiving article',
-    )
+    articles = bundle.articles.filter(status=Article.STATUS_DELETED)
+    N = articles.count()
+    for n, article in enumerate(articles.all(), start=1):
+        logger.info('Archiving article %d of %d: %s', n, N, article)
+        salesforce.archive(article.ka_id, article.kav_id)
     # delete images
-    proc(
-        bundle.images.filter(status=Image.STATUS_DELETED),
-        s3.delete,
-        [image.filename],
-        'Deleting image',
-    )
+    images = bundle.images.filter(status=Image.STATUS_DELETED)
+    N = images.count()
+    for n, image in enumerate(images.all(), start=1):
+        logger.info('Deleting image %d of %d: %s', n, N, image)
+        s3.delete(image.filename)
 
 
 @job('default', timeout=600)

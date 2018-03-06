@@ -96,8 +96,9 @@ class Bundle(models.Model):
 
     def set_error(self, e):
         """Set error status and message."""
+        tb_list = format_exception(None, e, e.__traceback__)
+        self.error_message = ''.join(tb_list)
         self.status = self.STATUS_ERROR
-        self.error_message = format_exception(None, e, e.__traceback__)
         self.save()
         logger = get_logger(self)
         logger.error(self.error_message)
