@@ -4,7 +4,7 @@ sfdoc is a Django web app that securely integrates easyDITA with Salesforce to e
 
 ## Salesforce
 
-Articles are uploaded as drafts, then published when the bundle changes are approved in sfdoc. If bundles changes are rejected, no action is taken in the Salesforce org (drafts remain). Articles are created and drafts updated as needed. sfdoc treats article URL names as unique IDs for the articles, so if an article changes its URL name it will be seen as a new article.
+Articles are uploaded as drafts, then published when the bundle changes are approved in sfdoc. If bundles changes are rejected, no action is taken in the Salesforce org (drafts remain). Articles are created and drafts updated as needed. sfdoc treats article URL names as unique IDs for the articles, so if an article changes its URL name it will be seen as a new article. Articles that have been deleted in easyDITA will be archived in the Salesforce org.
 
 ### Connected app
 
@@ -37,7 +37,7 @@ S3 is used to host the images for both draft and production stages.
 
 Production images are stored in a flat structure at the root of the bucket. Draft images are stored in a flat structure inside a folder at the root of the bucket (folder name is set as environment variable). Storing the items in a flat structure ensures clear and conside image URLs, but the tradeoff is that all image filenames must be unique, so that images aren't overwritten.
 
-sfdoc uploads linked images to the draft directory, then once the bundle changes are approved they are copied to the production directory (bucket root). If the bundle changes are rejected, draft images are left as they are.
+sfdoc uploads linked images to the draft directory, then once the bundle changes are approved they are copied to the production directory (bucket root) and deleted from the draft directory.
 
 ## Environment variables
 
