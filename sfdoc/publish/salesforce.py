@@ -131,6 +131,18 @@ class Salesforce:
         result = self.api.query(query_str)
         return result['records']
 
+    def get_preview_url(self, ka_id):
+        """Article preview URL."""
+        o = urlparse(self.api.base_url)
+        draft_preview_url = (
+            '{}://{}/knowledge/publishing/'
+            'articlePreview.apexp?id={}'
+        ).format(
+            o.scheme,
+            o.netloc,
+            ka_id[:15],  # reduce to 15 char ID
+        )
+
     def process_article(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
 
@@ -202,20 +214,11 @@ class Salesforce:
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
         ka_id = self.get_ka_id(kav_id, 'draft')
-        o = urlparse(self.api.base_url)
-        draft_preview_url = (
-            '{}://{}/knowledge/publishing/'
-            'articlePreview.apexp?id={}'
-        ).format(
-            o.scheme,
-            o.netloc,
-            ka_id[:15],  # reduce to 15 char ID
-        )
         Article.objects.create(
             bundle=bundle,
             ka_id=ka_id,
             kav_id=kav_id,
-            draft_preview_url=draft_preview_url,
+            draft_preview_url=self.get_preview_url(ka_id),
             status=status,
             title=html.title,
             url_name=html.url_name,

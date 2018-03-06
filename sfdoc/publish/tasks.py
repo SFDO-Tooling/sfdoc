@@ -107,6 +107,9 @@ def _process_bundle(bundle, path):
                 status=Article.STATUS_DELETED,
                 title=article['Title'],
                 url_name=article['UrlName'],
+                draft_preview_url=salesforce.get_preview_url(
+                    article['KnowledgeArticleId'],
+                ),
             )
     # build list of images to delete
     for obj in s3.iter_objects():
@@ -283,7 +286,7 @@ def publish_drafts(bundle_pk):
             article,
         )
         try:
-            salesforce.archive(article.kav_id)
+            salesforce.archive(article.ka_id, article.kav_id)
         except Exception as e:
             bundle.set_error(e)
             process_queue.delay()
