@@ -125,7 +125,6 @@ def _process_bundle(bundle, path):
     # upload draft articles and images
     logger.info('Uploading draft articles and images')
     publish_queue = []
-    changed = False
     # process HTML files
     for n, html_file in enumerate(html_files, start=1):
         logger.info('Processing HTML file %d of %d: %s',
@@ -136,9 +135,7 @@ def _process_bundle(bundle, path):
         with open(html_file) as f:
             html_raw = f.read()
         html = HTML(html_raw)
-        changed_1 = salesforce.process_article(html, bundle)
-        if changed_1:
-            changed = True
+        salesforce.process_article(html, bundle)
     # process images
     for n, image in enumerate(images, start=1):
         logger.info('Processing image file %d of %d: %s',
@@ -146,10 +143,8 @@ def _process_bundle(bundle, path):
             len(images),
             image.replace(path + os.sep, ''),
         )
-        changed_1 = s3.process_image(image, bundle)
-        if changed_1:
-            changed = True
-    if not changed:
+        s3.process_image(image, bundle)
+    if not bundle.articles.count() and not bundle.images.count():
         raise SfdocError('No articles or images changed')
     bundle.status = bundle.STATUS_DRAFT
     bundle.save()

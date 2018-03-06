@@ -88,13 +88,13 @@ class S3:
                         filename=basename,
                         status=Image.STATUS_NEW,
                     )
-                    return True
+                    return
                 else:
                     raise
             # image already in production; compare it to local image
             if filecmp.cmp(filename, s3localname):
                 # files are the same, no update
-                return False
+                return
             else:
                 # files differ, update image
                 self.upload_image(filename, key)
@@ -103,7 +103,7 @@ class S3:
                     filename=basename,
                     status=Image.STATUS_CHANGED,
                 )
-                return True
+                return
 
     def upload_image(self, filename, key):
         with open(filename, 'rb') as f:

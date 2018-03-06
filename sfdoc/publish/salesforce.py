@@ -161,7 +161,7 @@ class Salesforce:
                 bundle,
                 Article.STATUS_CHANGED,
             )
-            return True
+            return
 
         # no drafts found. search for published article
         result = self.query_articles(html.url_name, 'online')
@@ -176,7 +176,7 @@ class Salesforce:
             # check for changes in article fields
             if html.same_as_record(record):
                 # no update
-                return False
+                return
 
             # create draft copy of published article
             kav_id = self.create_draft(record['KnowledgeArticleId'])
@@ -184,7 +184,6 @@ class Salesforce:
             status = Article.STATUS_CHANGED
 
         self.save_article(kav_id, html, bundle, status)
-        return True
 
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
