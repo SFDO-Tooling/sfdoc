@@ -116,7 +116,7 @@ def _process_bundle(bundle, path):
     for obj in s3.iter_objects():
         if (
             not obj['Key'].startswith(settings.AWS_S3_DRAFT_DIR) and
-            obj['Key'] not in image_map
+            obj['Key'].lower() not in image_map
         ):
             Image.objects.create(
                 bundle=bundle,
