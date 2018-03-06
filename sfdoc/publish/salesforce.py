@@ -98,8 +98,15 @@ class Salesforce:
 
     def delete(self, kav_id):
         """Delete a KnowledgeArticleVersion."""
-        kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
-        kav_api.delete(kav_id)
+        url = (
+            self.api.base_url +
+            'knowledgeManagement/articleVersions/masterVersions/{}'
+        ).format(kav_id)
+        result = self.api._call_salesforce('DELETE', url)
+        if result.status_code != HTTPStatus.NO_CONTENT:
+            raise SalesforceError((
+                'Error deleting KnowledgeArticleVersion (ID={})'
+            ).format(kav_id))
 
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
