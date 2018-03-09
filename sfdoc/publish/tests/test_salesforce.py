@@ -26,7 +26,7 @@ class TestSalesforce(TestCase):
         community_url = Salesforce.get_community_loc(
             'powerofus',
             instance_url,
-            sandbox=True
+            is_sandbox=True
             )
 
         self.assertEqual(community_url, 'productdoc-powerofus.cs70.force.com')
@@ -36,7 +36,7 @@ class TestSalesforce(TestCase):
         community_url = Salesforce.get_community_loc(
             'powerofus',
             instance_url,
-            sandbox=False
+            is_sandbox=False
         )
 
         self.assertEqual(community_url, 'powerofus.force.com')

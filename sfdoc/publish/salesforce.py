@@ -140,19 +140,19 @@ class Salesforce:
         return result['records']
 
     @staticmethod
-    def get_community_loc(name, base_domain, sandbox=False):
+    def get_community_loc(name, base_domain, is_sandbox=False):
         """ Get a community URL or 'force.com' URL from a
             given name and base url.
         """
-        if not sandbox:
+        if not is_sandbox:
             return '{}.force.com'.format(name)
 
         parts = base_domain.split('.')
         instance = parts[1]
-        sandbox = parts[0].split('--')[1]
+        sandbox_name = parts[0].split('--')[1]
 
         return '{}-{}.{}.force.com'.format(
-            sandbox,
+            sandbox_name,
             name,
             instance
         )
@@ -168,7 +168,7 @@ class Salesforce:
             self.get_community_loc(
                 'powerofus',
                 o.netloc,
-                sandbox=self.sandbox),
+                is_sandbox=self.sandbox),
             ka_id[:15],  # reduce to 15 char ID
         )
         if online:
