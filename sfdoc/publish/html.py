@@ -68,7 +68,7 @@ class HTML:
             ))
         body = body_tag.renderContents()
         soup_body = BeautifulSoup(body, 'html.parser')
-        self.body = soup_body.prettify()
+        self.body = str(soup_body)
 
     def create_article_data(self):
         return {
@@ -159,7 +159,7 @@ class HTML:
                     a['href'] += '#' + o.fragment
         for img in soup('img'):
             img['src'] = images_path + os.path.basename(img['src'])
-        self.body = soup.prettify()
+        self.body = str(soup)
 
     @staticmethod
     def update_links_production(html):
@@ -167,4 +167,4 @@ class HTML:
         soup = BeautifulSoup(html, 'html.parser')
         for img in soup('img'):
             img['src'] = img['src'].replace(settings.AWS_S3_DRAFT_DIR, '')
-        return soup.prettify()
+        return str(soup)
