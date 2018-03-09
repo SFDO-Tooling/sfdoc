@@ -47,19 +47,19 @@ class TestSalesforce(TestCase):
     def test_get_community_loc_sandbox(self):
         instance_url = 'https://foundation--productdoc.cs70.my.salesforce.com'
         community_url = Salesforce.get_community_loc(
-            'powerofus',
+            settings.SALESFORCE_COMMUNITY,
             instance_url,
         )
-        self.assertEqual(community_url, 'productdoc-powerofus.cs70.force.com')
+        self.assertEqual(community_url, 'productdoc-{}.cs70.force.com'.format(settings.SALESFORCE_COMMUNITY))
 
     @override_settings(SALESFORCE_SANDBOX=False)
     def test_get_community_loc_prod(self):
         instance_url = 'https://foundation--productdoc.cs70.my.salesforce.com'
         community_url = Salesforce.get_community_loc(
-            'powerofus',
+            settings.SALESFORCE_COMMUNITY,
             instance_url,
         )
-        self.assertEqual(community_url, 'powerofus.force.com')
+        self.assertEqual(community_url, '{}.force.com'.format(settings.SALESFORCE_COMMUNITY))
 
     @override_settings(SALESFORCE_SANDBOX=True)
     @responses.activate
@@ -71,5 +71,5 @@ class TestSalesforce(TestCase):
         ka_url = salesforce.get_preview_url('123')
         self.assertEqual(
             ka_url,
-            'https://sb-powerofus.cs70.force.com/knowledge/publishing/articlePreview.apexp?id=123'
+            'https://sb-{}.cs70.force.com/knowledge/publishing/articlePreview.apexp?id=123'.format(settings.SALESFORCE_COMMUNITY),
         )

@@ -165,7 +165,7 @@ class Salesforce:
         ).format(
             o.scheme,
             self.get_community_loc(
-                'powerofus',
+                settings.SALESFORCE_COMMUNITY,
                 o.netloc,
             ),
             ka_id[:15],  # reduce to 15 char ID
