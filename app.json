@@ -65,6 +65,9 @@
     "SALESFORCE_CLIENT_ID": {
       "description": "Salesforce connected app Client ID"
     },
+    "SALESFORCE_COMMUNITY": {
+      "description": "Salesforce community name"
+    },
     "SALESFORCE_JWT_PRIVATE_KEY": {
       "description": "Salesforce connected app JWT private key"
     },

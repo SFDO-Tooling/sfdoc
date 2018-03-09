@@ -138,6 +138,24 @@ class Salesforce:
         result = self.api.query(query_str)
         return result['records']
 
+    @staticmethod
+    def get_community_loc(name, base_domain):
+        """ Get a community URL or 'force.com' URL from a
+            given name and base url.
+        """
+        if not settings.SALESFORCE_SANDBOX:
+            return '{}.force.com'.format(name)
+
+        parts = base_domain.split('.')
+        instance = parts[1]
+        sandbox_name = parts[0].split('--')[1]
+
+        return '{}-{}.{}.force.com'.format(
+            sandbox_name,
+            name,
+            instance
+        )
+
     def get_preview_url(self, ka_id, online=False):
         """Article preview URL."""
         o = urlparse(self.api.base_url)
@@ -146,7 +164,10 @@ class Salesforce:
             'articlePreview.apexp?id={}'
         ).format(
             o.scheme,
-            o.netloc,
+            self.get_community_loc(
+                settings.SALESFORCE_COMMUNITY,
+                o.netloc,
+            ),
             ka_id[:15],  # reduce to 15 char ID
         )
         if online:
