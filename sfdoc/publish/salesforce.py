@@ -19,12 +19,13 @@ class Salesforce:
     """Interact with a Salesforce org."""
 
     def __init__(self):
+        self.sandbox = settings.SALESFORCE_SANDBOX
         self.api = self._get_salesforce_api()
 
     def _get_salesforce_api(self):
         """Get an instance of the Salesforce REST API."""
         url = settings.SALESFORCE_LOGIN_URL
-        if settings.SALESFORCE_SANDBOX:
+        if self.sandbox:
             url = url.replace('login', 'test')
         payload = {
             'alg': 'RS256',
@@ -50,7 +51,7 @@ class Salesforce:
         sf = SimpleSalesforce(
             instance_url=response_data['instance_url'],
             session_id=response_data['access_token'],
-            sandbox=settings.SALESFORCE_SANDBOX,
+            sandbox=self.sandbox,
             version=settings.SALESFORCE_API_VERSION,
             client_id='sfdoc',
         )
@@ -138,6 +139,24 @@ class Salesforce:
         result = self.api.query(query_str)
         return result['records']
 
+    @staticmethod
+    def get_community_loc(name, base_domain, sandbox=False):
+        """ Get a community URL or 'force.com' URL from a
+            given name and base url.
+        """
+        if not sandbox:
+            return '{}.force.com'.format(name)
+
+        parts = base_domain.split('.')
+        instance = parts[1]
+        sandbox = parts[0].split('--')[1]
+
+        return '{}-{}.{}.force.com'.format(
+            sandbox,
+            name,
+            instance
+        )
+
     def get_preview_url(self, ka_id, online=False):
         """Article preview URL."""
         o = urlparse(self.api.base_url)
@@ -146,7 +165,10 @@ class Salesforce:
             'articlePreview.apexp?id={}'
         ).format(
             o.scheme,
-            o.netloc,
+            self.get_community_loc(
+                'powerofus',
+                o.netloc,
+                sandbox=self.sandbox),
             ka_id[:15],  # reduce to 15 char ID
         )
         if online:
