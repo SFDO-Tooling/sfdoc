@@ -23,9 +23,7 @@ def create_test_html(url_name, title, summary, body):
       <title>{}</title>
     </head>
     <body>
-      <div class="{}">
-        {}
-      </div>
+      <div class="{}">{}</div>
     </body>
     </html>
     '''.format(
