@@ -66,9 +66,7 @@ class HTML:
             raise HtmlError('Body tag <div class={} ...> not found'.format(
                 settings.ARTICLE_BODY_CLASS,
             ))
-        body = body_tag.renderContents()
-        soup_body = BeautifulSoup(body, 'html.parser')
-        self.body = str(soup_body)
+        self.body = body_tag.renderContents().decode('utf-8')
 
     def create_article_data(self):
         return {
