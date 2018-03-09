@@ -19,13 +19,12 @@ class Salesforce:
     """Interact with a Salesforce org."""
 
     def __init__(self):
-        self.sandbox = settings.SALESFORCE_SANDBOX
         self.api = self._get_salesforce_api()
 
     def _get_salesforce_api(self):
         """Get an instance of the Salesforce REST API."""
         url = settings.SALESFORCE_LOGIN_URL
-        if self.sandbox:
+        if settings.SALESFORCE_SANDBOX:
             url = url.replace('login', 'test')
         payload = {
             'alg': 'RS256',
@@ -51,7 +50,7 @@ class Salesforce:
         sf = SimpleSalesforce(
             instance_url=response_data['instance_url'],
             session_id=response_data['access_token'],
-            sandbox=self.sandbox,
+            sandbox=settings.SALESFORCE_SANDBOX,
             version=settings.SALESFORCE_API_VERSION,
             client_id='sfdoc',
         )
@@ -140,11 +139,11 @@ class Salesforce:
         return result['records']
 
     @staticmethod
-    def get_community_loc(name, base_domain, is_sandbox=False):
+    def get_community_loc(name, base_domain):
         """ Get a community URL or 'force.com' URL from a
             given name and base url.
         """
-        if not is_sandbox:
+        if not settings.SALESFORCE_SANDBOX:
             return '{}.force.com'.format(name)
 
         parts = base_domain.split('.')
@@ -168,7 +167,7 @@ class Salesforce:
             self.get_community_loc(
                 'powerofus',
                 o.netloc,
-                is_sandbox=self.sandbox),
+            ),
             ka_id[:15],  # reduce to 15 char ID
         )
         if online:
