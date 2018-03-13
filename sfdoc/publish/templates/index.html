@@ -44,7 +44,7 @@
 </ol>
 {% endif %}
 
-{% if not processing and not queued %}
+{% if not processing and not draft and not publishing and not queued %}
 <p>There are no easyDITA bundles in the queue</p>
 {% endif %}
 
