@@ -9,12 +9,33 @@
 <h5>Processing</h5>
 <ul>
 {% for bundle in processing %}
-  <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }} ({{ bundle.get_status_display }})</a></li>
+  <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if draft %}
+<br>
+<h5>Ready for Review</h5>
+<ul>
+{% for bundle in draft %}
+  <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% if publishing %}
+<br>
+<h5>Publishing</h5>
+<ul>
+{% for bundle in publishing %}
+  <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }}</a></li>
 {% endfor %}
 </ul>
 {% endif %}
 
 {% if queued %}
+<br>
 <h5>Queued</h5>
 <ol>
 {% for bundle in queued %}
