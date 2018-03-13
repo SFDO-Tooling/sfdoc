@@ -180,34 +180,31 @@ class Salesforce:
         # update links to draft versions
         html.update_links_draft()
 
-        # search for existing draft. if found, update fields and return
-        result = self.query_articles(html.url_name, 'draft')
-        if result['totalSize'] == 1:  # cannot be > 1
-            kav_id = result['records'][0]['Id']
-            self.update_draft(kav_id, html)
-            self.save_article(
-                kav_id,
-                html,
-                bundle,
-                Article.STATUS_CHANGED,
-            )
-            return
+        # query for existing article
+        result_draft = self.query_articles(html.url_name, 'draft')
+        result_online = self.query_articles(html.url_name, 'online')
 
-        # no drafts found. search for published article
-        result = self.query_articles(html.url_name, 'online')
-        if result['totalSize'] == 0:
-            # new article
+        if result_draft['totalSize'] == 1:
+            # draft exists, update fields
+            kav_id = result_draft['records'][0]['Id']
+            self.update_draft(kav_id, html)
+            if result_online['totalSize'] == 1:
+                # published version exists
+                status = Article.STATUS_CHANGED
+            else:
+                # not published
+                status = Article.STATUS_NEW
+        elif result_online['totalSize'] == 0:
+            # new draft, new article
             kav_id = self.create_article(html)
             status = Article.STATUS_NEW
-        elif result['totalSize'] == 1:
+        elif result_online['totalSize'] == 1:
             # new draft of existing article
-            record = result['records'][0]
-
+            record = result_online['records'][0]
             # check for changes in article fields
             if html.same_as_record(record):
                 # no update
                 return
-
             # create draft copy of published article
             kav_id = self.create_draft(record['KnowledgeArticleId'])
             self.update_draft(kav_id, html)
