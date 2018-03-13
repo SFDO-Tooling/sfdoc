@@ -69,17 +69,19 @@ def bundles(request):
 @never_cache
 @staff_member_required
 def index(request):
-    qs_processing = Bundle.objects.filter(status__in=(
-        Bundle.STATUS_PROCESSING,
-        Bundle.STATUS_DRAFT,
-        Bundle.STATUS_PUBLISHING,
-    ))
-    qs_queued = Bundle.objects.filter(
-        status=Bundle.STATUS_QUEUED,
-    )
     context = {
-        'processing': qs_processing.order_by('time_queued'),
-        'queued': qs_queued.order_by('time_queued'),
+        'processing': Bundle.objects.filter(
+            status=Bundle.STATUS_PROCESSING,
+        ),
+        'draft': Bundle.objects.filter(
+            status=Bundle.STATUS_DRAFT,
+        ),
+        'publishing': Bundle.objects.filter(
+            status=Bundle.STATUS_PUBLISHING,
+        ),
+        'queued': Bundle.objects.filter(
+            status=Bundle.STATUS_QUEUED,
+        ).order_by('time_queued'),
     }
     return render(request, 'index.html', context=context)
 
