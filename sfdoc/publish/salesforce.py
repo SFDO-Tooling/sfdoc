@@ -218,7 +218,13 @@ class Salesforce:
         kav = kav_api.get(kav_id)
         body = kav[settings.SALESFORCE_ARTICLE_BODY_FIELD]
         body = HTML.update_links_production(body)
-        kav_api.update(kav_id, {settings.SALESFORCE_ARTICLE_BODY_FIELD: body})
+
+        data = {settings.SALESFORCE_ARTICLE_BODY_FIELD: body}
+
+        if settings.SALESFORCE_ARTICLE_TEXT_INDEX_FIELD is not False:
+            data[settings.SALESFORCE_ARTICLE_TEXT_INDEX_FIELD] = body
+
+        kav_api.update(kav_id, data)
         self.set_publish_status(kav_id, 'online')
 
     def query_articles(self, url_name, publish_status):
