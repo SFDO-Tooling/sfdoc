@@ -50,6 +50,7 @@ def _process_bundle(bundle, path):
     # check all HTML files and create list of image files
     url_map = {}
     images = set([])
+    article_image_map = {}
     logger.info('Scrubbing all HTML files in %s', bundle)
     for n, html_file in enumerate(html_files, start=1):
         logger.info('Scrubbing HTML file %d of %d: %s',
@@ -61,11 +62,14 @@ def _process_bundle(bundle, path):
             html_raw = f.read()
         html = HTML(html_raw)
         html.scrub()
+        article_image_map[html.url_name] = set([])
         for image_path in html.get_image_paths():
-            images.add(os.path.abspath(os.path.join(
+            image_path_full = os.path.abspath(os.path.join(
                 os.path.dirname(html_file),
                 image_path,
-            )))
+            ))
+            article_image_map[html.url_name].add(image_path_full)
+            images.add(image_path_full)
         url_name = html.url_name.lower()
         if url_name not in url_map:
             url_map[url_name] = []
@@ -145,6 +149,18 @@ def _process_bundle(bundle, path):
             image.replace(path + os.sep, ''),
         )
         s3.process_image(image, bundle)
+    # upload unchanged images for article previews
+    logger.info('Checking for unchanged images used in draft articles')
+    for article in bundle.articles.filter(status__in=(
+        Article.STATUS_NEW,
+        Article.STATUS_CHANGED,
+    )):
+        for image in article_image_map[article.url_name]:
+            basename = os.path.basename(image)
+            if not bundle.images.filter(filename=basename):
+                logger.info('Uploading unchanged image: %s', image)
+                key = settings.AWS_S3_DRAFT_DIR + basename
+                s3.upload_image(image, key)
     if not bundle.articles.count() and not bundle.images.count():
         raise SfdocError('No articles or images changed')
     bundle.status = bundle.STATUS_DRAFT
