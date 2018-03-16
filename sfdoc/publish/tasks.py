@@ -171,7 +171,7 @@ def _process_bundle(bundle, path):
     if not bundle.articles.count() and not bundle.images.count():
         raise SfdocError('No articles or images changed')
     # finish
-    bundle.status = bundle.STATUS_DRAFT
+    bundle.status = Bundle.STATUS_DRAFT
     bundle.save()
 
 
