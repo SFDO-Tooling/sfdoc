@@ -48,7 +48,7 @@ def _process_bundle(bundle, path):
                     continue
                 html_files.append(filename_full)
     # check all HTML files and create list of image files
-    html_map = {}
+    url_map = {}
     images = set([])
     logger.info('Scrubbing all HTML files in %s', bundle)
     for n, html_file in enumerate(html_files, start=1):
@@ -67,17 +67,17 @@ def _process_bundle(bundle, path):
                 image_path,
             )))
         url_name = html.url_name.lower()
-        if url_name not in html_map:
-            html_map[url_name] = []
-        html_map[url_name].append(html_file)
+        if url_name not in url_map:
+            url_map[url_name] = []
+        url_map[url_name].append(html_file)
     # check for duplicate URL names
-    if any(map(lambda x: len(x) > 1, html_map.values())):
+    if any(map(lambda x: len(x) > 1, url_map.values())):
         msg = 'Found URL name duplicates:'
-        for url_name in sorted(html_map.keys()):
-            if len(html_map[url_name]) == 1:
+        for url_name in sorted(url_map.keys()):
+            if len(url_map[url_name]) == 1:
                 continue
             msg += '\n{}'.format(url_name)
-            for html_file in sorted(html_map[url_name]):
+            for html_file in sorted(url_map[url_name]):
                 msg += '\n\t{}'.format(html_file)
         raise SfdocError(msg)
     # check for duplicate image filenames
@@ -99,7 +99,7 @@ def _process_bundle(bundle, path):
         raise SfdocError(msg)
     # build list of published articles to archive
     for article in salesforce.get_articles('online'):
-        if article['UrlName'].lower() not in html_map:
+        if article['UrlName'].lower() not in url_map:
             Article.objects.create(
                 bundle=bundle,
                 ka_id=article['KnowledgeArticleId'],
