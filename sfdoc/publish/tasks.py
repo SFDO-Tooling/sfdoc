@@ -151,18 +151,26 @@ def _process_bundle(bundle, path):
         s3.process_image(image, bundle)
     # upload unchanged images for article previews
     logger.info('Checking for unchanged images used in draft articles')
+    unchanged_images = set([])
     for article in bundle.articles.filter(status__in=(
         Article.STATUS_NEW,
         Article.STATUS_CHANGED,
     )):
         for image in article_image_map[article.url_name]:
-            basename = os.path.basename(image)
-            if not bundle.images.filter(filename=basename):
-                logger.info('Uploading unchanged image: %s', image)
-                key = settings.AWS_S3_DRAFT_DIR + basename
-                s3.upload_image(image, key)
+            if not bundle.images.filter(filename=os.path.basename(image)):
+                unchanged_images.add(image)
+    for n, image in enumerate(unchanged_images, start=1):
+        logger.info('Uploading unchanged image %d of %d: %s',
+            n,
+            len(unchanged_images),
+            image
+        )
+        key = settings.AWS_S3_DRAFT_DIR + os.path.basename(image)
+        s3.upload_image(image, key)
+    # error if nothing changed
     if not bundle.articles.count() and not bundle.images.count():
         raise SfdocError('No articles or images changed')
+    # finish
     bundle.status = bundle.STATUS_DRAFT
     bundle.save()
 
