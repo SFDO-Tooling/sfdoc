@@ -167,7 +167,7 @@ def review(request, pk):
             status=Image.STATUS_DELETED
         ).order_by('filename'),
     }
-    return render(request, 'publish.html', context=context)
+    return render(request, 'review.html', context=context)
 
 
 @never_cache
