@@ -14,12 +14,14 @@ class Article(models.Model):
     """Tracks created/updated articles per bundle."""
     STATUS_NEW = 'N'
     STATUS_CHANGED = 'C'
+    STATUS_UNCHANGED = 'U'
     STATUS_DELETED = 'D'
     status = models.CharField(
         max_length=1,
         choices=(
             (STATUS_NEW, 'New'),
             (STATUS_CHANGED, 'Changed'),
+            (STATUS_UNCHANGED, 'Unchanged'),
             (STATUS_DELETED, 'Deleted'),
         ),
     )

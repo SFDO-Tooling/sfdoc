@@ -174,7 +174,7 @@ class Salesforce:
             preview_url += '&pubstatus=o'
         return preview_url
 
-    def process_article(self, html, bundle):
+    def process_article(self, html, bundle, unchanged=False):
         """Create a draft KnowledgeArticleVersion."""
 
         # update links to draft versions
@@ -190,7 +190,7 @@ class Salesforce:
             self.update_draft(kav_id, html)
             if result_online['totalSize'] == 1:
                 # published version exists
-                status = Article.STATUS_CHANGED
+                status = Article.STATUS_UNCHANGED if unchanged else Article.STATUS_CHANGED
             else:
                 # not published
                 status = Article.STATUS_NEW
@@ -202,13 +202,13 @@ class Salesforce:
             # new draft of existing article
             record = result_online['records'][0]
             # check for changes in article fields
-            if html.same_as_record(record):
+            if not unchanged and html.same_as_record(record):
                 # no update
                 return
             # create draft copy of published article
             kav_id = self.create_draft(record['KnowledgeArticleId'])
             self.update_draft(kav_id, html)
-            status = Article.STATUS_CHANGED
+            status = Article.STATUS_UNCHANGED if unchanged else Article.STATUS_CHANGED
 
         self.save_article(kav_id, html, bundle, status)
 

@@ -27,6 +27,18 @@
 </p>
 {% endif %}
 
+{% if articles_unchanged %}
+<br>
+<h5>Unchanged Articles with Changed Images</h5>
+<p>
+  <ul>
+{% for article in articles_unchanged %}
+    <li><a href="{{ article.preview_url }}" target="_blank">{{ article.url_name }}</a></li>
+{% endfor %}
+  </ul>
+</p>
+{% endif %}
+
 {% if articles_deleted %}
 <br>
 <h5>Deleted Articles</h5>

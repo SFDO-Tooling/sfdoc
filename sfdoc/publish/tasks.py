@@ -51,6 +51,7 @@ def _process_bundle(bundle, path):
     url_map = {}
     images = set([])
     article_image_map = {}
+    image_article_map = {}
     logger.info('Scrubbing all HTML files in %s', bundle)
     for n, html_file in enumerate(html_files, start=1):
         logger.info('Scrubbing HTML file %d of %d: %s',
@@ -64,6 +65,10 @@ def _process_bundle(bundle, path):
         html.scrub()
         article_image_map[html.url_name] = set([])
         for image_path in html.get_image_paths():
+            basename = os.path.basename(image_path)
+            if basename not in image_article_map:
+                image_article_map[basename] = set([])
+            image_article_map[basename].add(html_file)
             image_path_full = os.path.abspath(os.path.join(
                 os.path.dirname(html_file),
                 image_path,
@@ -149,12 +154,37 @@ def _process_bundle(bundle, path):
             image.replace(path + os.sep, ''),
         )
         s3.process_image(image, bundle)
+    # upload unchanged draft articles for changed images
+    logger.info('Checking for unchanged articles that use changed images')
+    unchanged_html_files = set([])
+    for image in bundle.images.filter(status=Image.STATUS_CHANGED):
+        for html_file in image_article_map[image.filename]:
+            with open(html_file) as f:
+                html_raw = f.read()
+            html = HTML(html_raw)
+            if not Article.objects.filter(status__in=(
+                Article.STATUS_NEW,
+                Article.STATUS_CHANGED,
+            )).filter(url_name=html.url_name):
+                # article url name not in list of new/changed articles
+                unchanged_html_files.add(html_file)
+    for n, html_file in enumerate(unchanged_html_files, start=1):
+        logger.info('Uploading unchanged draft article %d of %d: %s',
+            n,
+            len(unchanged_html_files),
+            html.title,
+        )
+        with open(html_file) as f:
+            html_raw = f.read()
+        html = HTML(html_raw)
+        salesforce.process_article(html, bundle, unchanged=True)
     # upload unchanged images for article previews
     logger.info('Checking for unchanged images used in draft articles')
     unchanged_images = set([])
     for article in bundle.articles.filter(status__in=(
         Article.STATUS_NEW,
         Article.STATUS_CHANGED,
+        Article.STATUS_UNCHANGED,
     )):
         for image in article_image_map[article.url_name]:
             if not bundle.images.filter(filename=os.path.basename(image)):

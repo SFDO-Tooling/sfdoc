@@ -151,6 +151,9 @@ def review(request, pk):
         'articles_changed': bundle.articles.filter(
             status=Article.STATUS_CHANGED
         ).order_by('url_name'),
+        'articles_unchanged': bundle.articles.filter(
+            status=Article.STATUS_UNCHANGED
+        ).order_by('url_name'),
         'articles_deleted': bundle.articles.filter(
             status=Article.STATUS_DELETED
         ).order_by('url_name'),
