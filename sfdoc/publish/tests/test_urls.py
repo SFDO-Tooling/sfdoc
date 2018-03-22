@@ -17,5 +17,5 @@ class TestPublishURLs(TestCase):
         """publish:webhook should reverse to /publish/webhook/."""
         self.assertEqual(
             reverse('publish:webhook'),
-            '/publish/webhook/',
+            '/publish/webhook',
         )
