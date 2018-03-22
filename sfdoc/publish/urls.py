@@ -34,7 +34,7 @@ urlpatterns = [
         name='review',
     ),
     url(
-        regex=r'^webhook/$',
+        regex=r'^webhook(/)?$',
         view=views.webhook,
         name='webhook',
     ),
