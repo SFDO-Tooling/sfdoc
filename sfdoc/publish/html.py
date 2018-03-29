@@ -151,13 +151,22 @@ class HTML:
                 o = urlparse(a['href'])
                 if o.scheme or not o.path or not is_html(o.path):
                     continue
-                basename = os.path.basename(o.path)
-                a['href'] = os.path.splitext(basename)[0]
-                if o.fragment:
-                    a['href'] += '#' + o.fragment
+                a['href'] = self.update_href(o)
         for img in soup('img'):
             img['src'] = images_path + os.path.basename(img['src'])
         self.body = str(soup)
+
+    def update_href(self, parsed_url):
+        basename = os.path.basename(parsed_url.path)
+        new_href = '{}{}'.format(
+            settings.SALESFORCE_ARTICLE_URL_PATH_PREFIX,
+            os.path.splitext(basename)[0]
+            )
+
+        if parsed_url.fragment:
+            new_href += '#' + parsed_url.fragment
+
+        return new_href
 
     @staticmethod
     def update_links_production(html):
