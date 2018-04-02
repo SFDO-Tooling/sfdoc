@@ -1,6 +1,4 @@
-import json
 import os
-from urllib.parse import urljoin
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup

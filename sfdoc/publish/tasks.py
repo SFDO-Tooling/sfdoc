@@ -129,7 +129,6 @@ def _process_bundle(bundle, path):
             )
     # upload draft articles and images
     logger.info('Uploading draft articles and images')
-    publish_queue = []
     # process HTML files
     for n, html_file in enumerate(html_files, start=1):
         logger.info('Processing HTML file %d of %d: %s',
