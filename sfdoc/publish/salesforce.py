@@ -9,7 +9,6 @@ import jwt
 import requests
 from simple_salesforce import Salesforce as SimpleSalesforce
 
-from .exceptions import HtmlError
 from .exceptions import SalesforceError
 from .html import HTML
 from .models import Article

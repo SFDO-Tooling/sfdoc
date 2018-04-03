@@ -1,5 +1,3 @@
-import logging
-
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger

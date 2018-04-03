@@ -59,8 +59,14 @@
     "SALESFORCE_ARTICLE_BODY_FIELD": {
       "description": "Salesforce custom field on KnowledgeArticleVersion for the article body"
     },
+    "SALESFORCE_ARTICLE_TEXT_INDEX_FIELD": {
+      "description": "Salesforce article text index field"
+    },
     "SALESFORCE_ARTICLE_TYPE": {
       "description": "Salesforce article type e.g. Info__kav"
+    },
+    "SALESFORCE_ARTICLE_URL_PATH_PREFIX": {
+      "description": "Salesforce article URL path prefix"
     },
     "SALESFORCE_CLIENT_ID": {
       "description": "Salesforce connected app Client ID"
