@@ -68,6 +68,9 @@
     "SALESFORCE_ARTICLE_URL_PATH_PREFIX": {
       "description": "Salesforce article URL path prefix"
     },
+    "SALESFORCE_ARTICLE_LINK_LIMIT": {
+      "description": "Salesforce limit on number of links allowed in an article to other articles"
+    },
     "SALESFORCE_CLIENT_ID": {
       "description": "Salesforce connected app Client ID"
     },

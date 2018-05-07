@@ -137,36 +137,35 @@ class Salesforce:
         result = self.api.query(query_str)
         return result['records']
 
-    @staticmethod
-    def get_community_loc(name, base_domain):
-        """ Get a community URL or 'force.com' URL from a
-            given name and base url.
-        """
-        if not settings.SALESFORCE_SANDBOX:
-            return '{}.force.com'.format(name)
+    def get_base_url(self):
+        """ Return base URL e.g. https://powerofus.force.com """
+        o = urlparse(self.api.base_url)
 
-        parts = base_domain.split('.')
-        instance = parts[1]
-        sandbox_name = parts[0].split('--')[1]
+        domain = '{}.force.com'.format(settings.SALESFORCE_COMMUNITY)
 
-        return '{}-{}.{}.force.com'.format(
-            sandbox_name,
-            name,
-            instance
+        if settings.SALESFORCE_SANDBOX:
+            parts = o.netloc.split('.')
+            instance = parts[1]
+            sandbox_name = parts[0].split('--')[1]
+
+            domain = '{}-{}.{}.force.com'.format(
+                sandbox_name,
+                settings.SALESFORCE_COMMUNITY,
+                instance
+            )
+
+        return '{}://{}'.format(
+            o.scheme,
+            domain,
         )
 
     def get_preview_url(self, ka_id, online=False):
         """Article preview URL."""
-        o = urlparse(self.api.base_url)
         preview_url = (
-            '{}://{}/knowledge/publishing/'
+            '{}/knowledge/publishing/'
             'articlePreview.apexp?id={}'
         ).format(
-            o.scheme,
-            self.get_community_loc(
-                settings.SALESFORCE_COMMUNITY,
-                o.netloc,
-            ),
+            self.get_base_url(),
             ka_id[:15],  # reduce to 15 char ID
         )
         if online:
@@ -177,7 +176,7 @@ class Salesforce:
         """Create a draft KnowledgeArticleVersion."""
 
         # update links to draft versions
-        html.update_links_draft()
+        html.update_links_draft(self.get_base_url())
 
         # query for existing article
         result_draft = self.query_articles(html.url_name, 'draft')
