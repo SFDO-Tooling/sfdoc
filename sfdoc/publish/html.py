@@ -137,26 +137,34 @@ class HTML:
         soup = BeautifulSoup(self.body, 'html.parser')
         scrub_tree(soup)
 
-    def update_links_draft(self):
+    def update_links_draft(self, base_url=''):
         """Update links to draft location."""
         soup = BeautifulSoup(self.body, 'html.parser')
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
             settings.AWS_S3_BUCKET,
             settings.AWS_S3_DRAFT_DIR,
         )
+
+        article_link_count = 1
+
         for a in soup('a'):
             if 'href' in a.attrs:
                 o = urlparse(a['href'])
                 if o.scheme or not o.path or not is_html(o.path):
                     continue
-                a['href'] = self.update_href(o)
+                base_url_prefix = ''
+                if article_link_count > settings.SALESFORCE_ARTICLE_LINK_LIMIT:
+                    base_url_prefix = base_url
+                a['href'] = self.update_href(o, base_url_prefix)
+                article_link_count += 1
         for img in soup('img'):
             img['src'] = images_path + os.path.basename(img['src'])
         self.body = str(soup)
 
-    def update_href(self, parsed_url):
+    def update_href(self, parsed_url, base_url):
         basename = os.path.basename(parsed_url.path)
-        new_href = '{}{}'.format(
+        new_href = '{}{}{}'.format(
+            base_url,
             settings.SALESFORCE_ARTICLE_URL_PATH_PREFIX,
             os.path.splitext(basename)[0]
             )
