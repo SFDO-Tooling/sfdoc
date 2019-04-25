@@ -73,6 +73,7 @@ class TestSalesforce(TestCase):
         )
 
     @override_settings(SALESFORCE_SANDBOX=True)
+    @override_settings(SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX='/preview')
     @responses.activate
     def test_get_preview_url(self):
         salesforce = get_salesforce_instance(
@@ -82,7 +83,7 @@ class TestSalesforce(TestCase):
         ka_url = salesforce.get_preview_url('123')
         self.assertEqual(
             ka_url,
-            'https://sb-{}.cs70.force.com/knowledge/publishing/articlePreview.apexp?id=123'.format(
+            'https://sb-{}.cs70.force.com/preview?id=123&preview=true&channel=APP'.format(
                 settings.SALESFORCE_COMMUNITY
             ),
         )

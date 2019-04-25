@@ -162,10 +162,11 @@ class Salesforce:
     def get_preview_url(self, ka_id, online=False):
         """Article preview URL."""
         preview_url = (
-            '{}/apex/'
-            'Hub_KB_ProductDocArticle?id={}&preview=true&channel=APP'
+            '{}{}'
+            '?id={}&preview=true&channel=APP'
         ).format(
             self.get_base_url(),
+            settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
             ka_id[:15],  # reduce to 15 char ID
         )
         if online:
