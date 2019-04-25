@@ -73,7 +73,6 @@ class TestSalesforce(TestCase):
         )
 
     @override_settings(SALESFORCE_SANDBOX=True)
-    @override_settings(SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX='/preview')
     @responses.activate
     def test_get_preview_url(self):
         salesforce = get_salesforce_instance(
