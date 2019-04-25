@@ -67,6 +67,8 @@ On Mac OS, `brew` can install both of these.
 
 ```bash
 $ python manage.py test             # run tests
+$ python manage.py sqlcreate        # get the SQL for creating a database
+$ python manage.py migrate          # set up the database
 $ python manage.py createsuperuser  # create a superuser
 $ python manage.py runserver        # run the app locally
 ```
