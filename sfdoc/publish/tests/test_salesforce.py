@@ -82,7 +82,7 @@ class TestSalesforce(TestCase):
         ka_url = salesforce.get_preview_url('123')
         self.assertEqual(
             ka_url,
-            'https://sb-{}.cs70.force.com/knowledge/publishing/articlePreview.apexp?id=123'.format(
+            'https://sb-{}.cs70.force.com/apex/Hub_KB_ProductDocArticle?id=123&preview=true&channel=APP'.format(
                 settings.SALESFORCE_COMMUNITY
             ),
         )
