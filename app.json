@@ -119,7 +119,7 @@
         "test-setup": "pip install --upgrade -r requirements/test.txt",
         "test": "pytest"
       },
-      "addons": ["heroku-postgresql:in-dyno", "heroku-redis:in-dyno"],
+      "addons": ["heroku-postgresql:in-dyno", "heroku-redis:in-dyno"]
     }
   }
 }
