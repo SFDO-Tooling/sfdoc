@@ -105,7 +105,8 @@ def _process_bundle(bundle, path):
                 msg += '\n\t{}'.format(image)
         problems.append(msg)
 
-    # give up if there are problems before we start making databae
+
+    # give up if there are problems before we start making database
     # objects
     if problems:
         raise SfdocError(repr(problems))
