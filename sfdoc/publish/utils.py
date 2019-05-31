@@ -2,6 +2,7 @@ import fnmatch
 import os
 from urllib.parse import urlparse
 from zipfile import ZipFile
+import hashlib
 
 from django.conf import settings
 
@@ -46,3 +47,36 @@ def unzip(zipfile, path, recursive=False):
                         os.path.join(dirpath, root),
                         recursive,
                     )
+
+
+def find_bundle_root_directory(origpath):
+    matchfile = "log.txt"
+    path = origpath
+
+    # look up from origpath toward /
+    while len(path) > 1:
+        if os.path.exists(os.path.join(path, "log.txt")):
+            return path
+        oldpath = path
+        path = os.path.dirname(oldpath)
+        assert len(oldpath) > len(path), f"{oldpath} <= {path}"
+
+    # look down from origpath away from /
+    for root, dirs, files in os.walk(origpath):
+        print(root, files)
+        if matchfile in files:
+            return root
+    
+    raise FileNotFoundError("Cannot find log.txt to identify root directory!")
+
+
+def s3_key_to_relative_pathname(key):
+    build_id, branch, path = key.split("/", 2)
+    assert int(build_id) + 1
+    assert branch in ("draft", "release")
+    return path
+
+
+def bundle_relative_path(bundle_root, path):
+    assert os.path.isabs(path)
+    return os.path.relpath(path, bundle_root)
