@@ -1,15 +1,15 @@
 import fnmatch
+import hashlib
 import os
 from urllib.parse import urlparse
 from zipfile import ZipFile
-import hashlib
 
 from django.conf import settings
 
 
 def is_html(filename):
     name, ext = os.path.splitext(filename)
-    if ext.lower() in ('.htm', '.html'):
+    if ext.lower() in (".htm", ".html"):
         return True
     else:
         return False
@@ -41,7 +41,7 @@ def unzip(zipfile, path, recursive=False):
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
                 root, ext = os.path.splitext(filename)
-                if ext.lower() == '.zip':
+                if ext.lower() == ".zip":
                     unzip(
                         os.path.join(dirpath, filename),
                         os.path.join(dirpath, root),
@@ -66,7 +66,7 @@ def find_bundle_root_directory(origpath):
         print(root, files)
         if matchfile in files:
             return root
-    
+
     raise FileNotFoundError("Cannot find log.txt to identify root directory!")
 
 
