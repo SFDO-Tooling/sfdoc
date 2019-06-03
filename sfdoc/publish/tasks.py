@@ -20,7 +20,7 @@ from .salesforce import Salesforce
 from .logger import get_logger
 from .utils import is_html
 from .utils import skip_html_file
-from .utils import unzip
+from .utils import unzip, find_bundle_root_directory
 
 
 def _process_bundle(bundle, path):
@@ -34,6 +34,9 @@ def _process_bundle(bundle, path):
     response = requests.get(bundle.url, auth=auth)
     zip_file = BytesIO(response.content)
     unzip(zip_file, path, recursive=True)
+
+    rootpath = find_bundle_root_directory(path)
+
     # collect paths to all HTML files
     html_files = []
     for dirpath, dirnames, filenames in os.walk(path):
@@ -60,7 +63,7 @@ def _process_bundle(bundle, path):
         )
         with open(html_file) as f:
             html_raw = f.read()
-        html = HTML(html_raw)
+        html = HTML(html_raw, html_file, rootpath)
         html.scrub()
         article_image_map[html.url_name] = set([])
         for image_path in html.get_image_paths():
@@ -138,7 +141,7 @@ def _process_bundle(bundle, path):
         )
         with open(html_file) as f:
             html_raw = f.read()
-        html = HTML(html_raw)
+        html = HTML(html_raw, html_files, rootpath)
         salesforce.process_article(html, bundle)
     # process images
     for n, image in enumerate(images, start=1):

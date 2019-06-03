@@ -18,7 +18,7 @@ class TestHTML(TestCase):
         )
 
     def test_init(self):
-        html = HTML(self.html_s)
+        html = HTML(self.html_s, "", "")
         self.assertEqual(html.url_name, self.article['url_name'])
         self.assertEqual(html.title, self.article['title'])
         self.assertEqual(html.summary, self.article['summary'])
@@ -37,7 +37,7 @@ class TestHTML(TestCase):
             '<a href="Product_Docs/V4S/topics/Test-Path.html">test</a>\n'
             '<a href="Product_Docs/V4S/topics/Test-Path2.html#foo">test</a>\n',
         )
-        html = HTML(source)
+        html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
 
         html.update_links_draft()
 
@@ -55,8 +55,7 @@ class TestHTML(TestCase):
             'This is a test summary',
             self.generate_links(3),
         )
-        html = HTML(source)
-
+        html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
         html.update_links_draft('https://powerofus.force.com')
 
         self.assertNotIn('https://powerofus.force.com', html.body)
@@ -69,7 +68,8 @@ class TestHTML(TestCase):
             'This is a test summary',
             self.generate_links(10),
         )
-        html = HTML(source)
+
+        html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
 
         html.update_links_draft('https://powerofus.force.com')
 
@@ -83,7 +83,7 @@ class TestHTML(TestCase):
             'This is a test summary',
             self.generate_links(11),
         )
-        html = HTML(source)
+        html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
 
         html.update_links_draft('https://powerofus.force.com')
 

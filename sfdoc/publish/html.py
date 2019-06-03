@@ -7,14 +7,18 @@ from django.conf import settings
 from .exceptions import HtmlError
 from .utils import is_html
 from .utils import is_url_whitelisted
+from . import utils
 
 
 class HTML:
     """Article HTML utility class."""
 
-    def __init__(self, html):
+    def __init__(self, html, htmlpath, rootpath):
         """Parse article fields from HTML."""
         soup = BeautifulSoup(html, 'html.parser')
+
+        self.htmlpath = htmlpath
+        self.rootpath = rootpath
 
         # meta (URL name, summary, visibility settings)
         for attr, tag_name, optional in (
@@ -158,7 +162,11 @@ class HTML:
                 a['href'] = self.update_href(o, base_url_prefix)
                 article_link_count += 1
         for img in soup('img'):
-            img['src'] = images_path + os.path.basename(img['src'])
+            htmldir = os.path.dirname(self.htmlpath)
+            abspath_for_img = os.path.abspath(os.path.join(htmldir, img['src']))
+            assert os.path.exists(abspath_for_img), abspath_for_img
+            relname = utils.bundle_relative_path(self.rootpath, abspath_for_img)
+            img['src'] = images_path + relname
         self.body = str(soup)
 
     def update_href(self, parsed_url, base_url):
