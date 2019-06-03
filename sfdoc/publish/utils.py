@@ -67,3 +67,14 @@ def find_bundle_root_directory(origpath):
 
     raise FileNotFoundError("Cannot find log.txt to identify root directory!")
 
+
+def s3_key_to_relative_pathname(key):
+    build_id, branch, path = key.split("/", 2)
+    assert int(build_id) + 1
+    assert branch in ("draft", "release")
+    return path
+
+
+def bundle_relative_path(bundle_root, path):
+    assert os.path.isabs(path)
+    return os.path.relpath(path, bundle_root)
