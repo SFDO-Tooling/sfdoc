@@ -7,7 +7,6 @@ Test settings
 from .base import *  # noqa
 from .utils import gen_private_key
 
-
 # DEBUG
 # ------------------------------------------------------------------------------
 # Turn debug off so tests run faster

@@ -10,7 +10,6 @@ Integration test
 from .base import *  # noqa
 from .utils import process_key
 
-
 # DEBUG
 # ------------------------------------------------------------------------------
 DEBUG = env.bool("DJANGO_DEBUG", default=True)
