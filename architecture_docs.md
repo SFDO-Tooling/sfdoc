@@ -26,7 +26,7 @@ The process has five main phases:
 
  3. Uploading: Individual articles and images are uploaded to WLMA and S3.
 
- 4. Review: Later, a documenation administrator can review changes in draft form
+ 4. Review: Later, a documentation administrator can review changes in draft form
     on WLMA.
 
  5. Publishing: When the administrator is happy, they can publish these articles so 
