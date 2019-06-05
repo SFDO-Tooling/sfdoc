@@ -160,4 +160,3 @@ EASYDITA_PASSWORD = env("EASYDITA_PASSWORD")
 
 # django-defender configuration
 DEFENDER_REDIS_NAME = "default"
-
