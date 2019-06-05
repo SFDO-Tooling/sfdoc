@@ -23,7 +23,7 @@ from .utils import skip_html_file
 from .utils import unzip
 
 
-def _process_bundle(bundle, path):
+def _process_bundle(bundle, path, enforce_no_duplicates = True):
     logger = get_logger(bundle)
     # get APIs
     salesforce = Salesforce()
@@ -94,7 +94,7 @@ def _process_bundle(bundle, path):
         image_map[basename].append(image)
         if len(image_map[basename]) > 1:
             duplicate_images = True
-    if duplicate_images:
+    if duplicate_images and enforce_no_duplicates:
         msg = 'Found image duplicates:'
         for basename in sorted(image_map.keys()):
             msg += '\n{}'.format(basename)
@@ -211,7 +211,7 @@ def _publish_drafts(bundle):
 
 
 @job('default', timeout=600)
-def process_bundle(bundle_pk):
+def process_bundle(bundle_pk, enforce_no_duplicates=True):
     """
     Get the bundle from easyDITA and process the contents.
     HTML files are checked for issues first, then uploaded as drafts.
@@ -224,7 +224,7 @@ def process_bundle(bundle_pk):
     logger.info('Processing %s', bundle)
     with TemporaryDirectory() as tempdir:
         try:
-            _process_bundle(bundle, tempdir)
+            _process_bundle(bundle, tempdir, enforce_no_duplicates)
         except Exception as e:
             bundle.set_error(e)
             process_queue.delay()
