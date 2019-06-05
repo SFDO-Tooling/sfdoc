@@ -29,7 +29,7 @@ The process has five main phases:
  4. Review: Later, a documenation administrator can review changes in draft form
     on WLMA.
 
- 5. Publishing: When the administrtor is happy, they can publish these articles so 
+ 5. Publishing: When the administrator is happy, they can publish these articles so 
     that the articles become visible on WLMA.
 
 ### 1. Callback
