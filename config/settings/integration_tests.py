@@ -61,9 +61,15 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # ------------------------------------------------------------------------------
 
 # article related
-ARTICLE_AUTHOR = env('ARTICLE_AUTHOR', "ArticleOwner")
-ARTICLE_AUTHOR_OVERRIDE = env('ARTICLE_AUTHOR_OVERRIDE', "ArticleContributorOverride")
-ARTICLE_BODY_CLASS = env('ARTICLE_BODY_CLASS', "sfdo-kb__body")
+ARTICLE_AUTHOR = env('ARTICLE_AUTHOR', default="ArticleOwner")
+ARTICLE_AUTHOR_OVERRIDE = env('ARTICLE_AUTHOR_OVERRIDE', default="ArticleContributorOverride")
+ARTICLE_BODY_CLASS = env('ARTICLE_BODY_CLASS', default="sfdo-kb__body")
+
+# SECRET CONFIGURATION
+# ------------------------------------------------------------------------------
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
+# Note: This key only used for development and testing.
+SECRET_KEY = env('DJANGO_SECRET_KEY', default='RPr%].dHP4VLcU}SW(5o4;cH(]4i7?noV.q5*.%16!@#TYO/ku')
 
 # AWS
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
