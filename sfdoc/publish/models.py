@@ -50,6 +50,7 @@ class Bundle(models.Model):
     STATUS_ERROR = 'E'          # error processing bundle
     easydita_id = models.CharField(max_length=255, unique=True)
     easydita_resource_id = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, default='(no description)')
     error_message = models.TextField(default='', blank=True)
     logs = GenericRelation('Log')
     status = models.CharField(
