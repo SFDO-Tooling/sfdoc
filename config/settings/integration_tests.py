@@ -61,9 +61,9 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # ------------------------------------------------------------------------------
 
 # article related
-ARTICLE_AUTHOR = env('ARTICLE_AUTHOR', default = "ArticleOwner")
-ARTICLE_AUTHOR_OVERRIDE = env('ARTICLE_AUTHOR_OVERRIDE', default = "ArticleContributorOverride")
-ARTICLE_BODY_CLASS = env('ARTICLE_BODY_CLASS', default = "sfdo-kb__body")
+ARTICLE_AUTHOR = env('ARTICLE_AUTHOR', default="ArticleOwner")
+ARTICLE_AUTHOR_OVERRIDE = env('ARTICLE_AUTHOR_OVERRIDE', default="ArticleContributorOverride")
+ARTICLE_BODY_CLASS = env('ARTICLE_BODY_CLASS', default="sfdo-kb__body")
 
 # SECRET CONFIGURATION
 # ------------------------------------------------------------------------------
