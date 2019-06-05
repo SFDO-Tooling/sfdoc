@@ -84,6 +84,7 @@ celerybeat-schedule
 
 # virtualenv
 .venv
+.envrc
 venv/
 ENV/
 
@@ -99,3 +100,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# mac
+.DS_store
+
+# Stellar RDB snapshotter
+stellar.yaml

@@ -49,6 +49,13 @@ Further required environment variables are listed in the `env` section of this p
 
 Local interactions with any Django app are done using the manage.py file.
 
+## Integration tests
+
+You can get a feeling for the flow of the app's data by reading and running
+the integration tests. These tests destroy data and therefore should never
+be run on production. Look at "sfdoc/publish/tests/test_integration.py" for
+more information.
+
 ### Prerequisites
 
 On Mac OS, `brew` can install both of these.
