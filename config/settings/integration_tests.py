@@ -16,16 +16,10 @@ from .utils import process_key
 DEBUG = env.bool('DJANGO_DEBUG', default=True)
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
-# SECRET CONFIGURATION
-# ------------------------------------------------------------------------------
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
-# Note: This key only used for development and testing.
-SECRET_KEY = env('DJANGO_SECRET_KEY', default='RPr%].dHP4VLcU}SW(5o4;cH(]4i7?noV.q5*.%16!@#TYO/ku')
-
 # Mail settings
 # ------------------------------------------------------------------------------
 
-EMAIL_PORT = 1025
+EMAIL_xRT = 1025
 
 EMAIL_HOST = 'localhost'
 EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND',
@@ -67,9 +61,9 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 # ------------------------------------------------------------------------------
 
 # article related
-ARTICLE_AUTHOR = env('ARTICLE_AUTHOR')
-ARTICLE_AUTHOR_OVERRIDE = env('ARTICLE_AUTHOR_OVERRIDE')
-ARTICLE_BODY_CLASS = env('ARTICLE_BODY_CLASS')
+ARTICLE_AUTHOR = env('ARTICLE_AUTHOR', "ArticleOwner")
+ARTICLE_AUTHOR_OVERRIDE = env('ARTICLE_AUTHOR_OVERRIDE', "ArticleContributorOverride")
+ARTICLE_BODY_CLASS = env('ARTICLE_BODY_CLASS', "sfdo-kb__body")
 
 # AWS
 AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
