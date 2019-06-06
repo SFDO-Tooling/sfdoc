@@ -68,7 +68,9 @@ On Mac OS, `brew` can install both of these.
 1. Clone the repository
 2. [Create a virtual environment with Python 3](https://docs.python.org/3/library/venv.html#creating-virtual-environments)
 3. Activate the virtual environment and install the requirements: `$ pip install -r requirements/local.txt`
-4. Create a `.env` file with the necessary environment variables (look at env.example and/or app.json) and use it every time you run manage.py by setting the environment variable `DJANGO_READ_DOT_ENV_FILE=True`.
+4. Create a `.env` file with the necessary environment variables (look at `env.example` and/or `app.json`) and use it every time you run manage.py by setting the environment variable `DJANGO_READ_DOT_ENV_FILE=True`.
+
+Setting up `.env` requires accounts on EasyDITA, S3 and an SF.org with appropriate customizations. Talk to Entsys about all of those.
 
 ### Django commands
 
