@@ -85,3 +85,11 @@ fake_webhook_body_doc_B = {
     },
     "resource_id": "bf0080a0-8270-11e9-b28c-42010af00002",
 }
+
+preloaded_article_titles = [
+    "foundationConnect Documentation",
+    "foundationConnect FAQ",
+    "foundationConnect Grantee Community Configuration Guide",
+    "foundationConnect Overview",
+    "foundationConnect Release Notes",
+]
