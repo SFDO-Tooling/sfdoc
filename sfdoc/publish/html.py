@@ -148,7 +148,7 @@ class HTML:
         soup = BeautifulSoup(self.body, 'html.parser')
         images_path = 'https://{}.s3.amazonaws.com/{}'.format(
             settings.AWS_S3_BUCKET,
-            settings.AWS_S3_DRAFT_DIR,
+            settings.AWS_S3_DRAFT_IMG_DIR,
         )
 
         article_link_count = 1
@@ -189,5 +189,6 @@ class HTML:
         """Update links to production location."""
         soup = BeautifulSoup(html, 'html.parser')
         for img in soup('img'):
-            img['src'] = img['src'].replace(settings.AWS_S3_DRAFT_DIR, '')
+            img['src'] = img['src'].replace(settings.AWS_S3_DRAFT_IMG_DIR,
+                                            settings.AWS_S3_PUBLIC_IMG_DIR)
         return str(soup)

@@ -1,6 +1,8 @@
 import fnmatch
 import hashlib
 import os
+import logging
+import subprocess
 from urllib.parse import urlparse
 from zipfile import ZipFile
 
@@ -66,6 +68,7 @@ def find_bundle_root_directory(origpath):
         if matchfile in files:
             return root
 
+    breakpoint()
     raise FileNotFoundError("Cannot find log.txt to identify root directory!")
 
 
@@ -79,3 +82,25 @@ def s3_key_to_relative_pathname(key):
 def bundle_relative_path(bundle_root, path):
     assert os.path.isabs(path)
     return os.path.relpath(path, bundle_root)
+
+
+logger = logging.getLogger("commands")
+
+
+def info(*args):
+    logger.info(*args)
+    print(args)  # remove me
+
+
+def run_command(*args, **kwargs):
+    info(" ".join(args))
+    # TODO: why does check=True crash??
+    return subprocess.run(args, **kwargs, check=True, text=True)
+
+
+def aws_sync(source, target):
+    run_command("aws", "s3", "sync", source, target)
+
+
+def sync_directories(source, target):
+    run_command("rsync", "-r", source, target)

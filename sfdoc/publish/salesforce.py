@@ -3,6 +3,7 @@ from datetime import datetime
 from http import HTTPStatus
 from urllib.parse import urljoin
 from urllib.parse import urlparse
+from requests.exceptions import HTTPError
 
 from django.conf import settings
 import jwt
@@ -44,7 +45,7 @@ class Salesforce:
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         auth_url = urljoin(url, 'services/oauth2/token')
         response = requests.post(url=auth_url, data=data, headers=headers)
-        response.raise_for_status()
+        response.raise_for_status()  # maybe VPN or auth problem!
         response_data = response.json()
         sf = SimpleSalesforce(
             instance_url=response_data['instance_url'],

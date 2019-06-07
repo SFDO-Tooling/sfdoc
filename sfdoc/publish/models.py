@@ -140,7 +140,7 @@ class Image(models.Model):
             settings.AWS_S3_BUCKET,
         )
         if draft:
-            images_path += settings.AWS_S3_DRAFT_DIR
+            images_path += settings.AWS_S3_DRAFT_IMG_DIR
         return images_path + self.filename
 
     @property

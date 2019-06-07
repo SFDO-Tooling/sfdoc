@@ -7,6 +7,7 @@ import botocore
 from django.conf import settings
 
 from .models import Image
+from . import utils
 
 
 class S3:
@@ -23,13 +24,13 @@ class S3:
         """
         copy_source = {
             'Bucket': settings.AWS_S3_BUCKET,
-            'Key': settings.AWS_S3_DRAFT_DIR + filename,
+            'Key': settings.AWS_S3_DRAFT_IMG_DIR + filename,
         }
         self.api.meta.client.copy_object(
             ACL='public-read',
             Bucket=settings.AWS_S3_BUCKET,
             CopySource=copy_source,
-            Key=filename,
+            Key=settings.AWS_S3_PUBLIC_IMG_DIR + filename,
         )
 
     def delete(self, filename):
@@ -42,7 +43,7 @@ class S3:
     def delete_draft_images(self):
         """Delete all draft images at once."""
         objects = []
-        for item in self.iter_objects(prefix=settings.AWS_S3_DRAFT_DIR):
+        for item in self.iter_objects(prefix=settings.AWS_S3_DRAFT_IMG_DIR):
             objects.append({'Key': item['Key']})
         if objects:
             self.api.meta.client.delete_objects(
@@ -66,26 +67,29 @@ class S3:
             else:
                 break
 
-    def process_image(self, filename, bundle):
+    def process_image(self, filename, bundle, rootpath):
         """Upload image file to S3 if needed."""
-        basename = os.path.basename(filename)
-        key = settings.AWS_S3_DRAFT_DIR + basename
+        relative_filename = utils.bundle_relative_path(rootpath, filename)
+        key = settings.AWS_S3_DRAFT_IMG_DIR + relative_filename
         with TemporaryDirectory() as tempdir:
-            s3localname = os.path.join(tempdir, basename)
+            s3localname = os.path.join(tempdir, relative_filename)
+            os.makedirs(os.path.dirname(s3localname))
             try:
                 # download image from root (production) dir for comparison
                 self.api.meta.client.download_file(
                     settings.AWS_S3_BUCKET,
-                    basename,
+                    key,
                     s3localname,
                 )
             except botocore.exceptions.ClientError as e:
                 if e.response['Error']['Code'] == '404':
                     # image does not exist on S3, create a new one
                     self.upload_image(filename, key)
+
+                    # And remember that we need to trasfer it to prod
                     Image.objects.create(
                         bundle=bundle,
-                        filename=basename,
+                        filename=relative_filename,
                         status=Image.STATUS_NEW,
                     )
                     return
@@ -100,7 +104,7 @@ class S3:
                 self.upload_image(filename, key)
                 Image.objects.create(
                     bundle=bundle,
-                    filename=basename,
+                    filename=relative_filename,
                     status=Image.STATUS_CHANGED,
                 )
                 return
