@@ -71,7 +71,7 @@ class S3:
         """Upload image file to S3 if needed."""
         relative_filename = utils.bundle_relative_path(rootpath, filename)
         key = settings.AWS_S3_DRAFT_IMG_DIR + relative_filename
-        with TemporaryDirectory() as tempdir:
+        with TemporaryDirectory(prefix=f"process_image_{os.path.basename(filename)}") as tempdir:
             s3localname = os.path.join(tempdir, relative_filename)
             os.makedirs(os.path.dirname(s3localname))
             try:
