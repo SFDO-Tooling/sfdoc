@@ -170,6 +170,6 @@ def review(request, pk):
 @require_POST
 def webhook(request):
     """Receive webhook from easyDITA."""
-    webhook = Webhook.objects.create(body=request.body)
+    webhook = Webhook.objects.create(body=request.body.decode('utf-8'))
     process_webhook.delay(webhook.pk)
     return HttpResponse('OK')

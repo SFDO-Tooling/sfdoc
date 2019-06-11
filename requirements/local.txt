@@ -1,13 +1,13 @@
 # Local development dependencies go here
 -r test.txt
 
-django-coverage-plugin==1.5.0
+django-coverage-plugin==1.6.0
 
-Sphinx==1.6.3
-django-extensions==1.8.1
-Werkzeug==0.12.2
+Sphinx==2.0.1
+django-extensions==2.1.7
+Werkzeug==0.15.4
 
-django-debug-toolbar==1.8
+django-debug-toolbar==1.11
 
 # improved REPL
-ipdb==0.10.3
+ipdb==0.12

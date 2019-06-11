@@ -7,14 +7,12 @@ Production Configurations
 
 """
 
-from boto.s3.connection import OrdinaryCallingFormat
-
 import logging
 
+from boto.s3.connection import OrdinaryCallingFormat
 
 from .base import *  # noqa
 from .utils import process_key
-
 
 # SECRET CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -163,4 +161,3 @@ EASYDITA_PASSWORD = env("EASYDITA_PASSWORD")
 
 # django-defender configuration
 DEFENDER_REDIS_NAME = "default"
-

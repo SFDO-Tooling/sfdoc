@@ -1,12 +1,10 @@
 """
-Local settings
+Integration test
 
-- Run in Debug mode
-
-- Use console backend for emails
-
-- Add Django Debug Toolbar
-- Add django-extensions as app
+- Okay to clear database (should run as test_XXXX anyhow)
+- Okay to delete all articles from Salesforce instance
+- Namespace objects in S3
+- Use authentication info from the .env
 """
 
 from .base import *  # noqa
@@ -17,18 +15,10 @@ from .utils import process_key
 DEBUG = env.bool("DJANGO_DEBUG", default=True)
 TEMPLATES[0]["OPTIONS"]["debug"] = DEBUG
 
-# SECRET CONFIGURATION
-# ------------------------------------------------------------------------------
-# See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
-# Note: This key only used for development and testing.
-SECRET_KEY = env(
-    "DJANGO_SECRET_KEY", default="RPr%].dHP4VLcU}SW(5o4;cH(]4i7?noV.q5*.%16!@#TYO/ku"
-)
-
 # Mail settings
 # ------------------------------------------------------------------------------
 
-EMAIL_PORT = 1025
+EMAIL_xRT = 1025
 
 EMAIL_HOST = "localhost"
 EMAIL_BACKEND = env(
@@ -69,9 +59,19 @@ TEST_RUNNER = "django.test.runner.DiscoverRunner"
 # ------------------------------------------------------------------------------
 
 # article related
-ARTICLE_AUTHOR = env("ARTICLE_AUTHOR")
-ARTICLE_AUTHOR_OVERRIDE = env("ARTICLE_AUTHOR_OVERRIDE")
-ARTICLE_BODY_CLASS = env("ARTICLE_BODY_CLASS")
+ARTICLE_AUTHOR = env("ARTICLE_AUTHOR", default="ArticleOwner")
+ARTICLE_AUTHOR_OVERRIDE = env(
+    "ARTICLE_AUTHOR_OVERRIDE", default="ArticleContributorOverride"
+)
+ARTICLE_BODY_CLASS = env("ARTICLE_BODY_CLASS", default="sfdo-kb__body")
+
+# SECRET CONFIGURATION
+# ------------------------------------------------------------------------------
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
+# Note: This key only used for development and testing.
+SECRET_KEY = env(
+    "DJANGO_SECRET_KEY", default="RPr%].dHP4VLcU}SW(5o4;cH(]4i7?noV.q5*.%16!@#TYO/ku"
+)
 
 # AWS
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
@@ -90,10 +90,8 @@ SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD = env(
 SALESFORCE_ARTICLE_TYPE = env("SALESFORCE_ARTICLE_TYPE")
 SALESFORCE_ARTICLE_BODY_FIELD = env("SALESFORCE_ARTICLE_BODY_FIELD")
 SALESFORCE_ARTICLE_URL_PATH_PREFIX = env(
-    'SALESFORCE_ARTICLE_URL_PATH_PREFIX', default='/articles/Resource/')
-SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX = env(
-    'SALESFORCE_ARTICLE_URL_PATH_PREFIX',
-    default='/knowledge/publishing/articlePreview.apexp')
+    "SALESFORCE_ARTICLE_URL_PATH_PREFIX", default="/articles/Resource/"
+)
 SALESFORCE_ARTICLE_TEXT_INDEX_FIELD = env(
     "SALESFORCE_ARTICLE_TEXT_INDEX_FIELD", default=False
 )
@@ -113,3 +111,5 @@ EASYDITA_USERNAME = env("EASYDITA_USERNAME")
 EASYDITA_PASSWORD = env("EASYDITA_PASSWORD")
 
 HEROKU_APP_NAME = "localhost:8000"
+
+RUN_INTEGRATION_TESTS = env("RUN_INTEGRATION_TESTS", default=True)

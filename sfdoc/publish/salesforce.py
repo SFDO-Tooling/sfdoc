@@ -215,8 +215,11 @@ class Salesforce:
         """Publish a draft KnowledgeArticleVersion."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         kav = kav_api.get(kav_id)
+        assert kav["PublishStatus"] == 'Draft', f"Draft already published {kav['PublishStatus']}"
         body = kav[settings.SALESFORCE_ARTICLE_BODY_FIELD]
         body = HTML.update_links_production(body)
+        assert settings.AWS_S3_DRAFT_IMG_DIR not in body
+        assert settings.AWS_S3_DRAFT_HTML_REPOSITORY_DIR not in body
 
         data = {settings.SALESFORCE_ARTICLE_BODY_FIELD: body}
 

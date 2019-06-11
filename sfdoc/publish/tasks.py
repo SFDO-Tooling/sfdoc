@@ -23,7 +23,7 @@ from .utils import skip_html_file
 from .utils import unzip
 
 
-def _process_bundle(bundle, path):
+def _process_bundle(bundle, path, enforce_no_duplicates = True):
     logger = get_logger(bundle)
     # get APIs
     salesforce = Salesforce()
@@ -52,6 +52,7 @@ def _process_bundle(bundle, path):
     images = set([])
     article_image_map = {}
     logger.info('Scrubbing all HTML files in %s', bundle)
+    problems = []
     for n, html_file in enumerate(html_files, start=1):
         logger.info('Scrubbing HTML file %d of %d: %s',
             n,
@@ -61,7 +62,9 @@ def _process_bundle(bundle, path):
         with open(html_file) as f:
             html_raw = f.read()
         html = HTML(html_raw)
-        html.scrub()
+        scrub_problems = html.scrub()
+        if scrub_problems:
+            problems.extend(scrub_problems)
         article_image_map[html.url_name] = set([])
         for image_path in html.get_image_paths():
             image_path_full = os.path.abspath(os.path.join(
@@ -83,7 +86,7 @@ def _process_bundle(bundle, path):
             msg += '\n{}'.format(url_name)
             for html_file in sorted(url_map[url_name]):
                 msg += '\n\t{}'.format(html_file)
-        raise SfdocError(msg)
+        problems.append(msg)
     # check for duplicate image filenames
     image_map = {}
     duplicate_images = False
@@ -94,13 +97,20 @@ def _process_bundle(bundle, path):
         image_map[basename].append(image)
         if len(image_map[basename]) > 1:
             duplicate_images = True
-    if duplicate_images:
+    if duplicate_images and enforce_no_duplicates:
         msg = 'Found image duplicates:'
         for basename in sorted(image_map.keys()):
             msg += '\n{}'.format(basename)
             for image in sorted(image_map[basename]):
                 msg += '\n\t{}'.format(image)
-        raise SfdocError(msg)
+        problems.append(msg)
+
+
+    # give up if there are problems before we start making database
+    # objects
+    if problems:
+        raise SfdocError(repr(problems))
+
     # build list of published articles to archive
     for article in salesforce.get_articles('online'):
         if article['UrlName'].lower() not in url_map:
@@ -211,7 +221,7 @@ def _publish_drafts(bundle):
 
 
 @job('default', timeout=600)
-def process_bundle(bundle_pk):
+def process_bundle(bundle_pk, enforce_no_duplicates=True):
     """
     Get the bundle from easyDITA and process the contents.
     HTML files are checked for issues first, then uploaded as drafts.
@@ -224,7 +234,7 @@ def process_bundle(bundle_pk):
     logger.info('Processing %s', bundle)
     with TemporaryDirectory() as tempdir:
         try:
-            _process_bundle(bundle, tempdir)
+            _process_bundle(bundle, tempdir, enforce_no_duplicates)
         except Exception as e:
             bundle.set_error(e)
             process_queue.delay()

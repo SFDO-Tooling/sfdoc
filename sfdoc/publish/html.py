@@ -94,48 +94,59 @@ class HTML:
                 return True
             else:
                 return item1 == item2
-        return same(
+        rc = same(
             self.author,
             record[settings.SALESFORCE_ARTICLE_AUTHOR_FIELD],
-        ) and same(
+        )
+        rc = rc and same(
             self.author_override,
             record[settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD],
-        ) and same(
+        )
+        rc = rc and same(
             self.is_visible_in_csp,
             record['IsVisibleInCsp'],
-        ) and same(
+        )
+        rc = rc and same(
             self.is_visible_in_pkb,
             record['IsVisibleInPkb'],
-        ) and same(
+        )
+        rc = rc and same(
             self.is_visible_in_prm,
             record['IsVisibleInPrm'],
-        ) and same(
+        )
+        rc = rc and same(
             self.title,
             record['Title'],
-        ) and same(
+        )
+        rc = rc and same(
             self.summary,
             record['Summary'],
-        ) and same(
+        )
+        rc = rc and same(
             self.update_links_production(self.body).strip(),
             record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip(),
         )
+        return rc
 
     def scrub(self):
         """Scrub article body using whitelists for tags/attributes and links."""
+        problems = []
+
         def scrub_tree(tree):
             for child in tree.children:
                 if hasattr(child, 'contents'):
                     if child.name not in settings.WHITELIST_HTML:
-                        raise HtmlError('Tag "{}" not in whitelist'.format(child.name))
+                        problems.append('Tag "{}" not in whitelist'.format(child.name))
                     for attr in child.attrs:
                         if attr not in settings.WHITELIST_HTML[child.name]:
-                            raise HtmlError(('Tag "{}" attribute "{}" not in whitelist').format(child.name, attr))
+                            problems.append('Tag "{}" attribute "{}" not in whitelist'.format(child.name, attr))
                         if attr in ('href', 'src'):
                             if not is_url_whitelisted(child[attr]):
-                                raise HtmlError('URL {} not whitelisted'.format(child[attr]))
+                                problems.append('URL {} not whitelisted'.format(child[attr]))
                     scrub_tree(child)
         soup = BeautifulSoup(self.body, 'html.parser')
         scrub_tree(soup)
+        return problems
 
     def update_links_draft(self, base_url=''):
         """Update links to draft location."""

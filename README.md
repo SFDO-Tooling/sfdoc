@@ -49,6 +49,13 @@ Further required environment variables are listed in the `env` section of this p
 
 Local interactions with any Django app are done using the manage.py file.
 
+## Integration tests
+
+You can get a feeling for the flow of the app's data by reading and running
+the integration tests. These tests destroy data and therefore should never
+be run on production. Look at "sfdoc/publish/tests/test_integration.py" for
+more information.
+
 ### Prerequisites
 
 On Mac OS, `brew` can install both of these.
@@ -61,12 +68,16 @@ On Mac OS, `brew` can install both of these.
 1. Clone the repository
 2. [Create a virtual environment with Python 3](https://docs.python.org/3/library/venv.html#creating-virtual-environments)
 3. Activate the virtual environment and install the requirements: `$ pip install -r requirements/local.txt`
-4. Create a `.env` file with the necessary environment variables and use it every time you run manage.py by setting the environment variable `DJANGO_READ_DOT_ENV_FILE=True`.
+4. Create a `.env` file with the necessary environment variables (look at `env.example` and/or `app.json`) and use it every time you run manage.py by setting the environment variable `DJANGO_READ_DOT_ENV_FILE=True`.
+
+Setting up `.env` requires accounts on EasyDITA, S3 and an SF.org with appropriate customizations. Talk to Entsys about all of those.
 
 ### Django commands
 
 ```bash
 $ python manage.py test             # run tests
+$ python manage.py sqlcreate        # get the SQL for creating a database
+$ python manage.py migrate          # set up the database
 $ python manage.py createsuperuser  # create a superuser
 $ python manage.py runserver        # run the app locally
 ```

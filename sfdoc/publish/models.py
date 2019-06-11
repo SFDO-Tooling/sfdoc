@@ -35,7 +35,7 @@ class Article(models.Model):
     url_name = models.CharField(max_length=255, default='')
 
     def __str__(self):
-        return '{} ({})'.format(self.title, self.url_name)
+        return '{} ({}) - {} : {}'.format(self.title, self.url_name, self.status, self.bundle)
 
 
 class Bundle(models.Model):
@@ -50,11 +50,10 @@ class Bundle(models.Model):
     STATUS_ERROR = 'E'          # error processing bundle
     easydita_id = models.CharField(max_length=255, unique=True)
     easydita_resource_id = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, default='(no description)')
     error_message = models.TextField(default='', blank=True)
     logs = GenericRelation('Log')
-    status = models.CharField(
-        max_length=1,
-        choices=(
+    status_names = (
             (STATUS_NEW, 'New'),
             (STATUS_QUEUED, 'Queued'),
             (STATUS_PROCESSING, 'Processing'),
@@ -63,7 +62,10 @@ class Bundle(models.Model):
             (STATUS_PUBLISHING, 'Publishing'),
             (STATUS_PUBLISHED, 'Published'),
             (STATUS_ERROR, 'Error'),
-        ),
+        )
+    status = models.CharField(
+        max_length=1,
+        choices=status_names,
         default=STATUS_NEW,
     )
     time_queued = models.DateTimeField(null=True, blank=True)
