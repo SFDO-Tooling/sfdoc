@@ -1,9 +1,13 @@
 from test_plus.test import TestCase
 from django.test import override_settings
 
-from ..html import HTML
+from ..html import HTML, collect_html_paths
 
 from . import utils
+import os
+import logging
+
+rootdir = os.path.abspath(os.path.join(__file__, "../../../.."))
 
 
 class TestHTML(TestCase):
@@ -88,3 +92,11 @@ class TestHTML(TestCase):
         html.update_links_draft('https://powerofus.force.com')
 
         self.assertIn('https://powerofus.force.com', html.body)
+
+    def test_collect_html(self):
+        logger = logging.getLogger("test")
+        testdita = os.path.join(rootdir, "testdata/sampledita")
+        files = collect_html_paths(testdita, logger)
+        files = [os.path.basename(file) for file in files]
+        self.assertEqual(sorted(files), sorted(["fC-Documentation.html", "fC-Overview.html", "fC-Release-Notes.html", 
+                                                "fC-FAQ.html", "fC-Guide.html"]))
