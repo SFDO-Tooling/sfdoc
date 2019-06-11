@@ -383,8 +383,12 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         # Updated article summary
         self.assertIn("This is a test article. Updated!", summary)
 
-        # TODO: This is going to be broken until the new feature is implemented:
-        # self.assertTitles(self.salesforce.get_articles("online"), ditamap_A_V2_titles + ditamap_B_titles)
+        self.assertTitles(
+            self.salesforce.get_articles("online"),
+            fake_easydita.preloaded_article_titles +
+            fake_easydita.ditamap_A_V2_titles + 
+            fake_easydita.ditamap_B_titles,
+        )
         self.assertNoImagesScheduledForDeletion()
 
     @responses.activate
