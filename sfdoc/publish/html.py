@@ -201,3 +201,32 @@ class HTML:
             img['src'] = img['src'].replace(settings.AWS_S3_DRAFT_IMG_DIR,
                                             settings.AWS_S3_PUBLIC_IMG_DIR)
         return str(soup)
+
+
+def get_linked_files(htmlfilename):
+    """Find the files that are referenced from an HTML file"""
+    data = open(htmlfilename).read()
+    soup = BeautifulSoup(data, 'html.parser')
+    return [link['href'] for link in soup('a') if ":" not in link['href']]
+
+
+def collect_html_paths(path, logger):
+    """Collect the HTML files referenced by the top-level HTMLs in a directory"""
+    html_files = []
+    files_to_consider = os.listdir(path)
+    while files_to_consider:
+        filename = files_to_consider.pop()
+        full_filename = os.path.join(path, filename)
+        if is_html(full_filename):
+            if utils.skip_html_file(full_filename):
+                logger.info(
+                    "Skipping file: %s", full_filename.replace(path + os.sep, "")
+                )
+                continue
+            if full_filename in html_files:
+                continue
+            html_files.append(full_filename)
+            linked_files = get_linked_files(full_filename)
+            files_to_consider.extend(linked_files)
+
+    return html_files
