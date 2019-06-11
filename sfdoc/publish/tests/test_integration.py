@@ -87,7 +87,7 @@ class TstHelpers:
 
     def clearS3(self):
         """Delete all S3 keys"""
-        self.bucket.objects.filter().delete()
+        self.bucket.objects.all().delete()
 
     def assertS3ObjectExists(self, keyname):
         objs = list(self.bucket.objects.filter(Prefix=keyname))
