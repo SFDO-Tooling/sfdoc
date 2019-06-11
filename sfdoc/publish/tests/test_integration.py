@@ -265,6 +265,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
                     self.article_titles(self.salesforce.get_articles("online")),
                 )
 
+    @responses.activate
     def test_two_bundles_and_missing_articles(self):
         with self.debugMock() as mocktempdir:
             mocktempdir.set_subprefix("_scenario_1_")
@@ -346,6 +347,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             # no articles should still be in draft
             self.assertEqual(self.salesforce.get_articles("draft"), [])
 
+    @responses.activate
     def test_changes(self):
         # 1. Import a bundle
         bundle_A_V1 = self.createWebhook(fake_easydita.fake_webhook_body_doc_A)
@@ -385,6 +387,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         # self.assertTitles(self.salesforce.get_articles("online"), ditamap_A_V2_titles + ditamap_B_titles)
         self.assertNoImagesScheduledForDeletion()
 
+    @responses.activate
     def test_images(self):
         # 1. Import a bundle
         bundle_A_V1 = self.createWebhook(fake_easydita.fake_webhook_body_doc_A)
