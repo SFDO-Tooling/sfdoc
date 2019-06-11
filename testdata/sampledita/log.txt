@@ -392,22 +392,22 @@ sf.org.html.addMetadata:
      [java] Changing filenames and internal references to use UrlName rather than ditamap and topic names...
      [java] Also checking that HTML character limit of 131000 has not been exceeded.
      [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.html
-     [java] Added metadata field:<meta name="ArticleOwner" content="smithnicole@salesforce.com">
+     [java] Added metadata field:<meta name="ArticleOwner" content="author@domain.com">
      [java] Renaming file to correspond to URL.
      [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC-FAQ.html
      [java] Deleting old file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.html
      [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.html
-     [java] Added metadata field:<meta name="ArticleOwner" content="smithnicole@salesforce.com">
+     [java] Added metadata field:<meta name="ArticleOwner" content="author@domain.com">
      [java] Renaming file to correspond to URL.
      [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC-Overview.html
      [java] Deleting old file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.html
      [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.html
-     [java] Added metadata field:<meta name="ArticleOwner" content="sknox@salesforce.com">
+     [java] Added metadata field:<meta name="ArticleOwner" content="author@domain.com">
      [java] Renaming file to correspond to URL.
      [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC-Guide.html
      [java] Deleting old file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.html
      [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.html
-     [java] Added metadata field:<meta name="ArticleOwner" content="sknox@salesforce.com">
+     [java] Added metadata field:<meta name="ArticleOwner" content="author@domain.com">
      [java] Renaming file to correspond to URL.
      [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC-Release-Notes.html
      [java] Deleting old file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.html
@@ -441,7 +441,7 @@ sf.org.html.extractTOC:
      [java] Procesing links to product-level maps...
      [java] Processing product level map:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/fC.ditamap
      [java] Building TOC from template...
-     [java] TOC owner:carol.franger@salesforce.com
+     [java] TOC owner:author@domain.com
      [java] TOC title:foundationConnect Documentation
      [java] TOC summary:List of Salesforce.org foundationConnect documentation. For general Salesforce documentation, visit help.salesforce.com.
      [java] TOC url:fC-Documentation
