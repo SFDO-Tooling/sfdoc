@@ -98,31 +98,31 @@ class HTML:
             self.author,
             record[settings.SALESFORCE_ARTICLE_AUTHOR_FIELD],
         )
-        rc &= same(
+        rc = rc and same(
             self.author_override,
             record[settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD],
         )
-        rc &= same(
+        rc = rc and same(
             self.is_visible_in_csp,
             record['IsVisibleInCsp'],
         )
-        rc &= same(
+        rc = rc and same(
             self.is_visible_in_pkb,
             record['IsVisibleInPkb'],
         )
-        rc &= same(
+        rc = rc and same(
             self.is_visible_in_prm,
             record['IsVisibleInPrm'],
         )
-        rc &= same(
+        rc = rc and same(
             self.title,
             record['Title'],
         )
-        rc &= same(
+        rc = rc and same(
             self.summary,
             record['Summary'],
         )
-        rc &= same(
+        rc = rc and same(
             self.update_links_production(self.body).strip(),
             record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip(),
         )
