@@ -1,0 +1,469 @@
+Searching for integrator.xml ...
+
+integrate:
+      [jar] Building jar: /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/lib/dost-configuration.jar
+integrator-complete
+
+init:
+
+copy.sf.assets:
+    [mkdir] Created dir: /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/assets
+     [copy] Copying 2491 files to /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/assets
+
+sf-org-html.init:
+
+html5.init:
+
+check-arg:
+    [mkdir] Created dir: /tmp/temp20190524212033550
+
+log-arg:
+     [echo] *****************************************************************
+     [echo] * basedir = /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom
+     [echo] * dita.dir = /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom
+     [echo] * transtype = sf-org-html
+     [echo] * tempdir = /tmp/temp20190524212033550
+     [echo] * outputdir = /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1
+     [echo] * clean.temp = true
+     [echo] * DITA-OT version = 2.2.5
+     [echo] * XML parser = Xerces
+     [echo] * XSLT processor = Saxon
+     [echo] * collator = ICU
+     [echo] *****************************************************************
+     [echo] #Ant properties
+     [echo] #Fri May 24 21:20:34 UTC 2019
+     [echo] args.copycss=no
+     [echo] args.css=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/com.sf.org.html/assets/styles.css
+     [echo] args.csspath=assets
+     [echo] args.draft=no
+     [echo] args.filter=/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Future_ditaval.ditaval
+     [echo] args.gen.task.lbl=yes
+     [echo] args.grammar.cache=yes
+     [echo] args.html5.classattr=no
+     [echo] args.html5.toc=index
+     [echo] args.input=/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/fC.ditamap
+     [echo] args.logdir=/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1
+     [echo] args.rellinks=none
+     [echo] args.xhtml.toc.xsl=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.html5/xsl/map2html5-cover.xsl
+     [echo] args.xml.systemid.set=yes
+     [echo] args.xsl=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/com.sf.org.html/xsl/custom.xsl
+     [echo] dita.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom
+     [echo] dita.extname=dita
+     [echo] dita.input.valfile=/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Future_ditaval.ditaval
+     [echo] dita.plugin.com.salesforce.org.pdf.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/com.salesforce.org.pdf
+     [echo] dita.plugin.com.sf.org.html.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/com.sf.org.html
+     [echo] dita.plugin.com.sophos.tocjs.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/com.sophos.tocjs
+     [echo] dita.plugin.org.dita.base.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom
+     [echo] dita.plugin.org.dita.docbook.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.docbook
+     [echo] dita.plugin.org.dita.eclipsecontent.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.eclipsecontent
+     [echo] dita.plugin.org.dita.eclipsehelp.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.eclipsehelp
+     [echo] dita.plugin.org.dita.html5.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.html5
+     [echo] dita.plugin.org.dita.htmlhelp.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.htmlhelp
+     [echo] dita.plugin.org.dita.javahelp.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.javahelp
+     [echo] dita.plugin.org.dita.odt.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.odt
+     [echo] dita.plugin.org.dita.pdf2.axf.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.pdf2.axf
+     [echo] dita.plugin.org.dita.pdf2.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.pdf2
+     [echo] dita.plugin.org.dita.pdf2.fop.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.pdf2.fop
+     [echo] dita.plugin.org.dita.pdf2.xep.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.pdf2.xep
+     [echo] dita.plugin.org.dita.sf.doctypes.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.sf.doctypes
+     [echo] dita.plugin.org.dita.specialization.dita11.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.specialization.dita11
+     [echo] dita.plugin.org.dita.specialization.eclipsemap.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.specialization.eclipsemap
+     [echo] dita.plugin.org.dita.troff.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.troff
+     [echo] dita.plugin.org.dita.wordrtf.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.wordrtf
+     [echo] dita.plugin.org.dita.xhtml.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.xhtml
+     [echo] dita.plugin.org.oasis-open.dita.v1_2.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.oasis-open.dita.v1_2
+     [echo] dita.plugin.org.oasis-open.dita.v1_3.dir=/opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.oasis-open.dita.v1_3
+     [echo] dita.temp.dir=/tmp/temp20190524212033550
+     [echo] *****************************************************************
+
+build-init:
+
+preprocess.init:
+     [echo] *****************************************************************
+     [echo] * input = /opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/fC.ditamap
+     [echo] *****************************************************************
+
+gen-list:
+ [gen-list] Using Xerces grammar pool for DTD and schema caching.
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/fC.ditamap
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_General.ditamap
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Overview/fC_Overview.ditamap
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/fC_FAQ.ditamap
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_PDF/fC_PDF.ditamap
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/fC_Release_Notes.ditamap
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.dita
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.dita
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/What_is_fC.dita
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_get_fC.dita
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_upgrade_fC.dita
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/Where_can_I_connect_with_other_fC_users.dita
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_log_issues_or_get_support_for_fC.dita
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.dita
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.dita
+ [gen-list] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Reusable/warehouse.xml
+ [gen-list] Serializing job specification
+
+debug-filter:
+   [filter] Using Xerces grammar pool for DTD and schema caching.
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.dita
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Reusable/warehouse.xml
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_PDF/fC_PDF.ditamap
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_log_issues_or_get_support_for_fC.dita
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.dita
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/What_is_fC.dita
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Overview/fC_Overview.ditamap
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/fC_Release_Notes.ditamap
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/fC.ditamap
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/fC_FAQ.ditamap
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_get_fC.dita
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.dita
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.dita
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/Where_can_I_connect_with_other_fC_users.dita
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_upgrade_fC.dita
+   [filter] Processing file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_General.ditamap
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/outditafiles.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/fullditamapandtopic.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/fullditatopic.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/fullditamap.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/hrefditatopic.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/conref.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/image.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/flagimage.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/html.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/canditopics.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/subjectscheme.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/conreftargets.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/copytosource.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/subtargets.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/resourceonly.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/user.input.file.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/hreftargets.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/conref.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/hrefditatopic.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/fullditatopic.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/fullditamapandtopic.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/conreftargets.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/canditopics.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/resourceonly.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+
+mapref-check:
+
+mapref:
+   [mapref] Transforming into /tmp/temp20190524212033550
+   [mapref] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/preprocess/mapref.xsl
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/fC_Overview.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/fC.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/fC_FAQ.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/fC_Release_Notes.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/fC_PDF.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_General.ditamap
+
+branch-filter:
+[branch-filter] Processing file:/tmp/temp20190524212033550/fC.ditamap
+
+copy-image:
+
+copy-html:
+
+copy-flag-check:
+
+copy-flag:
+
+copy-files:
+
+keyref:
+   [mapref] Transforming into /tmp/temp20190524212033550
+   [mapref] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/preprocess/mapref.xsl
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/fC_Overview.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/fC.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/fC_FAQ.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/fC_Release_Notes.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/fC_PDF.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_General.ditamap
+
+conrefpush:
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/conref.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+
+conref-check:
+
+conref:
+   [conref] Transforming into /tmp/temp20190524212033550
+   [conref] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/preprocess/conref.xsl
+   [conref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.dita
+   [conref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/What_is_fC.dita
+   [conref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_get_fC.dita
+   [conref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.dita
+   [conref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.dita
+   [conref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.dita
+   [conref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_log_issues_or_get_support_for_fC.dita
+   [conref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/Where_can_I_connect_with_other_fC_users.dita
+   [conref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_upgrade_fC.dita
+
+profile-check:
+
+profile:
+
+topic-fragment:
+[topic-fragment] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.dita
+[topic-fragment] Processing file:/tmp/temp20190524212033550/Reusable/warehouse.xml
+[topic-fragment] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_log_issues_or_get_support_for_fC.dita
+[topic-fragment] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.dita
+[topic-fragment] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/What_is_fC.dita
+[topic-fragment] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_get_fC.dita
+[topic-fragment] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.dita
+[topic-fragment] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.dita
+[topic-fragment] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/Where_can_I_connect_with_other_fC_users.dita
+[topic-fragment] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_upgrade_fC.dita
+
+coderef:
+
+move-meta-entries:
+[move-meta] Processing file:/tmp/temp20190524212033550/fC.ditamap
+[move-meta] Processing file:/tmp/temp20190524212033550/fC.ditamap
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/What_is_fC.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/What_is_fC.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_get_fC.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_get_fC.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_upgrade_fC.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_upgrade_fC.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/Where_can_I_connect_with_other_fC_users.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/Where_can_I_connect_with_other_fC_users.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_log_issues_or_get_support_for_fC.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_log_issues_or_get_support_for_fC.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.dita
+[move-meta] Processing file:/tmp/temp20190524212033550/fC.ditamap
+[move-meta] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/preprocess/mappull.xsl
+
+chunk-check:
+
+chunk:
+    [chunk] Processing file:/tmp/temp20190524212033550/fC.ditamap
+    [chunk] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.dita
+    [chunk] Writing /tmp/temp20190524212033550/Chunk743087684.dita
+    [chunk] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.dita
+    [chunk] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/What_is_fC.dita
+    [chunk] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_get_fC.dita
+    [chunk] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_upgrade_fC.dita
+    [chunk] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/Where_can_I_connect_with_other_fC_users.dita
+    [chunk] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/How_do_I_log_issues_or_get_support_for_fC.dita
+    [chunk] Writing /tmp/temp20190524212033550/Chunk227910072.dita
+    [chunk] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.dita
+    [chunk] Writing /tmp/temp20190524212033550/Chunk1117793988.dita
+    [chunk] Processing file:/tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.dita
+    [chunk] Writing /tmp/temp20190524212033550/Chunk510644930.dita
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/fullditatopic.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/fullditamap.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/fullditamapandtopic.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/resourceonly.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/copytosource.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+[job-helper] Processing /tmp/temp20190524212033550/.job.xml to /tmp/temp20190524212033550/copytotarget2sourcemap.list
+[job-helper] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/job-helper.xsl
+
+maplink-check:
+
+maplink:
+
+topicpull-check:
+
+topicpull:
+[topicpull] Transforming into /tmp/temp20190524212033550
+[topicpull] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/preprocess/topicpull.xsl
+[topicpull] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.dita
+[topicpull] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.dita
+[topicpull] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.dita
+[topicpull] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.dita
+
+flag-module-check:
+
+flag-module:
+[preprocess_flag] Transforming into /tmp/temp20190524212033550
+[preprocess_flag] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/preprocess/flag.xsl
+[preprocess_flag] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.dita
+[preprocess_flag] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.dita
+[preprocess_flag] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.dita
+[preprocess_flag] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.dita
+
+clean-map-check:
+
+clean-map:
+   [mapref] Transforming into /tmp/temp20190524212033550
+   [mapref] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/xsl/preprocess/clean-map.xsl
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/fC_Overview.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/fC.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/fC_FAQ.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/fC_Release_Notes.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/fC_PDF.ditamap
+   [mapref] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_General.ditamap
+
+preprocess:
+
+html5.topic.init:
+
+xhtml.init:
+
+output-css-warn-message:
+
+xhtml.image-metadata-check:
+
+xhtml.image-metadata:
+
+dita.topics.html.common:
+
+dita.inner.topics.html.common:
+     [xslt] Transforming into /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1
+     [xslt] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.dita to /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.html
+     [xslt] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/com.sf.org.html/xsl/custom.xsl
+     [xslt] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.dita to /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.html
+     [xslt] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.dita to /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.html
+     [xslt] Processing /tmp/temp20190524212033550/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.dita to /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.html
+
+xhtml.topics:
+
+html5.topic:
+
+dita.map.xhtml.init:
+
+dita.map.xhtml.toc:
+     [xslt] Transforming into /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1
+     [xslt] Processing /tmp/temp20190524212033550/fC.ditamap to /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/index.html
+     [xslt] Loading stylesheet /opt/publishing-processors/salesforce/dita-open-toolkits/dita-ot-2.2.5-custom/plugins/org.dita.html5/xsl/map2html5-cover.xsl
+
+dita.map.xhtml:
+
+html5.map:
+
+html5.css:
+     [copy] Copying 2 files to /opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/assets
+
+html5.copy-css-user:
+
+dita2html5:
+
+sf.org.html.addMetadata:
+     [java] Post processing...
+     [java] Looking for duplicate images...
+     [java] No duplicate images found.
+     [java] Looking for topic xrefs to ditamaps (not allowed)...
+     [java] Adjusting metadata based on lost EasyDITA PIs dropped during DITA-OT processing...
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/fC_FAQ.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Overview/fC_Overview.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/fC_Release_Notes.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_PDF/fC_PDF.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_General.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/fC.ditamap
+     [java] Changing filenames and internal references to use UrlName rather than ditamap and topic names...
+     [java] Also checking that HTML character limit of 131000 has not been exceeded.
+     [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.html
+     [java] Added metadata field:<meta name="ArticleOwner" content="author@domain.com">
+     [java] Renaming file to correspond to URL.
+     [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC-FAQ.html
+     [java] Deleting old file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC_FAQ.html
+     [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.html
+     [java] Added metadata field:<meta name="ArticleOwner" content="author@domain.com">
+     [java] Renaming file to correspond to URL.
+     [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC-Overview.html
+     [java] Deleting old file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC_Overview.html
+     [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.html
+     [java] Added metadata field:<meta name="ArticleOwner" content="author@domain.com">
+     [java] Renaming file to correspond to URL.
+     [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC-Guide.html
+     [java] Deleting old file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC_User_Guide.html
+     [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.html
+     [java] Added metadata field:<meta name="ArticleOwner" content="author@domain.com">
+     [java] Renaming file to correspond to URL.
+     [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC-Release-Notes.html
+     [java] Deleting old file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC_Release_Notes.html
+     [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/index.html
+     [java] Adjusting internal links...
+     [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC-FAQ.html
+     [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_FAQ/topics/fC-FAQ.html
+     [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC-Overview.html
+     [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Overview/topics/fC-Overview.html
+     [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC-Guide.html
+     [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_PDF/topics/fC-Guide.html
+     [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC-Release-Notes.html
+     [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/topics/fC-Release-Notes.html
+     [java] Reading html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/index.html
+     [java] Writing html file:/opt/publishing-processors/temp_publish_store/pub-1143641885/jmc_publish_fC/sf.org-publish-product-hub-1/index.html
+     [java] SF.org post-processing successful.
+
+sf.org.html.extractTOC:
+     [java] Buidling TOC...
+     [java] Reading the index.html file...
+     [java] Reading the template file...
+     [java] Analyzing all of the article ditamaps first...
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/fC_FAQ.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Overview/fC_Overview.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/fC_Release_Notes.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_PDF/fC_PDF.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_General.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC.ditamap
+     [java] Reading ditamap file:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/fC.ditamap
+     [java] Reading top-level map:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/fC.ditamap
+     [java] Procesing links to product-level maps...
+     [java] Processing product level map:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/fC.ditamap
+     [java] Building TOC from template...
+     [java] TOC owner:author@domain.com
+     [java] TOC title:foundationConnect Documentation
+     [java] TOC summary:List of Salesforce.org foundationConnect documentation. For general Salesforce documentation, visit help.salesforce.com.
+     [java] TOC url:fC-Documentation
+     [java] Analyzing the links associated with this product map...
+     [java] Processing non-article link for:/opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_General.ditamap
+     [java] /opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Overview/fC_Overview.ditamap
+     [java] Processing non-developer article:fC-Overview.html
+     [java] /opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_FAQ/fC_FAQ.ditamap
+     [java] Processing non-developer article:fC-FAQ.html
+     [java] /opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_PDF/fC_PDF.ditamap
+     [java] Processing non-developer article:fC-Guide.html
+     [java] /opt/publishing-processors/temp_publish_store/pub-1143641885/db/organizations/salesforce/repositories/master/documentation/documents/doc/Product_Docs/NGO-fC/fC_General/fC_Release_Notes/fC_Release_Notes.ditamap
+     [java] Processing non-developer article:fC-Release-Notes.html
+     [java] Cleaning up developer info articles that are no longer needed...
+     [java] TOC processing successful.
+
+dita2sf-org-html:
+
+clean-temp:
+Processing ended.
+Fatals Reported By TK :: 0
+Errors Reported By TK :: 0
+Errors Found :: 0
+Possible Java Exceptions Found :: 0
+Warnings Found :: 0
