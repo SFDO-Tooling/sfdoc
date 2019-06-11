@@ -1,4 +1,6 @@
-# output-uuid# https://salesforce.easydita.com/api/get/db/organizations/salesforce/published/77b09a40-819a-11e9-b28c-42010af00002/BundleA_2019-05-30T01-02Z.zip
+# Note, you can download any of these with the following technique:
+
+# curl -o filename-u username:password https://salesforce.easydita.com/rest/all-files/$bundle_id/bundle
 fake_webhook_body_doc_A = {
     "event_id": "dita-ot-publish-complete",
     "event_data": {
