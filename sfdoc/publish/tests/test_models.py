@@ -1,9 +1,4 @@
-import os
-from tempfile import TemporaryDirectory
-
-from bs4 import BeautifulSoup
 from django.conf import settings
-import responses
 from test_plus.test import TestCase
 
 from ..models import Article
@@ -34,10 +29,9 @@ class TestArticle(TestCase):
         )
 
     def test_article_str(self):
-        self.assertEqual(
-            str(self.article),
-            '{} ({})'.format(self.article.title, self.article.url_name),
-        )
+        s = str(self.article)
+        self.assertIn(self.article.title, s)
+        self.assertIn(self.article.url_name, s)
 
 
 class TestBundle(TestCase):
