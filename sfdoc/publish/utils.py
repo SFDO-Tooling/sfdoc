@@ -1,5 +1,4 @@
 import fnmatch
-import hashlib
 import os
 import logging
 import subprocess
@@ -35,10 +34,21 @@ def skip_html_file(filename):
     return False
 
 
-def unzip(zipfile, path, recursive=False):
-    """Recursive unzip."""
+def _filternames(open_zipfile, ignore_patterns):
+    """Generate a list of files to extract from a zipfile which do not match a pattern"""
+    if ignore_patterns:
+        namelist = set(open_zipfile.namelist())
+        for pattern in ignore_patterns:
+            namelist -= set(fnmatch.filter(namelist, pattern))
+        return list(namelist)
+
+
+# TODO: tests for the ignore_patterns feature
+def unzip(zipfile, path, recursive=False, ignore_patterns=None):
+    """Recursive unzip. EasyDITA bundles consist of double-zipped zipfiles."""
     with ZipFile(zipfile) as f:
-        f.extractall(path)
+        names = _filternames(f, ignore_patterns)
+        f.extractall(path, names)
     if recursive:
         for dirpath, dirnames, filenames in os.walk(path):
             for filename in filenames:
@@ -48,10 +58,12 @@ def unzip(zipfile, path, recursive=False):
                         os.path.join(dirpath, filename),
                         os.path.join(dirpath, root),
                         recursive,
+                        ignore_patterns
                     )
 
 
 def find_bundle_root_directory(origpath):
+    """Find the root directory for a bundle by looking for log.txt in parent and child directories"""
     matchfile = "log.txt"
     path = origpath
 
@@ -68,18 +80,11 @@ def find_bundle_root_directory(origpath):
         if matchfile in files:
             return root
 
-    breakpoint()
     raise FileNotFoundError("Cannot find log.txt to identify root directory!")
 
 
-def s3_key_to_relative_pathname(key):
-    build_id, branch, path = key.split("/", 2)
-    assert int(build_id) + 1
-    assert branch in ("draft", "release")
-    return path
-
-
 def bundle_relative_path(bundle_root, path):
+    """Remove the bundle part of the path"""
     assert os.path.isabs(path)
     return os.path.relpath(path, bundle_root)
 
@@ -94,13 +99,20 @@ def info(*args):
 
 def run_command(*args, **kwargs):
     info(" ".join(args))
-    # TODO: why does check=True crash??
     return subprocess.run(args, **kwargs, check=True, text=True)
 
 
-def aws_sync(source, target):
-    run_command("aws", "s3", "sync", source, target)
+def s3_sync(source, target, delete=False):
+    """Sync directory to S3 or S3 to directory"""
+    args = ["aws", "s3", "sync", source, target]
+    
+    if delete:
+        args.append("--delete")
+    run_command(*args)
 
 
 def sync_directories(source, target):
+    """Keep two directories in sync"""
+    if not source.endswith("/"):
+        source += "/"
     run_command("rsync", "-r", source, target)
