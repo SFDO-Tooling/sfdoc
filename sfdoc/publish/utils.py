@@ -94,7 +94,6 @@ logger = logging.getLogger("commands")
 
 def info(*args):
     logger.info(*args)
-    print(args)  # remove me
 
 
 def run_command(*args, **kwargs):

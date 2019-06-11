@@ -206,12 +206,6 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
 def _record_archivable_articles(salesforce, bundle, url_map):
     # build list of published articles to archive
     for article in salesforce.get_articles("online"):
-        print(
-            "LOOKING FOR",
-            article["UrlName"].lower() not in url_map,
-            article["UrlName"].lower(),
-            url_map.keys(),
-        )
         if article["UrlName"].lower() not in url_map:
             Article.objects.create(
                 bundle=bundle,

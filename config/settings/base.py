@@ -273,4 +273,4 @@ AWS_S3_DRAFT_HTML_REPOSITORY_DIR = 'html/draft/'
 AWS_S3_PUBLISHED_HTML_REPOSITORY_DIR = 'html/public/'
 
 # Local directories
-LOCAL_REPOSITORY_CACHE = '/tmp/sfdoc_html_repository_cache/'
+LOCAL_REPOSITORY_CACHE = '/tmp/sfdoc_html_repository_cache/'  # local transient file cache for speeding up downloads

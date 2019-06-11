@@ -86,7 +86,7 @@ class S3:
                     # image does not exist on S3, create a new one
                     self.upload_image(filename, key)
 
-                    # And remember that we need to trasfer it to prod
+                    # Keep track of the fact that we need to transfer it to prod
                     Image.objects.create(
                         bundle=bundle,
                         filename=relative_filename,
