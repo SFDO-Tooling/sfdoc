@@ -205,14 +205,15 @@ class HTML:
 
 def get_linked_files(htmlfilename):
     """Find the files that are referenced from an HTML file"""
-    data = open(htmlfilename).read()
+    with open(htmlfilename) as f:
+        data = f.read()
     soup = BeautifulSoup(data, 'html.parser')
     return [link['href'] for link in soup('a') if ":" not in link['href']]
 
 
 def collect_html_paths(path, logger):
     """Collect the HTML files referenced by the top-level HTMLs in a directory"""
-    html_files = []
+    html_files = set()
     files_to_consider = os.listdir(path)
     while files_to_consider:
         filename = files_to_consider.pop()
@@ -225,7 +226,7 @@ def collect_html_paths(path, logger):
                 continue
             if full_filename in html_files:
                 continue
-            html_files.append(full_filename)
+            html_files.add(full_filename)
             linked_files = get_linked_files(full_filename)
             files_to_consider.extend(linked_files)
 
