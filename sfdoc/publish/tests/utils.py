@@ -147,7 +147,6 @@ def makeDebugTemporaryDirectoryMock(parent_prefix="", default_dir=""):
 
         @classmethod
         def set_subprefix(cls, subprefix):
-            print("CLASS", cls)
             cls.subprefix = subprefix
 
         def cleanup(self, name="", warn_message=""):
@@ -184,11 +183,6 @@ def integration_mocks():
     )
     responses.add_callback(
         method=responses.PATCH,
-        url=re.compile("https://.*.salesforce.com/.*"),
-        callback=pass_thru,
-    )
-    responses.add_callback(
-        method=responses.GET,
         url=re.compile("https://.*.salesforce.com/.*"),
         callback=pass_thru,
     )
