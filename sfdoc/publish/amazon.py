@@ -18,9 +18,9 @@ class S3:
     def copy_to_production(self, filename):
         """
         Copy image from draft to production on S3.
-        Production images are located in the root of the bucket.
-        Draft images are located in a directory specified by environment
-        variable AWS_S3_BUCKET.
+
+        Draft images are located in settings.AWS_S3_DRAFT_IMG_DIR
+        Production images are located in settings.AWS_S3_PUBLIC_IMG_DIR
         """
         copy_source = {
             'Bucket': settings.AWS_S3_BUCKET,
