@@ -92,12 +92,8 @@ def bundle_relative_path(bundle_root, path):
 logger = logging.getLogger("commands")
 
 
-def info(*args):
-    logger.info(*args)
-
-
 def run_command(*args, **kwargs):
-    info(" ".join(args))
+    logger.info(" ".join(args))
     return subprocess.run(args, **kwargs, check=True, text=True)
 
 
