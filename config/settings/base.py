@@ -8,6 +8,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import environ
+import os
+import tempfile
 
 ROOT_DIR = environ.Path(__file__) - 3  # (sfdoc/config/settings/base.py - 3 = sfdoc/)
 APPS_DIR = ROOT_DIR.path("sfdoc")
@@ -273,4 +275,6 @@ AWS_S3_DRAFT_HTML_REPOSITORY_DIR = 'html/draft/'
 AWS_S3_PUBLISHED_HTML_REPOSITORY_DIR = 'html/public/'
 
 # Local directories
-LOCAL_REPOSITORY_CACHE = '/tmp/sfdoc_html_repository_cache/'  # local transient file cache for speeding up downloads
+
+# local transient file cache for speeding up downloads
+LOCAL_REPOSITORY_CACHE = os.path.join(tempfile.gettempdir(), "sfdoc_html_repository_cache/")  
