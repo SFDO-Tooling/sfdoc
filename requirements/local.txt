@@ -3,7 +3,7 @@
 
 django-coverage-plugin==1.6.0
 
-Sphinx==2.0.1
+Sphinx==2.1.2
 django-extensions==2.1.7
 Werkzeug==0.15.4
 
