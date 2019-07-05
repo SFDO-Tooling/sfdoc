@@ -14,7 +14,6 @@ from .html import HTML
 from .models import Article
 
 from .logger import get_logger
-logger = get_logger(Article)
 
 
 class Salesforce:
@@ -177,6 +176,7 @@ class Salesforce:
 
     def process_article(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
+        logger = get_logger(bundle)
 
         # update links to draft versions
         html.update_links_draft(self.get_base_url())
