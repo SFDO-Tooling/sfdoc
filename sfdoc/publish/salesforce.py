@@ -13,6 +13,9 @@ from .exceptions import SalesforceError
 from .html import HTML
 from .models import Article
 
+from .logger import get_logger
+logger = get_logger(Article)
+
 
 class Salesforce:
     """Interact with a Salesforce org."""
@@ -192,21 +195,25 @@ class Salesforce:
             else:
                 # not published
                 status = Article.STATUS_NEW
+            logger.info("Draft updated with DB status %s, %s", status, html.url_name)
         elif result_online['totalSize'] == 0:
             # new draft, new article
             kav_id = self.create_article(html)
             status = Article.STATUS_NEW
+            logger.info("Draft created with DB status %s, %s", status, html.url_name)
         elif result_online['totalSize'] == 1:
             # new draft of existing article
             record = result_online['records'][0]
             # check for changes in article fields
             if html.same_as_record(record):
                 # no update
+                logger.info("Draft did not change: skipping: %s", html.url_name)
                 return
             # create draft copy of published article
             kav_id = self.create_draft(record['KnowledgeArticleId'])
             self.update_draft(kav_id, html)
             status = Article.STATUS_CHANGED
+            logger.info("New draft of published article, status %s, %s", status, html.url_name)
 
         self.save_article(kav_id, html, bundle, status)
 
