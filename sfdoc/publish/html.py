@@ -8,6 +8,7 @@ from .exceptions import HtmlError
 from .utils import is_html
 from .utils import is_url_whitelisted
 from . import utils
+from sfdoc.publish.models import Image
 
 
 class HTML:
@@ -127,10 +128,15 @@ class HTML:
             record['Summary'],
         )
         rc = rc and same(
-            self.update_links_production(self.body).strip(),
-            record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip(),
+            self.hack_remove_me_images_hack(self.update_links_production(self.body).strip()),
+            self.hack_remove_me_images_hack(record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip()),
         )
         return rc
+
+    def hack_remove_me_images_hack(self, data):
+        """Hack to be removed beore creating PULL REQUEST"""  # TODO: Remove me
+        import re
+        return re.sub("src=.*?>", "", data)
 
     def scrub(self):
         """Scrub article body using whitelists for tags/attributes and links."""
@@ -152,13 +158,9 @@ class HTML:
         scrub_tree(soup)
         return problems
 
-    def update_links_draft(self, base_url=''):
+    def update_links_draft(self, docset_id, base_url=''):
         """Update links to draft location."""
         soup = BeautifulSoup(self.body, 'html.parser')
-        images_path = 'https://{}.s3.amazonaws.com/{}'.format(
-            settings.AWS_S3_BUCKET,
-            settings.AWS_S3_DRAFT_IMG_DIR,
-        )
 
         article_link_count = 1
 
@@ -177,7 +179,7 @@ class HTML:
             abspath_for_img = os.path.abspath(os.path.join(htmldir, img['src']))
             assert os.path.exists(abspath_for_img), abspath_for_img
             relname = utils.bundle_relative_path(self.rootpath, abspath_for_img)
-            img['src'] = images_path + relname
+            img['src'] = Image.get_url(docset_id, relname, draft=True)
         self.body = str(soup)
 
     def update_href(self, parsed_url, base_url):
@@ -197,9 +199,9 @@ class HTML:
     def update_links_production(html):
         """Update links to production location."""
         soup = BeautifulSoup(html, 'html.parser')
+
         for img in soup('img'):
-            img['src'] = img['src'].replace(settings.AWS_S3_DRAFT_IMG_DIR,
-                                            settings.AWS_S3_PUBLIC_IMG_DIR)
+            img['src'] = Image.draft_url_or_path_to_public(img['src'])
         return str(soup)
 
 

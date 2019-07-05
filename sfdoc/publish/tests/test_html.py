@@ -43,7 +43,7 @@ class TestHTML(TestCase):
         )
         html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
 
-        html.update_links_draft()
+        html.update_links_draft("some-uuid")
 
         self.assertIn('href="/articles/Test-Path"', html.body)
         self.assertNotIn('Product_Docs/V4S/topics/Test-Path.html', html.body)
@@ -60,7 +60,7 @@ class TestHTML(TestCase):
             self.generate_links(3),
         )
         html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
-        html.update_links_draft('https://powerofus.force.com')
+        html.update_links_draft('uuid', 'https://powerofus.force.com')
 
         self.assertNotIn('https://powerofus.force.com', html.body)
 
@@ -75,7 +75,7 @@ class TestHTML(TestCase):
 
         html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
 
-        html.update_links_draft('https://powerofus.force.com')
+        html.update_links_draft('uuid', 'https://powerofus.force.com')
 
         self.assertNotIn('https://powerofus.force.com', html.body)
 
@@ -89,7 +89,7 @@ class TestHTML(TestCase):
         )
         html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
 
-        html.update_links_draft('https://powerofus.force.com')
+        html.update_links_draft('uuid', 'https://powerofus.force.com')
 
         self.assertIn('https://powerofus.force.com', html.body)
 
@@ -100,3 +100,12 @@ class TestHTML(TestCase):
         files = [os.path.basename(file) for file in files]
         self.assertEqual(sorted(files), sorted(["fC-Documentation.html", "fC-Overview.html", "fC-Release-Notes.html", 
                                                 "fC-FAQ.html", "fC-Guide.html"]))
+
+    def test_update_links_production(self):
+        html = """<body><a href="Product_Docs/V4S/topics/Test-Path2.html#foo">test</a>\n
+                    <img src="https://dummydomain.s3.amazonaws.com/images/draft/some-uuid/path/img.png"></img>
+                </body>
+            """
+        updated = HTML.update_links_production(html)
+        assert "/draft/" not in updated
+        assert "/public/" in updated

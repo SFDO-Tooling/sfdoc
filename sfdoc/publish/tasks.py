@@ -71,7 +71,7 @@ def _process_bundle(bundle, path, enforce_no_duplicates=True):
     logger.setLevel("INFO")
     # get APIs
     salesforce = Salesforce()
-    s3 = S3()
+    s3 = S3(bundle)
 
     assert os.path.exists(path)
 
@@ -168,7 +168,7 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
         with open(html_file) as f:
             html_raw = f.read()
         html = HTML(html_raw, html_file, path)
-        salesforce.process_article(html, bundle)
+        salesforce.process_draft(html, bundle)
     # process images
     for n, image in enumerate(images, start=1):
         logger.info(
@@ -177,7 +177,7 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
             len(images),
             image.replace(path + os.sep, ""),
         )
-        s3.process_image(image, bundle, path)
+        s3.process_image(image, path)
     # upload unchanged images for article previews
     logger.info("Checking for unchanged images used in draft articles")
     unchanged_images = set([])
@@ -185,14 +185,15 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
         status__in=(Article.STATUS_NEW, Article.STATUS_CHANGED)
     ):
         for image in article_image_map[article.url_name]:
-            if not bundle.images.filter(filename=os.path.basename(image)):
+            relpath = utils.bundle_relative_path(path, image)
+            if not bundle.images.filter(filename=relpath):
                 unchanged_images.add(image)
     for n, image in enumerate(unchanged_images, start=1):
         logger.info(
             "Uploading unchanged image %d of %d: %s", n, len(unchanged_images), image
         )
         relative_filename = utils.bundle_relative_path(path, image)
-        key = settings.AWS_S3_DRAFT_IMG_DIR + relative_filename
+        key = Image.get_storage_path(bundle.docset_id, relative_filename, draft=True)
         s3.upload_image(image, key)
     # error if nothing changed
     if not bundle.articles.count() and not bundle.images.count():
@@ -222,9 +223,10 @@ def _record_archivable_articles(salesforce, bundle, url_map):
 
 def _record_deletable_images(s3, root_path, images, bundle):
     # build list of images to delete
-    for obj in s3.iter_objects(settings.AWS_S3_PUBLIC_IMG_DIR):
+    s3_prefix = Image.get_docset_s3_path(bundle.docset_id, draft=False)
+    for obj in s3.iter_objects(s3_prefix):
         objkey = obj["Key"]
-        relname = objkey[len(settings.AWS_S3_PUBLIC_IMG_DIR):]
+        relname = objkey[len(s3_prefix):]
         local_path = os.path.join(root_path, relname)
         if local_path not in images:
             Image.objects.create(
@@ -232,17 +234,15 @@ def _record_deletable_images(s3, root_path, images, bundle):
             )
             logger.info("Removing orphaned image local: %s", local_path)
             os.remove(local_path)
-            draftkey = objkey.replace(
-                settings.AWS_S3_PUBLIC_IMG_DIR, settings.AWS_S3_DRAFT_IMG_DIR
-            )
+            draftkey = Image.public_url_or_path_to_draft(relname)
             logger.info("Removing orphaned image %s", draftkey)
-            s3.delete(draftkey)
+            s3.delete(draftkey, draft=True)
 
 
 def _publish_drafts(bundle):
     logger = get_logger(bundle)
     salesforce = Salesforce()
-    s3 = S3()
+    s3 = S3(bundle)
     # publish articles
     articles = bundle.articles.filter(
         status__in=[Article.STATUS_NEW, Article.STATUS_CHANGED]
@@ -267,10 +267,8 @@ def _publish_drafts(bundle):
     images = bundle.images.filter(status=Image.STATUS_DELETED)
     N = images.count()
     for n, image in enumerate(images.all(), start=1):
-        keyname = settings.AWS_S3_PUBLIC_IMG_DIR + image.filename
-        logger.info("Deleting image %d of %d: %s", n, N, keyname)
-        s3.delete(keyname)
-        s3.delete("jfioeshfioeshfoieshfioeshifoh")
+        logger.info("Deleting image %d of %d: %s", n, N, image.filename)
+        s3.delete(image.filename, draft=False)
 
     # update the S3 repository to represent current public state by
     # promoting the draft to prod

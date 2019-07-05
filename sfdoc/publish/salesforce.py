@@ -174,12 +174,12 @@ class Salesforce:
             preview_url += '&pubstatus=o'
         return preview_url
 
-    def process_article(self, html, bundle):
+    def process_draft(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
         logger = get_logger(bundle)
 
         # update links to draft versions
-        html.update_links_draft(self.get_base_url())
+        html.update_links_draft(bundle.docset_id, self.get_base_url())
 
         # query for existing article
         result_draft = self.query_articles(html.url_name, 'draft')

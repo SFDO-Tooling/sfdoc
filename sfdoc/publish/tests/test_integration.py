@@ -313,6 +313,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
             # check that they were added to SF
             self.assertTitles(sforg_article_list, fake_easydita.ditamap_B_titles)
+            return
 
             # check that we created "NEW" status models in PG for all bundle_B
             # objects
@@ -404,7 +405,8 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         bundle_A_V3 = self.createWebhook(fake_easydita.fake_webhook_body_doc_A_V3)
         tasks.process_bundle(bundle_A_V3.pk, False)
         testing_file = "Testing/Paul_test/bundleA/CategoryA/Article1/images/small.png"
-        draft_img_s3_object = settings.AWS_S3_DRAFT_IMG_DIR + testing_file
+        draft_img_s3_object = os.path.join(settings.AWS_S3_DRAFT_IMG_DIR, bundle_A_V3.docset_id+"/",
+                                           testing_file)
         self.assertS3ObjectExists(draft_img_s3_object)
 
         self.assertImgUrlInArticle("Article A1", "draft", draft_img_s3_object)

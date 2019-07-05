@@ -1,4 +1,5 @@
 from traceback import format_exception
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -36,6 +37,10 @@ class Article(models.Model):
 
     def __str__(self):
         return '{} ({}) - {} : {}'.format(self.title, self.url_name, self.status, self.bundle)
+
+    @property
+    def docset_id(self):
+        return self.bundle.docset_id
 
 
 class Bundle(models.Model):
@@ -113,6 +118,10 @@ class Bundle(models.Model):
             self.easydita_id,
         )
 
+    @property
+    def docset_id(self):
+        return self.easydita_resource_id
+
 
 class Image(models.Model):
     STATUS_NEW = 'N'
@@ -136,13 +145,42 @@ class Image(models.Model):
     def __str__(self):
         return 'Image {}: {}'.format(self.pk, self.filename)
 
-    def _get_url(self, draft):
-        images_path = 'https://{}.s3.amazonaws.com/'.format(
+    @staticmethod
+    def get_docset_s3_path(docset_id, draft):
+        assert isinstance(draft, bool), type(draft)
+        if draft:
+            status_directory = settings.AWS_S3_DRAFT_IMG_DIR
+        else:
+            status_directory = settings.AWS_S3_PUBLIC_IMG_DIR
+
+        assert status_directory.endswith("/")
+
+        docset_path = urljoin(status_directory, docset_id) + "/"
+        return docset_path
+
+    @staticmethod
+    def get_storage_path(docset_id, imagepath, draft):
+        fullpath = urljoin(Image.get_docset_s3_path(docset_id, draft), imagepath)
+        return fullpath
+
+    @staticmethod
+    def get_url(docset_id, imagepath, draft):
+        images_root_url = 'https://{}.s3.amazonaws.com/'.format(
             settings.AWS_S3_BUCKET,
         )
-        if draft:
-            images_path += settings.AWS_S3_DRAFT_IMG_DIR
-        return images_path + self.filename
+
+        return f"{images_root_url}{(Image.get_storage_path(docset_id, imagepath, draft))}"
+
+    def _get_url(self, draft):
+        return Image.get_url(self.docset_id, self.filename, draft)
+
+    @property
+    def draft_storage_path(self):
+        return Image.get_storage_path(self.docset_id, self.filename, draft=True)
+
+    @property
+    def public_storage_path(self):
+        return Image.get_storage_path(self.docset_id, self.filename, draft=False)
 
     @property
     def url_draft(self):
@@ -151,6 +189,22 @@ class Image(models.Model):
     @property
     def url_production(self):
         return self._get_url(False)
+
+    @property
+    def docset_id(self):
+        return self.bundle.docset_id
+
+    # Draft images are located in settings.AWS_S3_DRAFT_IMG_DIR
+    # Production images are located in settings.AWS_S3_PUBLIC_IMG_DIR
+    @staticmethod
+    def draft_url_or_path_to_public(draft_storage_path):
+        return draft_storage_path.replace(settings.AWS_S3_DRAFT_IMG_DIR,
+                                          settings.AWS_S3_PUBLIC_IMG_DIR)
+
+    @staticmethod
+    def public_url_or_path_to_draft(draft_storage_path):
+        return draft_storage_path.replace(settings.AWS_S3_PUBLIC_IMG_DIR,
+                                          settings.AWS_S3_DRAFT_IMG_DIR)
 
 
 class Log(models.Model):
@@ -192,3 +246,7 @@ class Webhook(models.Model):
 
     def __str__(self):
         return 'Webhook {}'.format(self.pk)
+
+    @property
+    def docset_id(self):
+        return self.bundle.docset_id
