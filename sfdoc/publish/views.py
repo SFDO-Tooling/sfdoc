@@ -106,7 +106,7 @@ def requeue(request, pk):
     if request.method == 'POST':
         form = RequeueBundleForm(request.POST)
         if form.is_valid() and request.POST['choice'] == 'Requeue':
-            bundle.queue()
+            bundle.enqueue()
             logger = get_logger(bundle)
             logger.info('Requeued %s', bundle)
             process_bundle_queues.delay()

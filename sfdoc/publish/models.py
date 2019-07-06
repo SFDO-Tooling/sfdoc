@@ -91,7 +91,7 @@ class Bundle(models.Model):
     def get_absolute_url(self):
         return '/publish/bundles/{}/'.format(self.pk)
 
-    def queue(self):
+    def enqueue(self):
         self.status = self.STATUS_QUEUED
         self.time_queued = now()
         self.error_message = ''

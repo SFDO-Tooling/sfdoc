@@ -321,7 +321,7 @@ def process_webhook(pk):
             logger.info("Webhook accepted")
             webhook.status = Webhook.STATUS_ACCEPTED
             webhook.save()
-            bundle.queue()
+            bundle.enqueue()
             process_bundle_queues.delay()
         else:
             logger.info("Webhook rejected (already processing)")
