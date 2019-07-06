@@ -44,25 +44,6 @@ def _download_and_unpack_easydita_bundle(bundle, path):
         assert os.path.exists(os.path.join(path, "log.txt"))
 
 
-def _download_repository_state_from_s3(path):
-    assert os.path.exists(path)
-    logger.info(
-        "Downloading repository state from S3 %s", AWS_S3_PUBLISHED_HTML_REPOSITORY_URL
-    )
-
-    # update our clean local copy
-    utils.s3_sync(AWS_S3_PUBLISHED_HTML_REPOSITORY_URL, settings.LOCAL_REPOSITORY_CACHE)
-    assert os.path.exists(settings.LOCAL_REPOSITORY_CACHE)
-
-    if len(os.listdir(settings.LOCAL_REPOSITORY_CACHE)):
-        assert os.path.exists(os.path.join(settings.LOCAL_REPOSITORY_CACHE, "log.txt"))
-
-    # copy it to the temporary working directory for this bundle
-    utils.sync_directories(settings.LOCAL_REPOSITORY_CACHE, path)
-    assert os.path.exists(path)
-    assert os.path.exists(os.path.join(settings.LOCAL_REPOSITORY_CACHE, "log.txt"))
-
-
 def _process_bundle(bundle, path, enforce_no_duplicates=True):
     global logger
     logger = get_logger(bundle)
@@ -74,9 +55,6 @@ def _process_bundle(bundle, path, enforce_no_duplicates=True):
     s3 = S3(bundle)
 
     assert os.path.exists(path)
-
-    # get old files representing public state
-    _download_repository_state_from_s3(path)
 
     # get new files from EasyDITA and put them on top
     _download_and_unpack_easydita_bundle(bundle, path)
@@ -206,7 +184,7 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
 
 def _record_archivable_articles(salesforce, bundle, url_map):
     # build list of published articles to archive
-    for article in salesforce.get_articles("online"):
+    for article in salesforce.get_articles_for_docset("online"):
         if article["UrlName"].lower() not in url_map:
             Article.objects.create(
                 bundle=bundle,

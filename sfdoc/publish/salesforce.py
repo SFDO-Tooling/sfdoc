@@ -20,10 +20,13 @@ from .logger import get_logger
 class Salesforce:
     """Interact with a Salesforce org."""
 
-    def __init__(self, docset_id):
+    all_docsets = "#ALL"
+
+    def __init__(self, docset_uuid):
         """Create a docset-scoped view of Salesforce"""
         self.api = self._get_salesforce_api()
-        self.docset_id = docset_id
+        self.docset_uuid = docset_uuid
+        self._sf_docset = None
 
     def _get_salesforce_api(self):
         """Get an instance of the Salesforce REST API."""
@@ -76,25 +79,30 @@ class Salesforce:
         )
         result = self.api.query(query_str)
         if result['totalSize'] > 0:
+            if self.docset_uuid != self.all_docsets:
+                # TODO double check this and don't submit to PR
+                breakpoint()
+                assert result['records'][0][settings.SALESFORCE_DOCSET_ID_FIELD] == self.docset_uuid
             self.delete(result['records'][0]['Id'])
-            if self.docset_id != "#ALL":
-                assert result[settings.SALESFORCE_DOCSET_ID_FIELD] == self.docset_id
         # archive published version
         self.set_publish_status(kav_id, 'archived')
 
-    @property
-    def sf_docset(self):
+    def _ensure_sf_docset_object_exists(self):
         sf_docset_api = getattr(self.api, settings.SALESFORCE_DOCSET_TYPE)
 
         try:
-            self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_id)
+            self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_uuid)
         except SimpleSalesforceExceptions.SalesforceResourceNotFound:
-            data = {settings.SALESFORCE_DOCSET_ID_FIELD: self.docset_id,
+            data = {settings.SALESFORCE_DOCSET_ID_FIELD: self.docset_uuid,
                     settings.SALESFORCE_DOCSET_STATUS_FIELD: 'Inactive'
                     }
             sf_docset_api.create(data)
-            self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_id)
+            self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_uuid)
         return self._sf_docset
+
+    @property
+    def sf_docset(self):
+        return self._sf_docset or self._ensure_sf_docset_object_exists()
 
     def query(self, querystr, *args):
         return self.api_query(querystr.format(*args))
@@ -103,12 +111,14 @@ class Salesforce:
         """Create a new article in draft state."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         data = html.create_article_data()
+        data[settings.SALESFORCE_DOCSET_RELATION_FIELD] = self.sf_docset['Id']
         result = kav_api.create(data=data)
         kav_id = result['id']
         return kav_id
 
     def create_draft(self, ka_id):
         """Create a draft copy of a published article."""
+        #  TODO: assert correct docset
         url = (
             self.api.base_url +
             'knowledgeManagement/articleVersions/masterVersions'
@@ -125,6 +135,7 @@ class Salesforce:
 
     def delete(self, kav_id):
         """Delete a KnowledgeArticleVersion."""
+        #  TODO: assert correct docset
         url = (
             self.api.base_url +
             'knowledgeManagement/articleVersions/masterVersions/{}'
@@ -137,6 +148,8 @@ class Salesforce:
 
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
+        #  TODO: assert correct docset
+
         query_str = (
             "SELECT Id,KnowledgeArticleId FROM {} "
             "WHERE Id='{}' AND PublishStatus='{}' AND language='en_US'"
@@ -153,17 +166,36 @@ class Salesforce:
         elif result['totalSize'] == 1:  # can only be 0 or 1
             return result['records'][0]['KnowledgeArticleId']
 
-    def get_articles(self, publish_status):
+    def get_articles_for_docset(self, publish_status):
         """Get all article versions with a given publish status."""
-        query_str = (
-            "SELECT Id,KnowledgeArticleId,Title,UrlName FROM {} "
-            "WHERE PublishStatus='{}' AND language='en_US'"
-        ).format(
-            settings.SALESFORCE_ARTICLE_TYPE,
-            publish_status,
+        return self.query_articles(
+            "Id", "KnowledgeArticleId", "Title", "UrlName",
+            PublishStatus=publish_status, language='en_US'
         )
+
+    def query_articles(self, *fields, **filters):
+        query_str = "SELECT "
+        query_str += ",".join(fields)
+        query_str += " FROM "
+        query_str += settings.SALESFORCE_ARTICLE_TYPE
+        if filters or self.docset_uuid != self.all_docsets:
+            query_str += " WHERE "
+
+        if self.docset_uuid != self.all_docsets:
+            filters[self.docset_relation] = self.docset_uuid
+
+        query_str += ' AND '.join(f"{fieldname}='{value}'" 
+                                  for fieldname, value in filters.items())
+
+        print(query_str)
+
         result = self.api.query(query_str)
         return result['records']
+
+    @property
+    def docset_relation(self):
+        __r = settings.SALESFORCE_DOCSET_TYPE.replace("__c", "__r")
+        return f"{__r}.{settings.SALESFORCE_DOCSET_ID_FIELD}"
 
     def get_base_url(self):
         """ Return base URL e.g. https://powerofus.force.com """
@@ -202,14 +234,15 @@ class Salesforce:
 
     def process_draft(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
+        #  TODO: assert docset
         logger = get_logger(bundle)
 
         # update links to draft versions
         html.update_links_draft(bundle.docset_id, self.get_base_url())
 
         # query for existing article
-        result_draft = self.query_articles(html.url_name, 'draft')
-        result_online = self.query_articles(html.url_name, 'online')
+        result_draft = self.find_articles_by_name(html.url_name, 'draft')
+        result_online = self.find_articles_by_name(html.url_name, 'online')
 
         if result_draft['totalSize'] == 1:
             # draft exists, update fields
@@ -261,8 +294,9 @@ class Salesforce:
         kav_api.update(kav_id, data)
         self.set_publish_status(kav_id, 'online')
 
-    def query_articles(self, url_name, publish_status):
+    def find_articles_by_name(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
+        # TODO: filter to docset
         query_str = (
             "SELECT Id,KnowledgeArticleId,Title,Summary,"
             "IsVisibleInCsp,IsVisibleInPkb,IsVisibleInPrm,{},{},{} FROM {} "
@@ -280,6 +314,7 @@ class Salesforce:
 
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
+        # TODO assert docset
         ka_id = self.get_ka_id(kav_id, 'draft')
         Article.objects.create(
             bundle=bundle,
@@ -305,6 +340,7 @@ class Salesforce:
 
     def update_draft(self, kav_id, html):
         """Update the fields of an existing draft."""
+        # TODO assert docset
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         data = html.create_article_data()
         result = kav_api.update(kav_id, data)

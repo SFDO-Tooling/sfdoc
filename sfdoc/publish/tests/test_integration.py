@@ -63,7 +63,7 @@ class TstHelpers:
 
     def clearSalesforce(self):
         """Delete all knowledge articles"""
-        self.salesforce = Salesforce("#ALL")
+        self.salesforce = Salesforce(Salesforce.all_docsets)
         all_articles = self.salesforce.get_articles("Online")
         for article in all_articles:
             self.salesforce.archive(article["KnowledgeArticleId"], article["Id"])
@@ -74,8 +74,6 @@ class TstHelpers:
 
     def clearLocalCache(self):
         """Delete things from the local cache"""
-        if os.path.exists(settings.LOCAL_REPOSITORY_CACHE):
-            shutil.rmtree(settings.LOCAL_REPOSITORY_CACHE)
         if os.path.exists(TESTING_CACHE):
             shutil.rmtree(TESTING_CACHE)
         os.makedirs(TESTING_CACHE)
@@ -498,5 +496,5 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
         result2 = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, uuid)
         print(result2)
-        assert sf.sf_docset == result2
+        assert sf.sf_docset['Id'] == result2['Id']
         sf_docset_api.delete(result["Id"])

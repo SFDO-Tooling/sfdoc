@@ -273,8 +273,3 @@ AWS_S3_DRAFT_IMG_DIR = 'images/draft/'
 AWS_S3_PUBLIC_IMG_DIR = 'images/public/'
 AWS_S3_DRAFT_HTML_REPOSITORY_DIR = 'html/draft/'
 AWS_S3_PUBLISHED_HTML_REPOSITORY_DIR = 'html/public/'
-
-# Local directories
-
-# local transient file cache for speeding up downloads
-LOCAL_REPOSITORY_CACHE = os.path.join(tempfile.gettempdir(), "sfdoc_html_repository_cache/")  
