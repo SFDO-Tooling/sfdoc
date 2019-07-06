@@ -210,8 +210,6 @@ def _record_deletable_images(s3, root_path, images, bundle):
             Image.objects.create(
                 bundle=bundle, filename=relname, status=Image.STATUS_DELETED
             )
-            logger.info("Removing orphaned image local: %s", local_path)
-            os.remove(local_path)
             draftkey = Image.public_url_or_path_to_draft(relname)
             logger.info("Removing orphaned image %s", draftkey)
             s3.delete(draftkey, draft=True)

@@ -179,10 +179,6 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         self.clearS3()
         self.clearLocalCache()
 
-        # send some sample dita to the remote server
-        ditadir = settings.ROOT_DIR + "testdata/sampledita"
-        s3ditaprefix = f"s3://{settings.AWS_S3_BUCKET}/{settings.AWS_S3_PUBLISHED_HTML_REPOSITORY_DIR}"
-        publish_utils.s3_sync(str(ditadir), s3ditaprefix)
         utils.integration_mocks()
 
     @responses.activate
