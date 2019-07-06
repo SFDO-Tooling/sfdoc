@@ -250,3 +250,8 @@ class Webhook(models.Model):
     @property
     def docset_id(self):
         return self.bundle.docset_id
+
+
+class Docset(models.Model):
+    docset_id = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, default='')
