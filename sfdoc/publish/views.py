@@ -17,7 +17,7 @@ from .models import Article
 from .models import Bundle
 from .models import Image
 from .models import Webhook
-from .tasks import process_queue
+from .tasks import process_bundle_queues
 from .tasks import process_webhook
 from .tasks import publish_drafts
 
@@ -109,7 +109,7 @@ def requeue(request, pk):
             bundle.queue()
             logger = get_logger(bundle)
             logger.info('Requeued %s', bundle)
-            process_queue.delay()
+            process_bundle_queues.delay()
         return HttpResponseRedirect('../')
     else:
         form = RequeueBundleForm()
@@ -136,7 +136,7 @@ def review(request, pk):
                 logger.info('Rejected %s', bundle)
                 bundle.status = Bundle.STATUS_REJECTED
                 bundle.save()
-                process_queue.delay()
+                process_bundle_queues.delay()
         return HttpResponseRedirect('../')
     else:
         form = PublishToProductionForm()
