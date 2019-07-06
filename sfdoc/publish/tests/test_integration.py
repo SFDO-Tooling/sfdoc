@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db import connection
 from test_plus.test import TestCase
 import responses
+from simple_salesforce.exceptions import SalesforceResourceNotFound
 
 from sfdoc.publish import tasks
 from sfdoc.publish.models import Article, Webhook, Image
@@ -62,7 +63,7 @@ class TstHelpers:
 
     def clearSalesforce(self):
         """Delete all knowledge articles"""
-        self.salesforce = Salesforce()
+        self.salesforce = Salesforce("#ALL")
         all_articles = self.salesforce.get_articles("Online")
         for article in all_articles:
             self.salesforce.archive(article["KnowledgeArticleId"], article["Id"])
@@ -474,3 +475,28 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         self.assertEqual(numpubimages_now, numpubimages - 1)
 
         self.assertS3ObjectDoesNotExist(public_img_s3_object)
+
+    def test_ensure_sf_docset_exists(self):
+        uuid = '0000-0000-0000-0000'
+
+        sf = Salesforce(uuid)
+
+        sf_docset_api = getattr(sf.api, settings.SALESFORCE_DOCSET_TYPE)
+
+        try:
+            result = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, uuid)
+            if result:
+                sf_docset_api.delete(result["Id"])
+            result = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, uuid)
+            assert False, "Should not reach this line!"
+        except SalesforceResourceNotFound:
+            pass
+
+        sf = Salesforce(uuid)
+        result = sf.sf_docset
+        assert result[settings.SALESFORCE_DOCSET_STATUS_FIELD] == 'Inactive'
+
+        result2 = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, uuid)
+        print(result2)
+        assert sf.sf_docset == result2
+        sf_docset_api.delete(result["Id"])

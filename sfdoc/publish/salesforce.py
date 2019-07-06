@@ -8,6 +8,7 @@ from django.conf import settings
 import jwt
 import requests
 from simple_salesforce import Salesforce as SimpleSalesforce
+from simple_salesforce import exceptions as SimpleSalesforceExceptions
 
 from .exceptions import SalesforceError
 from .html import HTML
@@ -19,8 +20,10 @@ from .logger import get_logger
 class Salesforce:
     """Interact with a Salesforce org."""
 
-    def __init__(self):
+    def __init__(self, docset_id):
+        """Create a docset-scoped view of Salesforce"""
         self.api = self._get_salesforce_api()
+        self.docset_id = docset_id
 
     def _get_salesforce_api(self):
         """Get an instance of the Salesforce REST API."""
@@ -61,17 +64,40 @@ class Salesforce:
         """Archive a published article."""
         # delete draft if it exists
         query_str = (
-            "SELECT Id FROM {} WHERE KnowledgeArticleId='{}' "
-            "AND PublishStatus='draft' AND language='en_US'"
+            "SELECT Id, "
+            "{}.{} "
+            "FROM {} WHERE KnowledgeArticleId='{}' "
+            "AND PublishStatus='draft' AND language='en_US' "
         ).format(
+            settings.SALESFORCE_DOCSET_TYPE.replace("__c", "__r"),
+            settings.SALESFORCE_DOCSET_ID_FIELD,
             settings.SALESFORCE_ARTICLE_TYPE,
             ka_id,
         )
         result = self.api.query(query_str)
         if result['totalSize'] > 0:
             self.delete(result['records'][0]['Id'])
+            if self.docset_id != "#ALL":
+                assert result[settings.SALESFORCE_DOCSET_ID_FIELD] == self.docset_id
         # archive published version
         self.set_publish_status(kav_id, 'archived')
+
+    @property
+    def sf_docset(self):
+        sf_docset_api = getattr(self.api, settings.SALESFORCE_DOCSET_TYPE)
+
+        try:
+            self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_id)
+        except SimpleSalesforceExceptions.SalesforceResourceNotFound:
+            data = {settings.SALESFORCE_DOCSET_ID_FIELD: self.docset_id,
+                    settings.SALESFORCE_DOCSET_STATUS_FIELD: 'Inactive'
+                    }
+            sf_docset_api.create(data)
+            self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_id)
+        return self._sf_docset
+
+    def query(self, querystr, *args):
+        return self.api_query(querystr.format(*args))
 
     def create_article(self, html):
         """Create a new article in draft state."""

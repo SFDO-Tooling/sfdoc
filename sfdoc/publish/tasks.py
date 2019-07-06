@@ -70,7 +70,7 @@ def _process_bundle(bundle, path, enforce_no_duplicates=True):
     # TODO remove
     logger.setLevel("INFO")
     # get APIs
-    salesforce = Salesforce()
+    salesforce = Salesforce(bundle.docset_id)
     s3 = S3(bundle)
 
     assert os.path.exists(path)
@@ -241,7 +241,7 @@ def _record_deletable_images(s3, root_path, images, bundle):
 
 def _publish_drafts(bundle):
     logger = get_logger(bundle)
-    salesforce = Salesforce()
+    salesforce = Salesforce(bundle.docset_id)
     s3 = S3(bundle)
     # publish articles
     articles = bundle.articles.filter(
