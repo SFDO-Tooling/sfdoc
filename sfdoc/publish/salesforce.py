@@ -166,7 +166,7 @@ class Salesforce:
         elif result['totalSize'] == 1:  # can only be 0 or 1
             return result['records'][0]['KnowledgeArticleId']
 
-    def get_articles_for_docset(self, publish_status):
+    def get_articles(self, publish_status):
         """Get all article versions with a given publish status."""
         return self.query_articles(
             "Id", "KnowledgeArticleId", "Title", "UrlName",

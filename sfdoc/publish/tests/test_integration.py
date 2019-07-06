@@ -383,12 +383,14 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         # Updated article summary
         self.assertIn("This is a test article. Updated!", summary)
 
-        self.assertTitles(
-            self.salesforce.get_articles("online"),
-            fake_easydita.preloaded_article_titles +
-            fake_easydita.ditamap_A_V2_titles + 
-            fake_easydita.ditamap_B_titles,
+        public_articles = self.salesforce.get_articles("online")
+        expected_articles = (
+            fake_easydita.preloaded_article_titles
+            + fake_easydita.ditamap_A_V2_titles
+            + fake_easydita.ditamap_B_titles
         )
+
+        self.assertTitles(public_articles, expected_articles)
         self.assertNoImagesScheduledForDeletion()
 
     @responses.activate
@@ -404,8 +406,9 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         bundle_A_V3 = self.createWebhook(fake_easydita.fake_webhook_body_doc_A_V3)
         tasks.process_bundle(bundle_A_V3.pk, False)
         testing_file = "Testing/Paul_test/bundleA/CategoryA/Article1/images/small.png"
-        draft_img_s3_object = os.path.join(settings.AWS_S3_DRAFT_IMG_DIR, bundle_A_V3.docset_id+"/",
-                                           testing_file)
+        draft_img_s3_object = os.path.join(
+            settings.AWS_S3_DRAFT_IMG_DIR, bundle_A_V3.docset_id + "/", testing_file
+        )
         self.assertS3ObjectExists(draft_img_s3_object)
 
         self.assertImgUrlInArticle("Article A1", "draft", draft_img_s3_object)
@@ -475,26 +478,32 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         self.assertS3ObjectDoesNotExist(public_img_s3_object)
 
     def test_ensure_sf_docset_exists(self):
-        uuid = '0000-0000-0000-0000'
+        uuid = "0000-0000-0000-0000"
 
         sf = Salesforce(uuid)
 
         sf_docset_api = getattr(sf.api, settings.SALESFORCE_DOCSET_TYPE)
 
         try:
-            result = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, uuid)
+            result = sf_docset_api.get_by_custom_id(
+                settings.SALESFORCE_DOCSET_ID_FIELD, uuid
+            )
             if result:
                 sf_docset_api.delete(result["Id"])
-            result = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, uuid)
+            result = sf_docset_api.get_by_custom_id(
+                settings.SALESFORCE_DOCSET_ID_FIELD, uuid
+            )
             assert False, "Should not reach this line!"
         except SalesforceResourceNotFound:
             pass
 
         sf = Salesforce(uuid)
         result = sf.sf_docset
-        assert result[settings.SALESFORCE_DOCSET_STATUS_FIELD] == 'Inactive'
+        assert result[settings.SALESFORCE_DOCSET_STATUS_FIELD] == "Inactive"
 
-        result2 = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, uuid)
+        result2 = sf_docset_api.get_by_custom_id(
+            settings.SALESFORCE_DOCSET_ID_FIELD, uuid
+        )
         print(result2)
-        assert sf.sf_docset['Id'] == result2['Id']
+        assert sf.sf_docset["Id"] == result2["Id"]
         sf_docset_api.delete(result["Id"])
