@@ -54,6 +54,8 @@ def _process_bundle(bundle, path, enforce_no_duplicates=True):
     salesforce = Salesforce(bundle.docset_id)
     s3 = S3(bundle)
 
+    s3.delete_draft_images()
+
     assert os.path.exists(path)
 
     # get new files from EasyDITA and put them on top
@@ -270,6 +272,7 @@ def process_bundle(bundle_pk, enforce_no_duplicates=True):
     bundle.save()
     logger = get_logger(bundle)
     logger.info("Processing %s", bundle)
+
     with TemporaryDirectory(f"bundle_{bundle.pk}") as tempdir:
         try:
             _process_bundle(
@@ -277,16 +280,14 @@ def process_bundle(bundle_pk, enforce_no_duplicates=True):
             )
         except Exception as e:
             bundle.set_error(e)
-            process_queue.delay()
+            process_bundle_queues.delay()
             raise
     logger.info("Processed %s", bundle)
 
 
 @job
-def process_queue():
+def process_bundle_queues():
     """Process the next easyDITA bundle in the queue."""
-    s3 = S3()
-    s3.delete_draft_images()
     if Bundle.objects.filter(
         status__in=(
             Bundle.STATUS_PROCESSING,
@@ -321,7 +322,7 @@ def process_webhook(pk):
             webhook.status = Webhook.STATUS_ACCEPTED
             webhook.save()
             bundle.queue()
-            process_queue.delay()
+            process_bundle_queues.delay()
         else:
             logger.info("Webhook rejected (already processing)")
             webhook.status = Webhook.STATUS_REJECTED
@@ -350,10 +351,10 @@ def publish_drafts(bundle_pk):
         _publish_drafts(bundle)
     except Exception as e:
         bundle.set_error(e)
-        process_queue.delay()
+        process_bundle_queues.delay()
         raise
     bundle.status = Bundle.STATUS_PUBLISHED
     bundle.time_published = now()
     bundle.save()
     logger.info("Published all drafts for %s", bundle)
-    process_queue.delay()
+    process_bundle_queues.delay()
