@@ -53,10 +53,10 @@ class S3:
     def delete_draft_images(self):
         """Delete all draft images at once."""
         objects = []
-        for item in self.iter_objects(prefix=Image.get_docset_image_directory(self.docset_id, draft=True)):
+        for item in self.iter_objects(prefix=Image.get_docset_s3_path(self.docset_id, draft=True)):
             objects.append({'Key': item['Key']})
         if objects:
-            self.api.meta.clint.delete_objects(
+            self.api.meta.client.delete_objects(
                 Bucket=settings.AWS_S3_BUCKET,
                 Delete={'Objects': objects},
             )
