@@ -160,7 +160,7 @@ def makeDebugTemporaryDirectoryMock(parent_prefix="", default_dir=""):
             yield TemporaryDirectory
 
 
-def integration_mocks():
+def integration_mocks(mock_salesforce=True):
     for filename in glob.glob(os.path.join(rootdir, "testdata/bundles/*.zip")):
         UUID = os.path.splitext(os.path.basename(filename))[0]
         url = f"https://salesforce.easydita.com/rest/all-files/{UUID}/bundle"
@@ -171,6 +171,7 @@ def integration_mocks():
         response = responses._real_send(responses.HTTPAdapter(), request)
         return (response.status_code, response.headers, response.raw.data)
 
+    # Pass through all calls to Salesforce because it is too complex to mock.
     responses.add_callback(
         method=responses.GET,
         url=re.compile("https://.*.salesforce.com/.*"),
