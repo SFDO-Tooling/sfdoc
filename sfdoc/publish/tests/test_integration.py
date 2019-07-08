@@ -194,7 +194,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         self.clearS3()
         self.clearLocalCache()
 
-        utils.integration_mocks()
+        utils.mock_easydita()
         self.fake_queue = FakeQueue()
     
     def process_bundle_from_webhook(self, webhook):
@@ -214,8 +214,6 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
     @responses.activate
     def test_remove_article(self):
-        utils.integration_mocks()
-
         with self.debugMock() as mocktempdir:
             # 1. Import a bundle
             mocktempdir.set_subprefix("_scenario_1_")
