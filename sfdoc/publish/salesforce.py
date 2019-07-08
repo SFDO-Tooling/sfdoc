@@ -143,11 +143,10 @@ class Salesforce:
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
         #  TODO: assert correct docset
-
         result = self.query_articles(["Id", "KnowledgeArticleId"],
                                      {"Id": kav_id, "PublishStatus": publish_status,
-                                      "language": "en_US"}, include_wrapper=True,
-                                     include_raw=True)
+                                      "language": "en_US"},
+                                     include_wrapper=True)
 
         if result['totalSize'] == 0:
             raise SalesforceError(
