@@ -15,12 +15,15 @@ from .html import HTML
 from .models import Article
 
 from .logger import get_logger
+from logging import getLogger
+
+query_logger = getLogger("query_str")
 
 
 class Salesforce:
     """Interact with a Salesforce org."""
 
-    all_docsets = "#ALL"
+    ALL_DOCSETS = ("#ALL",)
 
     def __init__(self, docset_uuid):
         """Create a docset-scoped view of Salesforce"""
@@ -63,20 +66,30 @@ class Salesforce:
         )
         return sf
 
-    def archive(self, ka_id, kav_id):
-        """Archive a published article."""
+    def archive(self, ka_id, kav_id, *, scorched_earth=False):
+        """Archive a published article.
+        
+        Use the `scorched_earth` parameter if you want to
+        disable a double-check that the article is in a specific
+        docset.
+        """
+        if self.unscoped_api and not scorched_earth:
+            raise AssertionError("No docset supplied for archive!")
+
         # delete draft if it exists
         result = self.query_articles(["Id", self.docset_relation],
                                      {
                                         "PublishStatus": "draft",
                                         "language": "en_US"
-                                     },
-                                     include_wrapper=True)
-        if result['totalSize'] > 0:
-            if self.docset_uuid != self.all_docsets:
-                # TODO double check this and don't submit to PR
-                breakpoint()
-                assert result['records'][0][settings.SALESFORCE_DOCSET_ID_FIELD] == self.docset_uuid
+                                     })
+
+        # the old code was looking for 0 or 1 record. Not sure why greater
+        # numbers can be ignored.
+        if len(result) == 1:
+            if (result['records'][0][settings.SALESFORCE_DOCSET_ID_FIELD] != self.docset_uuid
+               and not scorched_earth):
+                # This is a double-check
+                raise AssertionError("Record to be deleted does not match self.docset_uuid!")
             self.delete(result['records'][0]['Id'])
         # archive published version
         self.set_publish_status(kav_id, 'archived')
@@ -167,16 +180,20 @@ class Salesforce:
         query_str += ",".join(fields)
         query_str += " FROM "
         query_str += settings.SALESFORCE_ARTICLE_TYPE
-        if filters or self.docset_uuid != self.all_docsets:
+        if filters or not self.unscoped_api:
             query_str += " WHERE "
 
-        if self.docset_uuid != self.all_docsets:
+        if not self.unscoped_api:
             filters[self.docset_relation] = self.docset_uuid
 
         query_str += ' AND '.join(f"{fieldname}='{value}'" 
                                   for fieldname, value in filters.items())
 
+        query_logger.info("QUERY: {}", query_str)
         result = self.api.query(query_str)
+        query_logger.info("RESULT: {}", repr(result))
+
+        assert result['totalSize'] == len(result['records'])
         if include_wrapper:
             return result
         else:
@@ -333,3 +350,7 @@ class Salesforce:
                 'Error updating draft KnowledgeArticleVersion (ID={})'
             ).format(kav_id))
         return result
+
+    @property
+    def unscoped_api(self):
+        return self.docset_uuid == self.ALL_DOCSETS

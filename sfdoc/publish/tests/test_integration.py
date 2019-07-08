@@ -72,10 +72,10 @@ class TstHelpers:
 
     def clearSalesforce(self):
         """Delete all knowledge articles"""
-        self.salesforce = Salesforce(Salesforce.all_docsets)
+        self.salesforce = Salesforce(Salesforce.ALL_DOCSETS)
         all_articles = self.salesforce.get_articles("Online")
         for article in all_articles:
-            self.salesforce.archive(article["KnowledgeArticleId"], article["Id"])
+            self.salesforce.archive(article["KnowledgeArticleId"], article["Id"], scorched_earth=True)
 
         all_articles = self.salesforce.get_articles("Draft")
         for article in all_articles:
