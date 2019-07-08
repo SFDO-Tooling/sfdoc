@@ -160,11 +160,12 @@ def makeDebugTemporaryDirectoryMock(parent_prefix="", default_dir=""):
             yield TemporaryDirectory
 
 
-def integration_mocks(mock_salesforce=True):
+def mock_easydita():
     for filename in glob.glob(os.path.join(rootdir, "testdata/bundles/*.zip")):
         UUID = os.path.splitext(os.path.basename(filename))[0]
         url = f"https://salesforce.easydita.com/rest/all-files/{UUID}/bundle"
         responses.add(responses.GET, url, body=open(filename, "rb"))
+
     responses.add_passthru("https://test.salesforce.com")
 
     def pass_thru(request):
@@ -172,6 +173,7 @@ def integration_mocks(mock_salesforce=True):
         return (response.status_code, response.headers, response.raw.data)
 
     # Pass through all calls to Salesforce because it is too complex to mock.
+    # Can't use the responses.add_passthru feature due to the ned
     responses.add_callback(
         method=responses.GET,
         url=re.compile("https://.*.salesforce.com/.*"),
