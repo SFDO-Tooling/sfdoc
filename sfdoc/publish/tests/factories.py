@@ -3,6 +3,10 @@ from datetime import datetime
 import factory
 from .. import models
 
+from faker.generator import random
+
+random.seed(0xDEADBEEF)
+
 
 class BundleFactory(factory.django.DjangoModelFactory):
     class Meta:

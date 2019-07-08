@@ -298,7 +298,10 @@ def process_bundle_queues():
         return
     bundles = Bundle.objects.filter(status=Bundle.STATUS_QUEUED)
     if bundles:
-        process_bundle.delay(bundles.earliest("time_queued").pk)
+        relevant_docsets = set(bundle.easydita_id for bundle in bundles)
+        for docset_id in relevant_docsets:
+            bundles_for_docset = bundles.filter(easydita_id=docset_id)
+            process_bundle.delay(bundles_for_docset.earliest("time_queued").pk)
 
 
 @job
