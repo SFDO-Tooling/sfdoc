@@ -61,10 +61,28 @@ def _process_bundle(bundle, path, enforce_no_duplicates=True):
     # get new files from EasyDITA and put them on top
     _download_and_unpack_easydita_bundle(bundle, path)
 
+    # try to name docset if necessary
+    if not bundle.docset.name:
+        try_name_docset(bundle.docset, path)
+
     # collect paths to all HTML files
     html_files = collect_html_paths(path, logger)
 
     create_drafts(bundle, html_files, path, salesforce, s3)
+
+
+def try_name_docset(docset, path):
+    """Try to name a docset from information in an index HTML"""
+    for dirpath, dirnames, filenames in os.walk(path):
+        html_files = [filename for filename in filenames if ".htm" in filename]
+        if html_files:
+            index_file = os.path.join(path, html_files[0])
+            with open(index_file, "r") as f:
+                markup = f.read()
+            html = HTML(markup, index_file, path)
+            docset.name = html.create_article_data()['Title']
+            docset.save()
+            return
 
 
 def _find_duplicate_urls(url_map):
