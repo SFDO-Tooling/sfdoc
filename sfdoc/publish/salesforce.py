@@ -66,18 +66,12 @@ class Salesforce:
     def archive(self, ka_id, kav_id):
         """Archive a published article."""
         # delete draft if it exists
-        query_str = (
-            "SELECT Id, "
-            "{}.{} "
-            "FROM {} WHERE KnowledgeArticleId='{}' "
-            "AND PublishStatus='draft' AND language='en_US' "
-        ).format(
-            settings.SALESFORCE_DOCSET_TYPE.replace("__c", "__r"),
-            settings.SALESFORCE_DOCSET_ID_FIELD,
-            settings.SALESFORCE_ARTICLE_TYPE,
-            ka_id,
-        )
-        result = self.api.query(query_str)
+        result = self.query_articles(["Id", self.docset_relation],
+                                     {
+                                        "PublishStatus": "draft",
+                                        "language": "en_US"
+                                     },
+                                     include_wrapper=True)
         if result['totalSize'] > 0:
             if self.docset_uuid != self.all_docsets:
                 # TODO double check this and don't submit to PR
@@ -150,15 +144,11 @@ class Salesforce:
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
         #  TODO: assert correct docset
 
-        query_str = (
-            "SELECT Id,KnowledgeArticleId FROM {} "
-            "WHERE Id='{}' AND PublishStatus='{}' AND language='en_US'"
-        ).format(
-            settings.SALESFORCE_ARTICLE_TYPE,
-            kav_id,
-            publish_status,
-        )
-        result = self.api.query(query_str)
+        result = self.query_articles(["Id", "KnowledgeArticleId"],
+                                     {"Id": kav_id, "PublishStatus": publish_status,
+                                      "language": "en_US"}, include_wrapper=True,
+                                     include_raw=True)
+
         if result['totalSize'] == 0:
             raise SalesforceError(
                 'KnowledgeArticleVersion {} not found'.format(kav_id)
@@ -169,11 +159,11 @@ class Salesforce:
     def get_articles(self, publish_status):
         """Get all article versions with a given publish status."""
         return self.query_articles(
-            "Id", "KnowledgeArticleId", "Title", "UrlName",
-            PublishStatus=publish_status, language='en_US'
+            ["Id", "KnowledgeArticleId", "Title", "UrlName"],
+            {"PublishStatus": publish_status, "language": 'en_US'}
         )
 
-    def query_articles(self, *fields, **filters):
+    def query_articles(self, fields, filters, *, include_wrapper=False):
         query_str = "SELECT "
         query_str += ",".join(fields)
         query_str += " FROM "
@@ -187,10 +177,11 @@ class Salesforce:
         query_str += ' AND '.join(f"{fieldname}='{value}'" 
                                   for fieldname, value in filters.items())
 
-        print(query_str)
-
         result = self.api.query(query_str)
-        return result['records']
+        if include_wrapper:
+            return result
+        else:
+            return result['records']
 
     @property
     def docset_relation(self):
@@ -297,20 +288,14 @@ class Salesforce:
     def find_articles_by_name(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
         # TODO: filter to docset
-        query_str = (
-            "SELECT Id,KnowledgeArticleId,Title,Summary,"
-            "IsVisibleInCsp,IsVisibleInPkb,IsVisibleInPrm,{},{},{} FROM {} "
-            "WHERE UrlName='{}' AND PublishStatus='{}' AND language='en_US'"
-        ).format(
-            settings.SALESFORCE_ARTICLE_BODY_FIELD,
-            settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
-            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
-            settings.SALESFORCE_ARTICLE_TYPE,
-            url_name,
-            publish_status,
-        )
-        result = self.api.query(query_str)
-        return result
+        return self.query_articles(
+                                   ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
+                                    "IsVisibleInPkb", "IsVisibleInPrm",
+                                    settings.SALESFORCE_ARTICLE_BODY_FIELD,
+                                    settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
+                                    settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD],
+                                   {"UrlName": url_name, "PublishStatus": publish_status, "language": "en_US"},
+                                   include_wrapper=True)
 
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
