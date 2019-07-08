@@ -79,7 +79,7 @@ class Bundle(models.Model):
     time_last_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return 'easyDITA bundle {}'.format(self.pk)
+        return 'easyDITA bundle {} - {}'.format(self.pk, self.docset.name)
 
     def is_complete(self):
         return self.status in (
@@ -121,6 +121,10 @@ class Bundle(models.Model):
     @property
     def docset_id(self):
         return self.easydita_resource_id
+
+    @property
+    def docset(self):
+        return Docset.get_or_create_by_docset_id(self.docset_id)
 
 
 class Image(models.Model):
@@ -255,3 +259,12 @@ class Webhook(models.Model):
 class Docset(models.Model):
     docset_id = models.CharField(max_length=255)
     name = models.CharField(max_length=255, default='')
+
+    @classmethod
+    def get_or_create_by_docset_id(cls, docset_id):
+        obj, created = cls.objects.get_or_create(docset_id=docset_id)
+        return obj
+
+    @property
+    def display_name(self):
+        return self.name or self.docset_id
