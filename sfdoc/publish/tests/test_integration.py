@@ -34,16 +34,25 @@ from . import fake_easydita
 #   DJANGO_SETTINGS_MODULE=config.settings.integration_test
 #   OKAY_TO_DELETE_SALESFORCE_KNOWLEDGE_ARTICLES=True
 #
+#  If you want it to mock EasyDITA (mostly for performance reasons)
+#  you can set EASYDITA_USERNAME=mock
+#
 #   You also probably need to be on VPN to contact your Org.
 
 TESTING_CACHE = "/tmp/sfdoc_testing_cache"
+SHOULD_MOCK_EASYDITA = settings.EASYDITA_USERNAME == "mock"
 
 
-def integration_test(func):
+def integration_test(cls):
     """Test marker for tests  to be skipped under normal test running conditions"""
+    if SHOULD_MOCK_EASYDITA:
+        for key in dir(cls):
+            if key.startswith("test_"):
+                decorated = responses.activate(getattr(cls, key))
+                setattr(cls, key, decorated)
     return skipUnless(
         getattr(settings, "RUN_INTEGRATION_TESTS", False), "run integration tests"
-    )(func)
+    )(cls)
 
 
 class TstHelpers:
@@ -194,7 +203,8 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         self.clearS3()
         self.clearLocalCache()
 
-        utils.mock_easydita()
+        if settings.EASYDITA_USERNAME == "mock":
+            utils.mock_easydita()
         self.fake_queue = FakeQueue()
     
     def process_bundle_from_webhook(self, webhook):
@@ -212,7 +222,6 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             self.fake_queue.pump()
             return bundle
 
-    @responses.activate
     def test_remove_article(self):
         with self.debugMock() as mocktempdir:
             # 1. Import a bundle
@@ -285,7 +294,6 @@ class SFDocTestIntegration(TestCase, TstHelpers):
                     self.article_titles(self.salesforce.get_articles("online")),
                 )
 
-    @responses.activate
     def test_two_bundles_and_missing_articles(self):
         with self.debugMock() as mocktempdir:
             mocktempdir.set_subprefix("_scenario_1_")
@@ -366,7 +374,6 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             # no articles should still be in draft
             self.assertEqual(self.salesforce.get_articles("draft"), [])
 
-    @responses.activate
     def test_changes(self):
         # 1. Import a bundle
         bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
@@ -409,7 +416,6 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         self.assertTitles(public_articles, expected_articles)
         self.assertNoImagesScheduledForDeletion()
 
-    @responses.activate
     def test_images(self):
         # 1. Import a bundle
         bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)

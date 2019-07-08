@@ -189,3 +189,8 @@ def mock_easydita():
         url=re.compile("https://.*.salesforce.com/.*"),
         callback=pass_thru,
     )
+    responses.add_callback(
+        method=responses.DELETE,
+        url=re.compile("https://.*.salesforce.com/.*"),
+        callback=pass_thru,
+    )
