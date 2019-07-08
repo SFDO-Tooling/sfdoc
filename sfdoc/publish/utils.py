@@ -94,7 +94,12 @@ logger = logging.getLogger("commands")
 
 def run_command(*args, **kwargs):
     logger.info(" ".join(args))
-    return subprocess.run(args, **kwargs, check=True, text=True)
+    try:
+        return subprocess.run(args, **kwargs, check=True, text=True)
+    except Exception as e:
+        logger.error("Subprocess problem! {}", repr(e))
+        print("Subprocess problem!", repr(e))
+        raise e
 
 
 def s3_sync(source, target, delete=False):
