@@ -73,7 +73,7 @@ class Salesforce:
         disable a double-check that the article is in a specific
         docset.
         """
-        if self.unscoped_api and not scorched_earth:
+        if not (self.docset_scoped or scorched_earth):
             raise AssertionError("No docset supplied for archive!")
 
         # delete draft if it exists
@@ -125,7 +125,6 @@ class Salesforce:
 
     def create_draft(self, ka_id):
         """Create a draft copy of a published article."""
-        #  TODO: assert correct docset
         url = (
             self.api.base_url +
             'knowledgeManagement/articleVersions/masterVersions'
@@ -142,7 +141,6 @@ class Salesforce:
 
     def delete(self, kav_id):
         """Delete a KnowledgeArticleVersion."""
-        #  TODO: assert correct docset
         url = (
             self.api.base_url +
             'knowledgeManagement/articleVersions/masterVersions/{}'
@@ -155,7 +153,6 @@ class Salesforce:
 
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
-        #  TODO: assert correct docset
         result = self.query_articles(["Id", "KnowledgeArticleId"],
                                      {"Id": kav_id, "PublishStatus": publish_status,
                                       "language": "en_US"},
@@ -175,16 +172,17 @@ class Salesforce:
             {"PublishStatus": publish_status, "language": 'en_US'}
         )
 
-    def query_articles(self, fields, filters, *, include_wrapper=False):
+    def query_articles(self, fields, filters={}, *, include_wrapper=False):
         query_str = "SELECT "
         query_str += ",".join(fields)
         query_str += " FROM "
         query_str += settings.SALESFORCE_ARTICLE_TYPE
-        if filters or not self.unscoped_api:
-            query_str += " WHERE "
 
-        if not self.unscoped_api:
+        if self.docset_scoped:
             filters[self.docset_relation] = self.docset_uuid
+
+        if filters:
+            query_str += " WHERE "
 
         query_str += ' AND '.join(f"{fieldname}='{value}'" 
                                   for fieldname, value in filters.items())
@@ -241,7 +239,6 @@ class Salesforce:
 
     def process_draft(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
-        #  TODO: assert docset
         logger = get_logger(bundle)
 
         # update links to draft versions
@@ -285,6 +282,7 @@ class Salesforce:
 
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
+        assert self.docset_scoped, "Need docset scoping to publish safely"
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         kav = kav_api.get(kav_id)
         assert kav["PublishStatus"] == 'Draft', f"Draft already published {kav['PublishStatus']}"
@@ -303,7 +301,6 @@ class Salesforce:
 
     def find_articles_by_name(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
-        # TODO: filter to docset
         return self.query_articles(
                                    ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
                                     "IsVisibleInPkb", "IsVisibleInPrm",
@@ -315,7 +312,6 @@ class Salesforce:
 
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
-        # TODO assert docset
         ka_id = self.get_ka_id(kav_id, 'draft')
         Article.objects.create(
             bundle=bundle,
@@ -341,7 +337,7 @@ class Salesforce:
 
     def update_draft(self, kav_id, html):
         """Update the fields of an existing draft."""
-        # TODO assert docset
+        assert self.docset_scoped, "Need docset scoping to write safely"
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         data = html.create_article_data()
         result = kav_api.update(kav_id, data)
@@ -352,5 +348,5 @@ class Salesforce:
         return result
 
     @property
-    def unscoped_api(self):
-        return self.docset_uuid == self.ALL_DOCSETS
+    def docset_scoped(self):
+        return self.docset_uuid != self.ALL_DOCSETS
