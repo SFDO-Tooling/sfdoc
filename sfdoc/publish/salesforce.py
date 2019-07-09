@@ -179,7 +179,7 @@ class SalesforceArticles:
         query_str += settings.SALESFORCE_ARTICLE_TYPE
 
         if self.docset_scoped:
-            filters[self.docset_relation] = self.docset_uuid
+            filters[self.docset_uuid_join] = self.docset_uuid
 
         if filters:
             query_str += " WHERE "
@@ -199,8 +199,12 @@ class SalesforceArticles:
 
     @property
     def docset_relation(self):
-        __r = settings.SALESFORCE_DOCSET_TYPE.replace("__c", "__r")
-        return f"{__r}.{settings.SALESFORCE_DOCSET_ID_FIELD}"
+        return settings.SALESFORCE_DOCSET_TYPE.replace("__c", "__r")
+
+    @property
+    def docset_uuid_join(self):
+        
+        return f"{self.docset_relation}.{settings.SALESFORCE_DOCSET_ID_FIELD}"
 
     def get_base_url(self):
         """ Return base URL e.g. https://powerofus.force.com """
