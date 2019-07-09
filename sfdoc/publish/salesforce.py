@@ -68,7 +68,7 @@ class Salesforce:
 
     def archive(self, ka_id, kav_id, *, scorched_earth=False):
         """Archive a published article.
-        
+
         Use the `scorched_earth` parameter if you want to
         disable a double-check that the article is in a specific
         docset.
@@ -289,7 +289,6 @@ class Salesforce:
         body = kav[settings.SALESFORCE_ARTICLE_BODY_FIELD]
         body = HTML.update_links_production(body)
         assert settings.AWS_S3_DRAFT_IMG_DIR not in body
-        assert settings.AWS_S3_DRAFT_HTML_REPOSITORY_DIR not in body
 
         data = {settings.SALESFORCE_ARTICLE_BODY_FIELD: body}
 

@@ -271,5 +271,3 @@ SALESFORCE_LOGIN_URL = "https://login.salesforce.com"
 # Amazon
 AWS_S3_DRAFT_IMG_DIR = 'images/draft/'
 AWS_S3_PUBLIC_IMG_DIR = 'images/public/'
-AWS_S3_DRAFT_HTML_REPOSITORY_DIR = 'html/draft/'
-AWS_S3_PUBLISHED_HTML_REPOSITORY_DIR = 'html/public/'

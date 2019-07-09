@@ -19,15 +19,6 @@ from .models import Webhook
 from .salesforce import Salesforce
 from . import utils
 
-AWS_S3_PUBLISHED_HTML_REPOSITORY_URL = (
-    f"s3://{settings.AWS_S3_BUCKET}/{settings.AWS_S3_PUBLISHED_HTML_REPOSITORY_DIR}"
-)
-
-AWS_S3_DRAFT_HTML_REPOSITORY_URL = (
-    f"s3://{settings.AWS_S3_BUCKET}/{settings.AWS_S3_DRAFT_HTML_REPOSITORY_DIR}"
-)
-
-
 def _download_and_unpack_easydita_bundle(bundle, path):
     logger = get_logger(bundle)
 
@@ -200,8 +191,6 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
     # finish
     bundle.status = bundle.STATUS_DRAFT
     bundle.save()
-    utils.s3_sync(path, AWS_S3_DRAFT_HTML_REPOSITORY_URL)
-
 
 def _record_archivable_articles(salesforce, bundle, url_map):
     # build list of published articles to archive
@@ -267,15 +256,6 @@ def _publish_drafts(bundle):
     for n, image in enumerate(images.all(), start=1):
         logger.info("Deleting image %d of %d: %s", n, N, image.filename)
         s3.delete(image.filename, draft=False)
-
-    # update the S3 repository to represent current public state by
-    # promoting the draft to prod
-    utils.s3_sync(
-        AWS_S3_DRAFT_HTML_REPOSITORY_URL,
-        AWS_S3_PUBLISHED_HTML_REPOSITORY_URL,
-        delete=True,
-    )
-
 
 @job("default", timeout=600)
 def process_bundle(bundle_pk, enforce_no_duplicates=True):
