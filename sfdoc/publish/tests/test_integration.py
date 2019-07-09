@@ -182,7 +182,6 @@ class FakeQueue:
         current_calls = self.calls
         self.calls = []
         for func, args, kwargs in current_calls:
-            print("EXECUTING JOB", func, args, kwargs)
             func(*args, **kwargs)
 
 
