@@ -243,7 +243,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             mocktempdir.set_subprefix("_scenario_3_")
             bundle_B = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_B)
 
-            to_be_removed_articles = ["Article 2, Bundle B", "Article 3, Bundle B"]
+            to_be_removed_articles = ["Article 2, Bundle B"]
             # should be able to find the article we're going to delete later
             for to_be_removed_article in to_be_removed_articles:
                 self.assertIn(

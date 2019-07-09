@@ -61,6 +61,7 @@ ditamap_B_titles = [
 ditamap_B_V3_titles = [
     "Article 1, Bundle B",
     "Test Documentation: Bundle B",
+    "Article 3, Bundle B V2"
 ]
 
 # https://salesforce.easydita.com/api/get/db/organizations/salesforce/published/77b09a40-819a-11e9-b28c-42010af00002/BundleA_2019-06-04T16-31Z.zip
