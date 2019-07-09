@@ -72,30 +72,22 @@ class SalesforceArticles:
 
     def archive(self, ka_id, kav_id):
         """Archive a published article."""
-        # This code has not been updated to enforce the docset-scoping
-        # because whatever code queried the ka_id and kav_id should have
-        # been appropriately scoped. Double-checking here would require
-        # extra joins (for the KA) queries and joins (for the KAV).
-        # Beyond being extra new code to test, it will slow down the 
-        # already slow integration tests
-
+        # Ensure that this article is owned by the right docset
         article = self.query_articles([self.docset_uuid_join_field],
                                       {"Id": kav_id})[0]
 
         docset_id = article[self.docset_relation][settings.SALESFORCE_DOCSET_ID_FIELD]
         assert docset_id == self.docset_uuid
 
+        draft = self.query_articles(["Id"],
+                                    {"KnowledgeArticleId": ka_id,
+                                     "PublishStatus": "draft",
+                                     "language": "en_US"})
+
         # delete draft if it exists
-        query_str = (
-            "SELECT Id FROM {} WHERE KnowledgeArticleId='{}' "
-            "AND PublishStatus='draft' AND language='en_US'"
-        ).format(
-            settings.SALESFORCE_ARTICLE_TYPE,
-            ka_id,
-        )
-        result = self.api.query(query_str)
-        if result['totalSize'] > 0:
-            self.delete(result['records'][0]['Id'])
+        if draft:
+            assert len(draft) == 1
+            self.delete(draft[0]['Id'])
         # archive published version
         self.set_publish_status(kav_id, 'archived')
 
