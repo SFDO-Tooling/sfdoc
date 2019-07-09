@@ -55,7 +55,7 @@ def integration_test(cls):
     )(cls)
 
 
-class TstHelpers:
+class TstHelpers:  # named to avoid confusing pytest
     def __init__(self):
         super().__init__(self)
         self.checkTestEnvironment()
