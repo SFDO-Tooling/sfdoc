@@ -135,7 +135,9 @@ ORIGINIT = TemporaryDirectory.__init__
 
 @contextmanager
 def makeDebugTemporaryDirectoryMock(parent_prefix="", default_dir=""):
+    """Make a "long-term temporary" directory: One that does not clean up after itself until reboot."""
     class DebugTemporaryDirectory(TemporaryDirectory):
+        """A temporary directory that does not clean up after itself until reboot."""
         def __init__(self, suffix=None, prefix="", dir=None):
             full_prefix = parent_prefix
             full_prefix += "_" + str(time.process_time()) + "_"
