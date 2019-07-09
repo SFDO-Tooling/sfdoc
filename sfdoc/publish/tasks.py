@@ -28,13 +28,14 @@ def _download_and_unpack_easydita_bundle(bundle, path):
     auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
     response = requests.get(bundle.url, auth=auth)
     zip_file = BytesIO(response.content)
-    with TemporaryDirectory(f"bundle_{bundle.pk}_") as tempdir:
-        utils.unzip(zip_file, tempdir, recursive=True, ignore_patterns=["*/assets/*"])
+    utils.unzip(zip_file, path, recursive=True, ignore_patterns=["*/assets/*"])
 
-        rootpath = utils.find_bundle_root_directory(tempdir)
-        assert os.path.exists(os.path.join(rootpath, "log.txt"))
-        utils.sync_directories(rootpath, path)
-        assert os.path.exists(os.path.join(path, "log.txt"))
+    # with TemporaryDirectory(f"bundle_{bundle.pk}_") as tempdir:
+
+    #     rootpath = utils.find_bundle_root_directory(tempdir)
+    #     assert os.path.exists(os.path.join(rootpath, "log.txt"))
+    #     utils.sync_directories(rootpath, path)
+    #     assert os.path.exists(os.path.join(path, "log.txt"))
 
 
 def _process_bundle(bundle, path):
@@ -51,6 +52,8 @@ def _process_bundle(bundle, path):
     # get new files from EasyDITA and put them on top
     _download_and_unpack_easydita_bundle(bundle, path)
 
+    path = utils.find_bundle_root_directory(path)
+
     # try to name docset if necessary
     if not bundle.docset.name:
         try_name_docset(bundle.docset, path)
@@ -66,7 +69,7 @@ def try_name_docset(docset, path):
     for dirpath, dirnames, filenames in os.walk(path):
         html_files = [filename for filename in filenames if ".htm" in filename]
         if html_files:
-            index_file = os.path.join(path, html_files[0])
+            index_file = os.path.join(dirpath, html_files[0])
             html = HTML(index_file, path)
             docset.name = html.create_article_data()['Title']
             docset.save()
