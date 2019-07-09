@@ -262,14 +262,12 @@ class SFDocTestIntegration(TestCase, TstHelpers):
                 self.salesforce.get_articles("online"),
                 fake_easydita.ditamap_A_titles
                 + fake_easydita.ditamap_B_titles
-                + fake_easydita.preloaded_article_titles,
             )
             tasks.publish_drafts(bundle_B_V3.pk)  # simulate publish from UI
             self.assertTitles(
                 self.salesforce.get_articles("online"),
                 fake_easydita.ditamap_A_titles
                 + fake_easydita.ditamap_B_V3_titles
-                + fake_easydita.preloaded_article_titles,
             )
             for removed_article in to_be_removed_articles:
                 self.assertNotIn(
@@ -286,7 +284,6 @@ class SFDocTestIntegration(TestCase, TstHelpers):
                 self.salesforce.get_articles("online"),
                 fake_easydita.ditamap_A_V2_titles
                 + fake_easydita.ditamap_B_V3_titles
-                + fake_easydita.preloaded_article_titles,
             )
             for removed_article in to_be_removed_articles:
                 self.assertNotIn(
@@ -310,7 +307,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             self.assertEqual(len(sforg_article_list), len(Article.objects.all()))
             self.assertTitles(
                 sforg_article_list,
-                fake_easydita.ditamap_A_titles + fake_easydita.preloaded_article_titles,
+                fake_easydita.ditamap_A_titles,
             )
 
             # check that we created the right number of "NEW" status models in PG
@@ -325,7 +322,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             self.assertStringNotInArticles(settings.AWS_S3_DRAFT_IMG_DIR, "Online")
             self.assertTitles(
                 self.salesforce.get_articles("online"),
-                fake_easydita.ditamap_A_titles + fake_easydita.preloaded_article_titles,
+                fake_easydita.ditamap_A_titles,
             )
             self.assertNoImagesScheduledForDeletion()
 
@@ -348,7 +345,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
             self.assertTitles(
                 self.salesforce.get_articles("online"),
-                fake_easydita.ditamap_A_titles + fake_easydita.preloaded_article_titles,
+                fake_easydita.ditamap_A_titles,
             )
 
             self.assertStringNotInArticles(settings.AWS_S3_DRAFT_IMG_DIR, "Draft")
@@ -368,8 +365,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             self.assertTitles(
                 self.salesforce.get_articles("online"),
                 fake_easydita.ditamap_A_titles
-                + fake_easydita.ditamap_B_titles
-                + fake_easydita.preloaded_article_titles,
+                + fake_easydita.ditamap_B_titles,
             )
             # no articles should still be in draft
             self.assertEqual(self.salesforce.get_articles("draft"), [])
@@ -408,8 +404,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
         public_articles = self.salesforce.get_articles("online")
         expected_articles = (
-            fake_easydita.preloaded_article_titles
-            + fake_easydita.ditamap_A_V2_titles
+            fake_easydita.ditamap_A_V2_titles
             + fake_easydita.ditamap_B_titles
         )
 
