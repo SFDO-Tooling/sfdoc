@@ -517,6 +517,5 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         result2 = sf_docset_api.get_by_custom_id(
             settings.SALESFORCE_DOCSET_ID_FIELD, uuid
         )
-        print(result2)
         assert sf.sf_docset["Id"] == result2["Id"]
         sf_docset_api.delete(result["Id"])
