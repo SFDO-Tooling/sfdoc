@@ -19,8 +19,6 @@ from .models import Webhook
 from .salesforce import Salesforce
 from . import utils
 
-logger = None
-
 AWS_S3_PUBLISHED_HTML_REPOSITORY_URL = (
     f"s3://{settings.AWS_S3_BUCKET}/{settings.AWS_S3_PUBLISHED_HTML_REPOSITORY_DIR}"
 )
@@ -31,7 +29,10 @@ AWS_S3_DRAFT_HTML_REPOSITORY_URL = (
 
 
 def _download_and_unpack_easydita_bundle(bundle, path):
+    logger = get_logger(bundle)
+
     logger.info("Downloading easyDITA bundle from %s", bundle.url)
+    assert bundle.url.startswith("https://")
     auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
     response = requests.get(bundle.url, auth=auth)
     zip_file = BytesIO(response.content)
@@ -45,7 +46,6 @@ def _download_and_unpack_easydita_bundle(bundle, path):
 
 
 def _process_bundle(bundle, path, enforce_no_duplicates=True):
-    global logger
     logger = get_logger(bundle)
 
     # TODO remove
@@ -125,6 +125,7 @@ def _scrub_and_analyze_html(
 
 def create_drafts(bundle, html_files, path, salesforce, s3):
     # check all HTML files and create list of referenced image files
+    logger = get_logger(bundle)
     url_map = {}
     images = set([])
     article_image_map = {}
@@ -221,6 +222,7 @@ def _record_archivable_articles(salesforce, bundle, url_map):
 
 def _record_deletable_images(s3, root_path, images, bundle):
     # build list of images to delete
+    logger = get_logger(bundle)
     s3_prefix = Image.get_docset_s3_path(bundle.docset_id, draft=False)
     for obj in s3.iter_objects(s3_prefix):
         objkey = obj["Key"]
