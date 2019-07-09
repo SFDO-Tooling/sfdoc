@@ -87,7 +87,7 @@ def try_name_docset(docset, path):
 
 def _find_duplicate_urls(url_map):
     problems = []
-    if any(map(lambda x: len(x) > 1, url_map.values())):
+    if any(len(x) > 1 for x in url_map.values()):
         msg = "Found URL name duplicates:"
         for url_name in sorted(url_map.keys()):
             if len(url_map[url_name]) == 1:
