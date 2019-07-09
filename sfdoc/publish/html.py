@@ -7,6 +7,7 @@ from django.conf import settings
 from .exceptions import HtmlError
 from .utils import is_html
 from .utils import is_url_whitelisted
+from .utils import skip_html_file
 from . import utils
 from sfdoc.publish.models import Image
 
@@ -202,31 +203,19 @@ class HTML:
         return str(soup)
 
 
-def get_linked_files(htmlfilename):
-    """Find the files that are referenced from an HTML file"""
-    with open(htmlfilename) as f:
-        data = f.read()
-    soup = BeautifulSoup(data, 'html.parser')
-    return [link['href'] for link in soup('a') if ":" not in link['href']]
-
-
 def collect_html_paths(path, logger):
     """Collect the HTML files referenced by the top-level HTMLs in a directory"""
     html_files = set()
-    files_to_consider = os.listdir(path)
-    while files_to_consider:
-        filename = files_to_consider.pop()
-        full_filename = os.path.join(path, filename)
-        if is_html(full_filename):
-            if utils.skip_html_file(full_filename):
-                logger.info(
-                    "Skipping file: %s", full_filename.replace(path + os.sep, "")
-                )
-                continue
-            if full_filename in html_files:
-                continue
-            html_files.add(full_filename)
-            linked_files = get_linked_files(full_filename)
-            files_to_consider.extend(linked_files)
+    for dirpath, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            filename_full = os.path.join(dirpath, filename)
+            if is_html(filename):
+                if skip_html_file(filename):
+                    logger.info(
+                        'Skipping file: %s',
+                        filename_full.replace(path + os.sep, ''),
+                    )
+                    continue
+                html_files.add(filename_full)
 
     return html_files
