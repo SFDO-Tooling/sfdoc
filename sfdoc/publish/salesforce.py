@@ -66,30 +66,35 @@ class SalesforceArticles:
         )
         return sf
 
-    def archive(self, ka_id, kav_id, *, scorched_earth=False):
-        """Archive a published article.
+    def get_docsets(self):
+        query_str = f"SELECT {self.docset_uuid_join_field} FROM {settings.SALESFORCE_DOCSET_TYPE}"
+        return self.api.query(query_str)["records"]
 
-        Use the `scorched_earth` parameter if you want to
-        disable a double-check that the article is in a specific
-        docset.
-        """
-        if not (self.docset_scoped or scorched_earth):
-            raise AssertionError("No docset supplied for archive!")
+    def archive(self, ka_id, kav_id):
+        """Archive a published article."""
+        # This code has not been updated to enforce the docset-scoping
+        # because whatever code queried the ka_id and kav_id should have
+        # been appropriately scoped. Double-checking here would require
+        # extra joins (for the KA) queries and joins (for the KAV).
+        # Beyond being extra new code to test, it will slow down the 
+        # already slow integration tests
+
+        article = self.query_articles([self.docset_uuid_join_field],
+                                      {"Id": kav_id})[0]
+
+        docset_id = article[self.docset_relation][settings.SALESFORCE_DOCSET_ID_FIELD]
+        assert docset_id == self.docset_uuid
 
         # delete draft if it exists
-        result = self.query_articles(["Id", self.docset_relation],
-                                     {
-                                        "PublishStatus": "draft",
-                                        "language": "en_US"
-                                     })
-
-        # the old code was looking for 0 or 1 record. Not sure why greater
-        # numbers can be ignored.
-        if len(result) == 1:
-            if (result['records'][0][settings.SALESFORCE_DOCSET_ID_FIELD] != self.docset_uuid
-               and not scorched_earth):
-                # This is a double-check
-                raise AssertionError("Record to be deleted does not match self.docset_uuid!")
+        query_str = (
+            "SELECT Id FROM {} WHERE KnowledgeArticleId='{}' "
+            "AND PublishStatus='draft' AND language='en_US'"
+        ).format(
+            settings.SALESFORCE_ARTICLE_TYPE,
+            ka_id,
+        )
+        result = self.api.query(query_str)
+        if result['totalSize'] > 0:
             self.delete(result['records'][0]['Id'])
         # archive published version
         self.set_publish_status(kav_id, 'archived')
@@ -168,18 +173,19 @@ class SalesforceArticles:
     def get_articles(self, publish_status):
         """Get all article versions with a given publish status."""
         return self.query_articles(
-            ["Id", "KnowledgeArticleId", "Title", "UrlName"],
+            ["Id", "KnowledgeArticleId", "Title", "UrlName", self.docset_uuid_join_field],
             {"PublishStatus": publish_status, "language": 'en_US'}
         )
 
-    def query_articles(self, fields, filters={}, *, include_wrapper=False):
+    def query_articles(self, fields, filters={}, *, include_wrapper=False,
+                       object_type=settings.SALESFORCE_ARTICLE_TYPE):
         query_str = "SELECT "
         query_str += ",".join(fields)
         query_str += " FROM "
-        query_str += settings.SALESFORCE_ARTICLE_TYPE
+        query_str += object_type
 
         if self.docset_scoped:
-            filters[self.docset_uuid_join] = self.docset_uuid
+            filters[self.docset_uuid_join_field] = self.docset_uuid
 
         if filters:
             query_str += " WHERE "
@@ -202,8 +208,7 @@ class SalesforceArticles:
         return settings.SALESFORCE_DOCSET_TYPE.replace("__c", "__r")
 
     @property
-    def docset_uuid_join(self):
-        
+    def docset_uuid_join_field(self):
         return f"{self.docset_relation}.{settings.SALESFORCE_DOCSET_ID_FIELD}"
 
     def get_base_url(self):

@@ -5,6 +5,7 @@ import shutil
 import urllib.request
 from unittest import skipUnless
 from unittest.mock import patch
+
 from . import utils
 
 import boto3
@@ -74,12 +75,19 @@ class TstHelpers:  # named to avoid confusing pytest
         """Delete all knowledge articles"""
         self.salesforce = SalesforceArticles(SalesforceArticles.ALL_DOCSETS)
         all_articles = self.salesforce.get_articles("Online")
+        sfapis = {}
         for article in all_articles:
-            self.salesforce.archive(article["KnowledgeArticleId"], article["Id"], scorched_earth=True)
+            docset_id = article[self.salesforce.docset_relation][settings.SALESFORCE_DOCSET_ID_FIELD]
+            sfapi = sfapis.get(docset_id) or sfapis.setdefault(docset_id, SalesforceArticles(docset_id))
+
+            sfapi.archive(article["KnowledgeArticleId"], article["Id"])
 
         all_articles = self.salesforce.get_articles("Draft")
         for article in all_articles:
             self.salesforce.delete(article["Id"])
+        
+        assert not self.salesforce.get_articles("Online")
+        assert not self.salesforce.get_articles("Draft")
 
     def clearLocalCache(self):
         """Delete things from the local cache"""
