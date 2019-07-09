@@ -14,8 +14,10 @@ from sfdoc.publish.models import Image
 class HTML:
     """Article HTML utility class."""
 
-    def __init__(self, html, htmlpath, rootpath):
+    def __init__(self, htmlpath, rootpath):
         """Parse article fields from HTML."""
+        with open(htmlpath, "r") as f:
+            html = f.read()
         soup = BeautifulSoup(html, 'html.parser')
 
         self.htmlpath = htmlpath

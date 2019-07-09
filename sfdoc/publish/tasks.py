@@ -19,6 +19,7 @@ from .models import Webhook
 from .salesforce import Salesforce
 from . import utils
 
+
 def _download_and_unpack_easydita_bundle(bundle, path):
     logger = get_logger(bundle)
 
@@ -68,9 +69,7 @@ def try_name_docset(docset, path):
         html_files = [filename for filename in filenames if ".htm" in filename]
         if html_files:
             index_file = os.path.join(path, html_files[0])
-            with open(index_file, "r") as f:
-                markup = f.read()
-            html = HTML(markup, index_file, path)
+            html = HTML(index_file, path)
             docset.name = html.create_article_data()['Title']
             docset.save()
             return
@@ -93,10 +92,7 @@ def _find_duplicate_urls(url_map):
 def _scrub_and_analyze_html(
     html_file, path, article_image_map, images, url_map, problems
 ):
-    with open(html_file) as f:
-        html_raw = f.read()
-
-    html = HTML(html_raw, html_file, path)
+    html = HTML(html_file, path)
 
     scrub_problems = html.scrub()
     if scrub_problems:
@@ -155,9 +151,7 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
             len(html_files),
             html_file.replace(path + os.sep, ""),
         )
-        with open(html_file) as f:
-            html_raw = f.read()
-        html = HTML(html_raw, html_file, path)
+        html = HTML(html_file, path)
         salesforce.process_draft(html, bundle)
     # process images
     for n, image in enumerate(images, start=1):
@@ -191,6 +185,7 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
     # finish
     bundle.status = bundle.STATUS_DRAFT
     bundle.save()
+
 
 def _record_archivable_articles(salesforce, bundle, url_map):
     # build list of published articles to archive
@@ -256,6 +251,7 @@ def _publish_drafts(bundle):
     for n, image in enumerate(images.all(), start=1):
         logger.info("Deleting image %d of %d: %s", n, N, image.filename)
         s3.delete(image.filename, draft=False)
+
 
 @job("default", timeout=600)
 def process_bundle(bundle_pk, enforce_no_duplicates=True):

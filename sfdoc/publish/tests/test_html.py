@@ -1,11 +1,14 @@
+import os
+import logging
+from io import StringIO
+from unittest.mock import patch
+
 from test_plus.test import TestCase
 from django.test import override_settings
 
 from ..html import HTML, collect_html_paths
 
 from . import utils
-import os
-import logging
 
 rootdir = os.path.abspath(os.path.join(__file__, "../../../.."))
 
@@ -21,8 +24,12 @@ class TestHTML(TestCase):
             self.article['body'],
         )
 
+    def html(self, markup):
+        with patch("builtins.open", new=lambda *args: StringIO(markup)):
+            return HTML("foo.html", "/some/path")
+
     def test_init(self):
-        html = HTML(self.html_s, "", "")
+        html = self.html(self.html_s)
         self.assertEqual(html.url_name, self.article['url_name'])
         self.assertEqual(html.title, self.article['title'])
         self.assertEqual(html.summary, self.article['summary'])
@@ -41,7 +48,8 @@ class TestHTML(TestCase):
             '<a href="Product_Docs/V4S/topics/Test-Path.html">test</a>\n'
             '<a href="Product_Docs/V4S/topics/Test-Path2.html#foo">test</a>\n',
         )
-        html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
+        
+        html = self.html(source)
 
         html.update_links_draft("some-uuid")
 
@@ -59,7 +67,7 @@ class TestHTML(TestCase):
             'This is a test summary',
             self.generate_links(3),
         )
-        html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
+        html = self.html(source)
         html.update_links_draft('uuid', 'https://powerofus.force.com')
 
         self.assertNotIn('https://powerofus.force.com', html.body)
@@ -73,7 +81,7 @@ class TestHTML(TestCase):
             self.generate_links(10),
         )
 
-        html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
+        html = self.html(source)
 
         html.update_links_draft('uuid', 'https://powerofus.force.com')
 
@@ -87,7 +95,7 @@ class TestHTML(TestCase):
             'This is a test summary',
             self.generate_links(11),
         )
-        html = HTML(source, "/tmp/something/something/foo.html", "/tmp/something/")
+        html = self.html(source)
 
         html.update_links_draft('uuid', 'https://powerofus.force.com')
 
