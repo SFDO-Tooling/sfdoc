@@ -89,11 +89,11 @@ def _find_duplicate_urls(url_map):
     problems = []
     if any(len(x) > 1 for x in url_map.values()):
         msg = "Found URL name duplicates:"
-        for url_name in sorted(url_map.keys()):
+        for url_name, html_files in sorted(url_map.items()):
             if len(url_map[url_name]) == 1:
                 continue
             msg += "\n{}".format(url_name)
-            for html_file in sorted(url_map[url_name]):
+            for html_file in sorted(html_files):
                 msg += "\n\t{}".format(html_file)
         problems.append(msg)
     return problems
