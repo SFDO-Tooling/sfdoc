@@ -8,8 +8,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import environ
-import os
-import tempfile
 
 ROOT_DIR = environ.Path(__file__) - 3  # (sfdoc/config/settings/base.py - 3 = sfdoc/)
 APPS_DIR = ROOT_DIR.path("sfdoc")
@@ -98,7 +96,7 @@ EMAIL_BACKEND = env(
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = [("""Chris Polcyn""", "cpolcyn@salesforce.com")]
+ADMINS = [("""Paul Prescod""", "pprescod@salesforce.com")]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
