@@ -156,7 +156,7 @@ class HTML:
         scrub_tree(soup)
         return problems
 
-    def update_links_draft(self, docset_id, base_url=''):
+    def update_links_draft(self, docset_id, base_url=""):
         """Update links to draft location."""
         soup = BeautifulSoup(self.body, 'html.parser')
 
@@ -174,10 +174,10 @@ class HTML:
                 article_link_count += 1
         for img in soup('img'):
             htmldir = os.path.dirname(self.htmlpath)
-            abspath_for_img = os.path.abspath(os.path.join(htmldir, img['src']))
+            abspath_for_img = os.path.abspath(os.path.join(htmldir, img["src"]))
             assert os.path.exists(abspath_for_img), abspath_for_img
             relname = utils.bundle_relative_path(self.rootpath, abspath_for_img)
-            img['src'] = Image.get_url(docset_id, relname, draft=True)
+            img["src"] = Image.get_url(docset_id, relname, draft=True)
         self.body = str(soup)
 
     def update_href(self, parsed_url, base_url):
@@ -199,7 +199,7 @@ class HTML:
         soup = BeautifulSoup(html, 'html.parser')
 
         for img in soup('img'):
-            img['src'] = Image.draft_url_or_path_to_public(img['src'])
+            img["src"] = Image.draft_url_or_path_to_public(img["src"])
         return str(soup)
 
 
@@ -212,8 +212,8 @@ def collect_html_paths(path, logger):
             if is_html(filename):
                 if skip_html_file(filename):
                     logger.info(
-                        'Skipping file: %s',
-                        filename_full.replace(path + os.sep, ''),
+                        "Skipping file: %s",
+                        filename_full.replace(path + os.sep, ""),
                     )
                     continue
                 html_files.add(filename_full)
