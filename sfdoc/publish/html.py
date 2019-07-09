@@ -128,15 +128,10 @@ class HTML:
             record['Summary'],
         )
         rc = rc and same(
-            self.hack_remove_me_images_hack(self.update_links_production(self.body).strip()),
-            self.hack_remove_me_images_hack(record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip()),
+            self.update_links_production(self.body).strip(),
+            record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip(),
         )
         return rc
-
-    def hack_remove_me_images_hack(self, data):
-        """Hack to be removed beore creating PULL REQUEST"""  # TODO: Remove me
-        import re
-        return re.sub("src=.*?>", "", data)
 
     def scrub(self):
         """Scrub article body using whitelists for tags/attributes and links."""
