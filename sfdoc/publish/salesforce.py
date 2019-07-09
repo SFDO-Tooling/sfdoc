@@ -20,13 +20,13 @@ from logging import getLogger
 query_logger = getLogger("query_str")
 
 
-class Salesforce:
-    """Interact with a Salesforce org."""
+class SalesforceArticles:
+    """A docset-scoped or unscoped view of Salesforce Knowledge articles"""
 
-    ALL_DOCSETS = ("#ALL",)
+    ALL_DOCSETS = ("#ALL",)  # token to represent a view that is not filtered by docset
 
     def __init__(self, docset_uuid):
-        """Create a docset-scoped view of Salesforce"""
+        """Create a docset-scoped or unscoped view of Salesforce Knowledge articles"""
         self.api = self._get_salesforce_api()
         self.docset_uuid = docset_uuid
         self._sf_docset = None

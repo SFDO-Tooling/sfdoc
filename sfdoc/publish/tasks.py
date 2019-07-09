@@ -16,7 +16,7 @@ from .models import Article
 from .models import Bundle
 from .models import Image
 from .models import Webhook
-from .salesforce import Salesforce
+from .salesforce import SalesforceArticles
 from . import utils
 
 
@@ -43,7 +43,7 @@ def _process_bundle(bundle, path, enforce_no_duplicates=True):
     # TODO remove
     logger.setLevel("INFO")
     # get APIs
-    salesforce = Salesforce(bundle.docset_id)
+    salesforce = SalesforceArticles(bundle.docset_id)
     s3 = S3(bundle)
 
     s3.delete_draft_images()
@@ -223,7 +223,7 @@ def _record_deletable_images(s3, root_path, images, bundle):
 
 def _publish_drafts(bundle):
     logger = get_logger(bundle)
-    salesforce = Salesforce(bundle.docset_id)
+    salesforce = SalesforceArticles(bundle.docset_id)
     s3 = S3(bundle)
     # publish articles
     articles = bundle.articles.filter(

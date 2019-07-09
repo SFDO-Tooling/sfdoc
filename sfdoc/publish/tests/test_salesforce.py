@@ -7,7 +7,7 @@ from django.test import override_settings
 import responses
 from test_plus.test import TestCase
 
-from ..salesforce import Salesforce
+from ..salesforce import SalesforceArticles
 
 
 def get_salesforce_instance(instance_url, sandbox):
@@ -20,10 +20,10 @@ def get_salesforce_instance(instance_url, sandbox):
         'access_token': 'abc123',
     }
     responses.add('POST', url=url, json=json)
-    return Salesforce("pretend_UUID")
+    return SalesforceArticles("pretend_UUID")
 
 
-class TestSalesforce(TestCase):
+class TestSalesforceArticles(TestCase):
 
     @responses.activate
     @override_settings(SALESFORCE_SANDBOX=True)

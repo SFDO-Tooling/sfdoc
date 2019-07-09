@@ -16,7 +16,7 @@ from simple_salesforce.exceptions import SalesforceResourceNotFound
 
 from sfdoc.publish import tasks
 from sfdoc.publish.models import Article, Webhook, Image
-from sfdoc.publish.salesforce import Salesforce
+from sfdoc.publish.salesforce import SalesforceArticles
 from sfdoc.users.models import User
 
 from . import fake_easydita
@@ -70,9 +70,9 @@ class TstHelpers:  # named to avoid confusing pytest
             + "You must authorize those with the OKAY_TO_DELETE_SALESFORCE_KNOWLEDGE_ARTICLES envvar"
         )
 
-    def clearSalesforce(self):
+    def clearSalesforceArticles(self):
         """Delete all knowledge articles"""
-        self.salesforce = Salesforce(Salesforce.ALL_DOCSETS)
+        self.salesforce = SalesforceArticles(SalesforceArticles.ALL_DOCSETS)
         all_articles = self.salesforce.get_articles("Online")
         for article in all_articles:
             self.salesforce.archive(article["KnowledgeArticleId"], article["Id"], scorched_earth=True)
@@ -198,7 +198,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         )
 
         self.bucket = self.s3.Bucket(settings.AWS_S3_BUCKET)
-        self.clearSalesforce()
+        self.clearSalesforceArticles()
         self.clearS3()
         self.clearLocalCache()
 
@@ -493,7 +493,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
     def test_ensure_sf_docset_exists(self):
         uuid = "0000-0000-0000-0000"
 
-        sf = Salesforce(uuid)
+        sf = SalesforceArticles(uuid)
 
         sf_docset_api = getattr(sf.api, settings.SALESFORCE_DOCSET_TYPE)
 
@@ -510,7 +510,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         except SalesforceResourceNotFound:
             pass
 
-        sf = Salesforce(uuid)
+        sf = SalesforceArticles(uuid)
         result = sf.sf_docset
         assert result[settings.SALESFORCE_DOCSET_STATUS_FIELD] == "Inactive"
 
