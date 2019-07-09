@@ -37,11 +37,9 @@ def _download_and_unpack_easydita_bundle(bundle, path):
         assert os.path.exists(os.path.join(path, "log.txt"))
 
 
-def _process_bundle(bundle, path, enforce_no_duplicates=True):
+def _process_bundle(bundle, path):
     logger = get_logger(bundle)
 
-    # TODO remove
-    logger.setLevel("INFO")
     # get APIs
     salesforce = SalesforceArticles(bundle.docset_id)
     s3 = S3(bundle)
@@ -254,7 +252,7 @@ def _publish_drafts(bundle):
 
 
 @job("default", timeout=600)
-def process_bundle(bundle_pk, enforce_no_duplicates=True):
+def process_bundle(bundle_pk):
     """
     Get the bundle from easyDITA and process the contents.
     HTML files are checked for issues first, then uploaded as drafts.
@@ -272,7 +270,7 @@ def process_bundle(bundle_pk, enforce_no_duplicates=True):
     with TemporaryDirectory(f"bundle_{bundle.pk}") as tempdir:
         try:
             _process_bundle(
-                bundle, tempdir, enforce_no_duplicates=enforce_no_duplicates
+                bundle, tempdir
             )
         except Exception as e:
             bundle.set_error(e)
