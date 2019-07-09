@@ -96,7 +96,7 @@ EMAIL_BACKEND = env(
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = [("""Paul Prescod""", "pprescod@salesforce.com")]
+ADMINS = [("Paul Prescod", "pprescod@salesforce.com")]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
