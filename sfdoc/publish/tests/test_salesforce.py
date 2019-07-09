@@ -20,7 +20,7 @@ def get_salesforce_instance(instance_url, sandbox):
         'access_token': 'abc123',
     }
     responses.add('POST', url=url, json=json)
-    return Salesforce("XXXX")
+    return Salesforce("pretend_UUID")
 
 
 class TestSalesforce(TestCase):
