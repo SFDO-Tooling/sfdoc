@@ -155,17 +155,23 @@ class SalesforceArticles:
 
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
-        result = self.query_articles(["Id", "KnowledgeArticleId"],
-                                     {"Id": kav_id, "PublishStatus": publish_status,
-                                      "language": "en_US"},
-                                     include_wrapper=True)
+        try:
+            matching = [article for article in self._article_info_cache if
+                        article["Id"] == kav_id 
+                        and article["PublishStaths"].lower() == publish_status.lower()]
+            return matching[0]["KnowledgeArticleId"]
+        except Exception:
+            result = self.query_articles(["Id", "KnowledgeArticleId"],
+                                         {"Id": kav_id, "PublishStatus": publish_status,
+                                         "language": "en_US"},
+                                         include_wrapper=True)
 
-        if result['totalSize'] == 0:
-            raise SalesforceError(
-                'KnowledgeArticleVersion {} not found'.format(kav_id)
-            )
-        elif result['totalSize'] == 1:  # can only be 0 or 1
-            return result['records'][0]['KnowledgeArticleId']
+            if result['totalSize'] == 0:
+                raise SalesforceError(
+                    'KnowledgeArticleVersion {} not found'.format(kav_id)
+                )
+            elif result['totalSize'] == 1:  # can only be 0 or 1
+                return result['records'][0]['KnowledgeArticleId']
 
     def get_articles(self, publish_status):
         """Get all article versions with a given publish status."""
@@ -316,11 +322,10 @@ class SalesforceArticles:
         kav_api.update(kav_id, data)
         self.set_publish_status(kav_id, 'online')
 
-    def find_articles_by_name_new(self, url_name, publish_status):
+    def find_articles_by_name(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
         return [article for article in self.article_info_cache if article["UrlName"] == url_name and 
                 article["PublishStatus"].lower() == publish_status.lower()]
-        
 
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
