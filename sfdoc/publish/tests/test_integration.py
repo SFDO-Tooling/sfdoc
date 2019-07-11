@@ -503,7 +503,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
         sf = SalesforceArticles(uuid)
 
-        sf_docset_api = getattr(sf.api, settings.SALESFORCE_DOCSET_TYPE)
+        sf_docset_api = getattr(sf.api, settings.SALESFORCE_DOCSET_SOBJECT)
 
         try:
             result = sf_docset_api.get_by_custom_id(

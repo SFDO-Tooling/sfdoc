@@ -67,7 +67,7 @@ class SalesforceArticles:
         return sf
 
     def get_docsets(self):
-        query_str = f"SELECT {self.docset_uuid_join_field} FROM {settings.SALESFORCE_DOCSET_TYPE}"
+        query_str = f"SELECT {self.docset_uuid_join_field} FROM {settings.SALESFORCE_DOCSET_SOBJECT}"
         return self.api.query(query_str)["records"]
 
     def archive(self, ka_id, kav_id):
@@ -92,7 +92,7 @@ class SalesforceArticles:
         self.set_publish_status(kav_id, 'archived')
 
     def _ensure_sf_docset_object_exists(self):
-        sf_docset_api = getattr(self.api, settings.SALESFORCE_DOCSET_TYPE)
+        sf_docset_api = getattr(self.api, settings.SALESFORCE_DOCSET_SOBJECT)
 
         try:
             self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_uuid)
@@ -197,7 +197,7 @@ class SalesforceArticles:
 
     @property
     def docset_relation(self):
-        return settings.SALESFORCE_DOCSET_TYPE.replace("__c", "__r")
+        return settings.SALESFORCE_DOCSET_SOBJECT.replace("__c", "__r")
 
     @property
     def docset_uuid_join_field(self):
