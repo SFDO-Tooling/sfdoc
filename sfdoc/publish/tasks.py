@@ -42,7 +42,7 @@ def _process_bundle(bundle, path):
     logger = get_logger(bundle)
 
     # get APIs
-    salesforce = SalesforceArticles(bundle.docset_id)
+    salesforce_docset = SalesforceArticles(bundle.docset_id)
     s3 = S3(bundle)
 
     s3.delete_draft_images()
@@ -61,7 +61,7 @@ def _process_bundle(bundle, path):
     # collect paths to all HTML files
     html_files = collect_html_paths(path, logger)
 
-    create_drafts(bundle, html_files, path, salesforce, s3)
+    create_drafts(bundle, html_files, path, salesforce_docset, s3)
 
 
 def try_name_docset(docset, path):
@@ -111,7 +111,7 @@ def _scrub_and_analyze_html(
     url_map[url_name].append(html_file)
 
 
-def create_drafts(bundle, html_files, path, salesforce, s3):
+def create_drafts(bundle, html_files, path, salesforce_docset, s3):
     # check all HTML files and create list of referenced image files
     logger = get_logger(bundle)
     url_map = {}
@@ -138,7 +138,7 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
     if problems:
         raise SfdocError(repr(problems))
 
-    _record_archivable_articles(salesforce, bundle, url_map)
+    _record_archivable_articles(salesforce_docset, bundle, url_map)
 
     _record_deletable_images(s3, path, images, bundle)
 
@@ -152,7 +152,7 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
             html_file.replace(path + os.sep, ''),
         )
         html = HTML(html_file, path)
-        salesforce.process_draft(html, bundle)
+        salesforce_docset.process_draft(html, bundle)
     # process images
     for n, image in enumerate(images, start=1):
         logger.info('Processing image file %d of %d: %s',
@@ -189,9 +189,9 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
     bundle.save()
 
 
-def _record_archivable_articles(docset_scoped_salesforce, bundle, url_map):
+def _record_archivable_articles(salesforce_docset, bundle, url_map):
     # build list of published articles to archive
-    for article in docset_scoped_salesforce.get_articles("online"):
+    for article in salesforce_docset.get_articles("online"):
         if article["UrlName"].lower() not in url_map:
             Article.objects.create(
                 bundle=bundle,
@@ -200,7 +200,7 @@ def _record_archivable_articles(docset_scoped_salesforce, bundle, url_map):
                 status=Article.STATUS_DELETED,
                 title=article["Title"],
                 url_name=article["UrlName"],
-                preview_url=docset_scoped_salesforce.get_preview_url(
+                preview_url=salesforce_docset.get_preview_url(
                     article["KnowledgeArticleId"], online=True
                 ),
             )
@@ -225,7 +225,7 @@ def _record_deletable_images(s3, root_path, images, bundle):
 
 def _publish_drafts(bundle):
     logger = get_logger(bundle)
-    salesforce = SalesforceArticles(bundle.docset_id)
+    salesforce_docset = SalesforceArticles(bundle.docset_id)
     s3 = S3(bundle)
     # publish articles
     articles = bundle.articles.filter(status__in=[
@@ -235,7 +235,7 @@ def _publish_drafts(bundle):
     N = articles.count()
     for n, article in enumerate(articles.all(), start=1):
         logger.info('Publishing article %d of %d: %s', n, N, article)
-        salesforce.publish_draft(article.kav_id)
+        salesforce_docset.publish_draft(article.kav_id)
     # publish images
     images = bundle.images.filter(status__in=[
         Image.STATUS_NEW,
@@ -250,7 +250,7 @@ def _publish_drafts(bundle):
     N = articles.count()
     for n, article in enumerate(articles.all(), start=1):
         logger.info('Archiving article %d of %d: %s', n, N, article)
-        salesforce.archive(article.ka_id, article.kav_id)
+        salesforce_docset.archive(article.ka_id, article.kav_id)
     # delete images
     images = bundle.images.filter(status=Image.STATUS_DELETED)
     N = images.count()

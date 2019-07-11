@@ -520,7 +520,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
         sf = SalesforceArticles(uuid)
         result = sf.sf_docset
-        assert result[settings.SALESFORCE_DOCSET_STATUS_FIELD] == "Inactive"
+        assert result[settings.SALESFORCE_DOCSET_STATUS_FIELD] == settings.SALESFORCE_DOCSET_STATUS_INACTIVE
 
         result2 = sf_docset_api.get_by_custom_id(
             settings.SALESFORCE_DOCSET_ID_FIELD, uuid

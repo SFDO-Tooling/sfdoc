@@ -98,7 +98,7 @@ class SalesforceArticles:
             self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_uuid)
         except SimpleSalesforceExceptions.SalesforceResourceNotFound:
             data = {settings.SALESFORCE_DOCSET_ID_FIELD: self.docset_uuid,
-                    settings.SALESFORCE_DOCSET_STATUS_FIELD: 'Inactive'
+                    settings.SALESFORCE_DOCSET_STATUS_FIELD: settings.SALESFORCE_DOCSET_STATUS_INACTIVE
                     }
             sf_docset_api.create(data)
             self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_uuid)
