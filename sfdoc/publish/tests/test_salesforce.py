@@ -29,6 +29,7 @@ class TestSalesforceArticles(TestCase):
     @override_settings(SALESFORCE_SANDBOX=True)
     def test_init_sandbox(self):
         """Get API to a Salesforce sandbox org."""
+        SalesforceArticles.api = None  # clear connection cache
         get_salesforce_instance(
             'https://testinstance.salesforce.com',
             settings.SALESFORCE_SANDBOX,
@@ -39,6 +40,7 @@ class TestSalesforceArticles(TestCase):
     @override_settings(SALESFORCE_SANDBOX=False)
     def test_init_prod(self):
         """Get API to a Salesforce production org."""
+        SalesforceArticles.api = None  # clear connection cache
         get_salesforce_instance(
             'https://testinstance.salesforce.com',
             settings.SALESFORCE_SANDBOX,
