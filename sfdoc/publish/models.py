@@ -175,6 +175,18 @@ class Image(models.Model):
 
         return f"{images_root_url}{(Image.get_storage_path(docset_id, imagepath, draft))}"
 
+    # Draft images are located in settings.AWS_S3_DRAFT_IMG_DIR
+    # Production images are located in settings.AWS_S3_PUBLIC_IMG_DIR
+    @staticmethod
+    def draft_url_or_path_to_public(draft_storage_path):
+        return draft_storage_path.replace(settings.AWS_S3_DRAFT_IMG_DIR,
+                                          settings.AWS_S3_PUBLIC_IMG_DIR)
+
+    @staticmethod
+    def public_url_or_path_to_draft(draft_storage_path):
+        return draft_storage_path.replace(settings.AWS_S3_PUBLIC_IMG_DIR,
+                                          settings.AWS_S3_DRAFT_IMG_DIR)
+
     def _get_url(self, draft):
         return Image.get_url(self.docset_id, self.filename, draft)
 
@@ -198,17 +210,6 @@ class Image(models.Model):
     def docset_id(self):
         return self.bundle.docset_id
 
-    # Draft images are located in settings.AWS_S3_DRAFT_IMG_DIR
-    # Production images are located in settings.AWS_S3_PUBLIC_IMG_DIR
-    @staticmethod
-    def draft_url_or_path_to_public(draft_storage_path):
-        return draft_storage_path.replace(settings.AWS_S3_DRAFT_IMG_DIR,
-                                          settings.AWS_S3_PUBLIC_IMG_DIR)
-
-    @staticmethod
-    def public_url_or_path_to_draft(draft_storage_path):
-        return draft_storage_path.replace(settings.AWS_S3_PUBLIC_IMG_DIR,
-                                          settings.AWS_S3_DRAFT_IMG_DIR)
 
 
 class Log(models.Model):
