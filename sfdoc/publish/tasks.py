@@ -189,9 +189,9 @@ def create_drafts(bundle, html_files, path, salesforce, s3):
     bundle.save()
 
 
-def _record_archivable_articles(salesforce, bundle, url_map):
+def _record_archivable_articles(docset_scoped_salesforce, bundle, url_map):
     # build list of published articles to archive
-    for article in salesforce.get_articles("online"):
+    for article in docset_scoped_salesforce.get_articles("online"):
         if article["UrlName"].lower() not in url_map:
             Article.objects.create(
                 bundle=bundle,
@@ -200,7 +200,7 @@ def _record_archivable_articles(salesforce, bundle, url_map):
                 status=Article.STATUS_DELETED,
                 title=article["Title"],
                 url_name=article["UrlName"],
-                preview_url=salesforce.get_preview_url(
+                preview_url=docset_scoped_salesforce.get_preview_url(
                     article["KnowledgeArticleId"], online=True
                 ),
             )
