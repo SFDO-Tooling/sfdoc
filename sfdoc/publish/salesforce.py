@@ -24,7 +24,9 @@ class SalesforceArticles:
     """A docset-scoped or unscoped view of Salesforce Knowledge articles"""
 
     ALL_DOCSETS = ("#ALL",)  # token to represent a view that is not filtered by docset
-    api = None     # class variable
+    # class variables
+    api = None
+    _article_info_cache = {}
 
     def __init__(self, docset_uuid):
         """Create a docset-scoped or unscoped view of Salesforce Knowledge articles"""
@@ -32,7 +34,6 @@ class SalesforceArticles:
             self._get_salesforce_api()
         self.docset_uuid = docset_uuid
         self._sf_docset = None
-        self._article_info_cache = None
 
     @classmethod
     def _get_salesforce_api(cls):
@@ -126,6 +127,7 @@ class SalesforceArticles:
 
     def create_draft(self, ka_id):
         """Create a draft copy of a published article."""
+        self.invalidate_cache()
         url = (
             self.api.base_url +
             'knowledgeManagement/articleVersions/masterVersions'
@@ -138,11 +140,11 @@ class SalesforceArticles:
             ).format(ka_id))
             raise(e)
         kav_id = result.json()['id']
-        self._article_info_cache = None
         return kav_id
 
     def delete(self, kav_id):
         """Delete a KnowledgeArticleVersion."""
+        self.invalidate_cache()
         url = (
             self.api.base_url +
             'knowledgeManagement/articleVersions/masterVersions/{}'
@@ -156,10 +158,8 @@ class SalesforceArticles:
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
         try:
-            matching = [article for article in self._article_info_cache if
-                        article["Id"] == kav_id 
-                        and article["PublishStaths"].lower() == publish_status.lower()]
-            return matching[0]["KnowledgeArticleId"]
+            kav = self.get_by_kav_id(kav_id)
+            return kav["KnowledgeArticleId"]
         except Exception:
             result = self.query_articles(["Id", "KnowledgeArticleId"],
                                          {"Id": kav_id, "PublishStatus": publish_status,
@@ -175,10 +175,7 @@ class SalesforceArticles:
 
     def get_articles(self, publish_status):
         """Get all article versions with a given publish status."""
-        return self.query_articles(
-            ["Id", "KnowledgeArticleId", "Title", "UrlName", self.docset_uuid_join_field],
-            {"PublishStatus": publish_status, "language": 'en_US'}
-        )
+        return [article for article in self.article_info_cache(publish_status)]
 
     def query_articles(self, fields, filters={}, *, include_wrapper=False,
                        object_type=settings.SALESFORCE_ARTICLE_TYPE):
@@ -292,17 +289,28 @@ class SalesforceArticles:
 
         self.save_article(kav_id, html, bundle, status)
 
-    @property
-    def article_info_cache(self):
-        if not self._article_info_cache:
-            self._article_info_cache = self.query_articles(
+    #  As with all caches, be careful with this one.
+    #  Several things have bitten me with it already.
+    #  1. You MUST specify a publish_status in the query. Draft records go missing if you don't.
+    #  2. If you don't manage it as a class variable, you could get two different out-of-sync views of the data.
+    #  3. If the data changes remotely while you have an open Salesforce docset view, you're hooped, obviously.
+    def article_info_cache(self, publish_status):
+        publish_status = publish_status.lower()
+        key = (self.docset_uuid, publish_status)
+        if not self._article_info_cache.get(key):
+            self._article_info_cache[key] = self.query_articles(
                         ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
-                            "IsVisibleInPkb", "IsVisibleInPrm", "PublishStatus", "UrlName",
+                            "IsVisibleInPkb", "IsVisibleInPrm", "UrlName","PublishStatus",
                             settings.SALESFORCE_ARTICLE_BODY_FIELD,
                             settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
-                            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD],
-                        {"language": "en_US"})
-        return self._article_info_cache
+                            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
+                            self.docset_uuid_join_field],
+                        {"language": "en_US", "PublishStatus": publish_status})
+        return self._article_info_cache[key]
+
+    @classmethod
+    def invalidate_cache(cls):
+        cls._article_info_cache = {}
 
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
@@ -324,8 +332,7 @@ class SalesforceArticles:
 
     def find_articles_by_name(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
-        return [article for article in self.article_info_cache if article["UrlName"] == url_name and 
-                article["PublishStatus"].lower() == publish_status.lower()]
+        return [article for article in self.article_info_cache(publish_status) if article["UrlName"] == url_name]
 
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
@@ -346,7 +353,7 @@ class SalesforceArticles:
             'knowledgeManagement/articleVersions/masterVersions/{}'
         ).format(kav_id)
         data = {'publishStatus': status}
-        self._article_info_cache = None
+        self.invalidate_cache()
         result = self.api._call_salesforce('PATCH', url, json=data)
         if result.status_code != HTTPStatus.NO_CONTENT:
             raise SalesforceError((
@@ -355,6 +362,7 @@ class SalesforceArticles:
 
     def update_draft(self, kav_id, html):
         """Update the fields of an existing draft."""
+        self.invalidate_cache()
         assert self.docset_scoped, "Need docset scoping to write safely"
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         data = html.create_article_data()
