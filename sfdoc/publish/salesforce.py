@@ -252,25 +252,25 @@ class SalesforceArticles:
         result_draft = self.find_articles_by_name(html.url_name, 'draft')
         result_online = self.find_articles_by_name(html.url_name, 'online')
 
-        if result_draft['totalSize'] == 1:
+        if len(result_draft) == 1:
             # draft exists, update fields
-            kav_id = result_draft['records'][0]['Id']
+            kav_id = result_draft[0]['Id']
             self.update_draft(kav_id, html)
-            if result_online['totalSize'] == 1:
+            if len(result_online) == 1:
                 # published version exists
                 status = Article.STATUS_CHANGED
             else:
                 # not published
                 status = Article.STATUS_NEW
             logger.info("Draft updated with DB status %s, %s", status, html.url_name)
-        elif result_online['totalSize'] == 0:
+        elif len(result_online) == 0:
             # new draft, new article
             kav_id = self.create_article(html)
             status = Article.STATUS_NEW
             logger.info("Draft created with DB status %s, %s", status, html.url_name)
-        elif result_online['totalSize'] == 1:
+        elif len(result_online) == 1:
             # new draft of existing article
-            record = result_online['records'][0]
+            record = result_online[0]
             # check for changes in article fields
             if html.same_as_record(record):
                 # no update
@@ -304,14 +304,14 @@ class SalesforceArticles:
 
     def find_articles_by_name(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
-        return self.query_articles(
+        rc = self.query_articles(
                                    ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
                                     "IsVisibleInPkb", "IsVisibleInPrm",
                                     settings.SALESFORCE_ARTICLE_BODY_FIELD,
                                     settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
                                     settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD],
-                                   {"UrlName": url_name, "PublishStatus": publish_status, "language": "en_US"},
-                                   include_wrapper=True)
+                                   {"UrlName": url_name, "PublishStatus": publish_status, "language": "en_US"},)
+        return rc
 
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
