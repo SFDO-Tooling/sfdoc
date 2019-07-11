@@ -24,14 +24,17 @@ class SalesforceArticles:
     """A docset-scoped or unscoped view of Salesforce Knowledge articles"""
 
     ALL_DOCSETS = ("#ALL",)  # token to represent a view that is not filtered by docset
+    api = None     # class variable
 
     def __init__(self, docset_uuid):
         """Create a docset-scoped or unscoped view of Salesforce Knowledge articles"""
-        self.api = self._get_salesforce_api()
+        if not self.api:
+            self._get_salesforce_api()
         self.docset_uuid = docset_uuid
         self._sf_docset = None
 
-    def _get_salesforce_api(self):
+    @classmethod
+    def _get_salesforce_api(cls):
         """Get an instance of the Salesforce REST API."""
         url = settings.SALESFORCE_LOGIN_URL
         if settings.SALESFORCE_SANDBOX:
@@ -64,7 +67,7 @@ class SalesforceArticles:
             version=settings.SALESFORCE_API_VERSION,
             client_id='sfdoc',
         )
-        return sf
+        cls.api = sf
 
     def get_docsets(self):
         query_str = f"SELECT {self.docset_uuid_join_field} FROM {settings.SALESFORCE_DOCSET_SOBJECT}"
