@@ -32,6 +32,7 @@ class SalesforceArticles:
             self._get_salesforce_api()
         self.docset_uuid = docset_uuid
         self._sf_docset = None
+        self._article_info_cache = None
 
     @classmethod
     def _get_salesforce_api(cls):
@@ -137,6 +138,7 @@ class SalesforceArticles:
             ).format(ka_id))
             raise(e)
         kav_id = result.json()['id']
+        self._article_info_cache = None
         return kav_id
 
     def delete(self, kav_id):
@@ -284,6 +286,18 @@ class SalesforceArticles:
 
         self.save_article(kav_id, html, bundle, status)
 
+    @property
+    def article_info_cache(self):
+        if not self._article_info_cache:
+            self._article_info_cache = self.query_articles(
+                        ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
+                            "IsVisibleInPkb", "IsVisibleInPrm", "PublishStatus", "UrlName",
+                            settings.SALESFORCE_ARTICLE_BODY_FIELD,
+                            settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
+                            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD],
+                        {"language": "en_US"})
+        return self._article_info_cache
+
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
         assert self.docset_scoped, "Need docset scoping to publish safely"
@@ -302,16 +316,11 @@ class SalesforceArticles:
         kav_api.update(kav_id, data)
         self.set_publish_status(kav_id, 'online')
 
-    def find_articles_by_name(self, url_name, publish_status):
+    def find_articles_by_name_new(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
-        rc = self.query_articles(
-                                   ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
-                                    "IsVisibleInPkb", "IsVisibleInPrm",
-                                    settings.SALESFORCE_ARTICLE_BODY_FIELD,
-                                    settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
-                                    settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD],
-                                   {"UrlName": url_name, "PublishStatus": publish_status, "language": "en_US"},)
-        return rc
+        return [article for article in self.article_info_cache if article["UrlName"] == url_name and 
+                article["PublishStatus"].lower() == publish_status.lower()]
+        
 
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
@@ -332,6 +341,7 @@ class SalesforceArticles:
             'knowledgeManagement/articleVersions/masterVersions/{}'
         ).format(kav_id)
         data = {'publishStatus': status}
+        self._article_info_cache = None
         result = self.api._call_salesforce('PATCH', url, json=data)
         if result.status_code != HTTPStatus.NO_CONTENT:
             raise SalesforceError((
