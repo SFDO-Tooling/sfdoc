@@ -145,6 +145,10 @@ def create_drafts(bundle, html_files, path, salesforce_docset, s3):
     # upload draft articles and images
     logger.info('Uploading draft articles and images')
     # process HTML files
+
+    # NOTE: there is a major optimization opportunity here: we could collect
+    #       information about what to do on SF and then make a single batch
+    #       update call.
     for n, html_file in enumerate(html_files, start=1):
         logger.info('Processing HTML file %d of %d: %s',
             n,
