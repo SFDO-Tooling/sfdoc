@@ -163,7 +163,7 @@ class Salesforce:
         """Article preview URL."""
         preview_url = (
             '{}{}'
-            '?id={}&preview=true&channel=APP'
+            '?id={}&preview=true&pubstatus=d&channel=APP'
         ).format(
             self.get_base_url(),
             settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
