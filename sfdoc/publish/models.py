@@ -262,11 +262,11 @@ class Docset(models.Model):
     name = models.CharField(max_length=255, default='')
     index_article_url = models.CharField(
         max_length=255,
-        blank=True,
+        null=True,
     )
     index_article_ka_id = models.CharField(
         max_length=64,
-        blank=True,
+        null=True,
     )
 
     @classmethod

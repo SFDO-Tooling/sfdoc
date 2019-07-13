@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='docset',
             name='index_article_ka_id',
-            field=models.CharField(blank=True, max_length=64),
+            field=models.CharField(null=True, max_length=64),
         ),
         migrations.AddField(
             model_name='docset',
             name='index_article_url',
-            field=models.CharField(blank=True, max_length=255),
+            field=models.CharField(null=True, max_length=255),
         ),
     ]
