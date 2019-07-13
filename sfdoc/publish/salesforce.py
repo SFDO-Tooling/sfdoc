@@ -175,7 +175,7 @@ class SalesforceArticles:
 
     def get_articles(self, publish_status):
         """Get all article versions with a given publish status."""
-        return [article for article in self.article_info_cache(publish_status)]
+        return self.article_info_cache(publish_status)
 
     def query_articles(self, fields, filters={}, *, include_wrapper=False,
                        object_type=settings.SALESFORCE_ARTICLE_TYPE):
@@ -298,14 +298,19 @@ class SalesforceArticles:
         publish_status = publish_status.lower()
         key = (self.docset_uuid, publish_status)
         if not self._article_info_cache.get(key):
-            self._article_info_cache[key] = self.query_articles(
-                        ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
-                            "IsVisibleInPkb", "IsVisibleInPrm", "UrlName","PublishStatus",
+            fields = ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
+                            "IsVisibleInPkb", "IsVisibleInPrm", "UrlName", "PublishStatus",
                             settings.SALESFORCE_ARTICLE_BODY_FIELD,
                             settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
                             settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
-                            self.docset_uuid_join_field],
-                        {"language": "en_US", "PublishStatus": publish_status})
+                            self.docset_uuid_join_field]
+            filters = {"language": "en_US",
+                       "PublishStatus": publish_status}
+
+            if self.docset_scoped:
+                filters[self.docset_uuid_join_field] = self.docset_uuid
+
+            self._article_info_cache[key] = self.query_articles(fields, filters)
         return self._article_info_cache[key]
 
     @classmethod
