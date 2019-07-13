@@ -260,6 +260,14 @@ class Webhook(models.Model):
 class Docset(models.Model):
     docset_id = models.CharField(max_length=255)
     name = models.CharField(max_length=255, default='')
+    index_article_url = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+    index_article_ka_id = models.CharField(
+        max_length=64,
+        blank=True,
+    )
 
     @classmethod
     def get_or_create_by_docset_id(cls, docset_id):

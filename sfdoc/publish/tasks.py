@@ -66,14 +66,23 @@ def _process_bundle(bundle, path):
 
 def try_name_docset(docset, path):
     """Try to name a docset from information in an index HTML"""
+    logger = get_logger(docset)
+    logger.info("Trying to name docset: %s", docset)
     for dirpath, dirnames, filenames in os.walk(path):
         html_files = [filename for filename in filenames if ".htm" in filename]
         if html_files:
             index_file = os.path.join(dirpath, html_files[0])
             html = HTML(index_file, path)
-            docset.name = html.create_article_data()['Title']
+            article_data = html.create_article_data()
+            docset.name = article_data['Title']
+            docset.index_article_url = article_data['UrlName']
             docset.save()
+            assert docset.index_article_url
+            logger.info("Named: %s, %s", docset.name, docset.index_article_url)
+
             return
+        else:
+            logger.info("No HTML files found")
 
 
 def _find_duplicate_urls(url_map):
@@ -245,6 +254,7 @@ def _publish_drafts(bundle):
         Image.STATUS_NEW,
         Image.STATUS_CHANGED,
     ])
+    salesforce_docset.set_docset_index(bundle.docset)
     N = images.count()
     for n, image in enumerate(images.all(), start=1):
         logger.info('Publishing image %d of %d: %s', n, N, image)

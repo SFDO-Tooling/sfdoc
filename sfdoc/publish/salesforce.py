@@ -381,3 +381,17 @@ class SalesforceArticles:
     @property
     def docset_scoped(self):
         return self.docset_uuid != self.ALL_DOCSETS
+
+    def set_docset_index(self, local_docset_obj):
+        sf_docset_api = getattr(self.api, settings.SALESFORCE_DOCSET_SOBJECT)
+        sf_docset_id = self.sf_docset["Id"]
+
+        if not local_docset_obj.index_article_ka_id:
+            url_name = local_docset_obj.index_article_url
+            assert url_name
+            kav = [a for a in self.article_info_cache("Online") if a["UrlName"] == url_name][0]
+            ka_id = kav["KnowledgeArticleId"]
+            data = {settings.SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD: ka_id}
+            sf_docset_api.update(sf_docset_id, data)
+            local_docset_obj.index_article_ka_id = ka_id
+            local_docset_obj.save()
