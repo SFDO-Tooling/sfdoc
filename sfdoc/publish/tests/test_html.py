@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from test_plus.test import TestCase
 from django.test import override_settings
+from django.conf import settings
 
 from ..html import HTML, collect_html_paths
 
@@ -110,8 +111,8 @@ class TestHTML(TestCase):
                                                 "fC-FAQ.html", "fC-Guide.html"]))
 
     def test_update_links_production(self):
-        html = """<body><a href="Product_Docs/V4S/topics/Test-Path2.html#foo">test</a>\n
-                    <img src="https://dummydomain.s3.amazonaws.com/images/draft/some-uuid/path/img.png"></img>
+        html = f"""<body><a href="Product_Docs/V4S/topics/Test-Path2.html#foo">test</a>\n
+                    <img src="https://dummydomain.s3.amazonaws.com/{settings.AWS_S3_DRAFT_IMG_DIR}/some-uuid/path/img.png"></img>
                 </body>
             """
         updated = HTML.update_links_production(html)
