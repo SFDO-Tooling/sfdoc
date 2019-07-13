@@ -193,9 +193,9 @@ class SalesforceArticles:
         query_str += ' AND '.join(f"{fieldname}='{value}'" 
                                   for fieldname, value in filters.items())
 
-        query_logger.info("QUERY: {}", query_str)
+        query_logger.info("QUERY: %s", query_str)
         result = self.api.query(query_str)
-        query_logger.info("RESULT: {}", repr(result))
+        query_logger.info("RESULT: %s", repr(result))
 
         assert result['totalSize'] == len(result['records'])
         if include_wrapper:
