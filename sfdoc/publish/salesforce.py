@@ -72,7 +72,9 @@ class SalesforceArticles:
         cls.api = sf
 
     def get_docsets(self):
-        query_str = f"SELECT {self.docset_uuid_join_field} FROM {settings.SALESFORCE_DOCSET_SOBJECT}"
+        query_str = f"""SELECT Id, {settings.SALESFORCE_DOCSET_ID_FIELD},
+                    {settings.SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD} 
+                    FROM {settings.SALESFORCE_DOCSET_SOBJECT}"""
         return self.api.query(query_str)["records"]
 
     def archive(self, ka_id, kav_id):

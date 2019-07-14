@@ -85,7 +85,11 @@ class TstHelpers:  # named to avoid confusing pytest
         all_articles = self.salesforce.get_articles("Draft")
         for article in all_articles:
             self.salesforce.delete(article["Id"])
-        
+
+        raw_sf_docset_api = getattr(self.salesforce.api, settings.SALESFORCE_DOCSET_SOBJECT)
+        for docset in self.salesforce.get_docsets():
+            raw_sf_docset_api.delete(docset["Id"])
+
         assert not self.salesforce.get_articles("Online")
         assert not self.salesforce.get_articles("Draft")
 
@@ -503,15 +507,11 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
         sf = SalesforceArticles(uuid)
 
-        sf_docset_api = getattr(sf.api, settings.SALESFORCE_DOCSET_SOBJECT)
+        raw_sf_docset_api = getattr(sf.api, settings.SALESFORCE_DOCSET_SOBJECT)
 
+        # first the docset should not exist at all. (or shouldn't after)
         try:
-            result = sf_docset_api.get_by_custom_id(
-                settings.SALESFORCE_DOCSET_ID_FIELD, uuid
-            )
-            if result:
-                sf_docset_api.delete(result["Id"])
-            result = sf_docset_api.get_by_custom_id(
+            result = raw_sf_docset_api.get_by_custom_id(
                 settings.SALESFORCE_DOCSET_ID_FIELD, uuid
             )
             assert False, "Should not reach this line!"
@@ -522,8 +522,8 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         result = sf.sf_docset
         assert result[settings.SALESFORCE_DOCSET_STATUS_FIELD] == settings.SALESFORCE_DOCSET_STATUS_INACTIVE
 
-        result2 = sf_docset_api.get_by_custom_id(
+        result2 = raw_sf_docset_api.get_by_custom_id(
             settings.SALESFORCE_DOCSET_ID_FIELD, uuid
         )
         assert sf.sf_docset["Id"] == result2["Id"]
-        sf_docset_api.delete(result["Id"])
+        raw_sf_docset_api.delete(result["Id"])
