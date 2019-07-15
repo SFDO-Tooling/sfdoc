@@ -209,7 +209,6 @@ def _record_archivable_articles(salesforce_docset, bundle, url_map):
         if article["UrlName"].lower() not in url_map:
             Article.objects.create(
                 bundle=bundle,
-                ka_id=article["KnowledgeArticleId"],
                 kav_id=article["Id"],
                 status=Article.STATUS_DELETED,
                 title=article["Title"],
@@ -265,7 +264,7 @@ def _publish_drafts(bundle):
     N = articles.count()
     for n, article in enumerate(articles.all(), start=1):
         logger.info('Archiving article %d of %d: %s', n, N, article)
-        salesforce_docset.archive(article.ka_id, article.kav_id)
+        salesforce_docset.archive(article.kav_id)
     # delete images
     images = bundle.images.filter(status=Image.STATUS_DELETED)
     N = images.count()
