@@ -323,9 +323,7 @@ class SalesforceArticles:
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
         assert self.docset_scoped, "Need docset scoping to publish safely"
-        kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
-        kav = kav_api.get(kav_id)
-        assert kav["PublishStatus"] == 'Draft', f"Draft already published {kav['PublishStatus']}"
+        kav = self.get_by_kav_id(kav_id, "draft")
         body = kav[settings.SALESFORCE_ARTICLE_BODY_FIELD]
         body = HTML.update_links_production(body)
         assert settings.AWS_S3_DRAFT_IMG_DIR not in body
@@ -335,6 +333,7 @@ class SalesforceArticles:
         if settings.SALESFORCE_ARTICLE_TEXT_INDEX_FIELD is not False:
             data[settings.SALESFORCE_ARTICLE_TEXT_INDEX_FIELD] = body
 
+        kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         kav_api.update(kav_id, data)
         self.set_publish_status(kav_id, 'online')
 
