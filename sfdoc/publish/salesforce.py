@@ -77,19 +77,17 @@ class SalesforceArticles:
                     FROM {settings.SALESFORCE_DOCSET_SOBJECT}"""
         return self.api.query(query_str)["records"]
 
-    def archive(self, ka_id, kav_id):
+    def archive(self, kav_id):
         """Archive a published article."""
         # Ensure that this article is owned by the right docset
-        article = self.query_articles([self.docset_uuid_join_field],
-                                      {"Id": kav_id})[0]
+        article = self.get_by_kav_id(kav_id, "online")
+
+        ka_id = article["KnowledgeArticleId"]
 
         docset_id = article[self.docset_relation][settings.SALESFORCE_DOCSET_ID_FIELD]
         assert docset_id == self.docset_uuid
 
-        draft = self.query_articles(["Id"],
-                                    {"KnowledgeArticleId": ka_id,
-                                     "PublishStatus": "draft",
-                                     "language": "en_US"})
+        draft = [a for a in self.article_info_cache('draft') if a["KnowledgeArticleId"] == ka_id]
 
         # delete draft if it exists
         if draft:

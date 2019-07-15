@@ -253,7 +253,7 @@ def _publish_drafts(bundle):
     N = articles.count()
     for n, article in enumerate(articles.all(), start=1):
         logger.info('Archiving article %d of %d: %s', n, N, article)
-        salesforce_docset.archive(article.ka_id, article.kav_id)
+        salesforce_docset.archive(article.kav_id)
     # delete images
     images = bundle.images.filter(status=Image.STATUS_DELETED)
     N = images.count()

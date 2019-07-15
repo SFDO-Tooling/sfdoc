@@ -84,7 +84,7 @@ class TstHelpers:  # named to avoid confusing pytest
             docset_id = article[self.salesforce.docset_relation][settings.SALESFORCE_DOCSET_ID_FIELD]
             sfapi = sfapis.get(docset_id) or sfapis.setdefault(docset_id, SalesforceArticles(docset_id))
 
-            sfapi.archive(article["KnowledgeArticleId"], article["Id"])
+            sfapi.archive(article["Id"])
 
         all_articles = self.salesforce.get_articles("Draft")
         for article in all_articles:
