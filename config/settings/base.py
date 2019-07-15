@@ -269,3 +269,6 @@ SALESFORCE_LOGIN_URL = "https://login.salesforce.com"
 # Amazon
 AWS_S3_DRAFT_IMG_DIR = 'images/draft/'
 AWS_S3_PUBLIC_IMG_DIR = 'images/public/'
+
+# this will slow things down and should only be used for testing
+CACHE_VALIDATION_MODE = False

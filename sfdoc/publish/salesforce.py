@@ -287,6 +287,20 @@ class SalesforceArticles:
 
         self.save_article(kav_id, html, bundle, status)
 
+    def _cache_population_query(self, publish_status):
+        fields = ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
+                        "IsVisibleInPkb", "IsVisibleInPrm", "UrlName", "PublishStatus",
+                        settings.SALESFORCE_ARTICLE_BODY_FIELD,
+                        settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
+                        settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
+                        self.docset_uuid_join_field]
+        where_clauses = {"language": "en_US",
+                         "PublishStatus": publish_status}
+        if self.docset_scoped:
+            where_clauses[self.docset_uuid_join_field] = self.docset_uuid
+
+        return self.query_articles(fields, where_clauses)
+
     #  As with all caches, be careful with this one.
     #  Several things have bitten me with it already.
     #  1. You MUST specify a publish_status in the query. Draft records go missing if you don't.
@@ -296,19 +310,9 @@ class SalesforceArticles:
         publish_status = publish_status.lower()
         key = (self.docset_uuid, publish_status)
         if not self._article_info_cache.get(key):
-            fields = ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
-                            "IsVisibleInPkb", "IsVisibleInPrm", "UrlName", "PublishStatus",
-                            settings.SALESFORCE_ARTICLE_BODY_FIELD,
-                            settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
-                            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
-                            self.docset_uuid_join_field]
-            where_clauses = {"language": "en_US",
-                             "PublishStatus": publish_status}
-
-            if self.docset_scoped:
-                where_clauses[self.docset_uuid_join_field] = self.docset_uuid
-
-            self._article_info_cache[key] = self.query_articles(fields, where_clauses)
+            self._article_info_cache[key] = self._cache_population_query(publish_status)
+        if settings.CACHE_VALIDATION_MODE:
+            assert self._article_info_cache[key] == self._cache_population_query(publish_status)
 
         def match(item):
             return all(item[fieldname] == value for fieldname, value in filters.items())
@@ -383,3 +387,10 @@ class SalesforceArticles:
     @property
     def docset_scoped(self):
         return self.docset_uuid != self.ALL_DOCSETS
+
+
+if settings.CACHE_VALIDATION_MODE:
+    print("!!! USING EXTREMELY SLOW CACHE VALIDATION MODE!            !!!")
+    print("!!! This mode is slower than if there were no cache at all !!!")
+    print("!!! It does every query against the back-end to validate   !!!")
+    print("!!! the cache.                                             !!!")
