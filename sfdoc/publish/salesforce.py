@@ -157,12 +157,20 @@ class SalesforceArticles:
                 'Error deleting KnowledgeArticleVersion (ID={})'
             ).format(kav_id))
 
+    def get_by_kav_id(self, kav_id, publish_status):
+        try:
+            return [a for a in self.article_info_cache(publish_status) if a["Id"] == kav_id][0]
+        except IndexError:
+            raise SalesforceError(
+                'KnowledgeArticleVersion {} not found'.format(kav_id)
+            )
+
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
         try:
-            kav = self.get_by_kav_id(kav_id)
+            kav = self.get_by_kav_id(kav_id, publish_status)
             return kav["KnowledgeArticleId"]
-        except Exception:
+        except SalesforceError:
             result = self.query_articles(["Id", "KnowledgeArticleId"],
                                          {"Id": kav_id, "PublishStatus": publish_status,
                                          "language": "en_US"},
