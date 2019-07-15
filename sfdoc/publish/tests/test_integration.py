@@ -42,6 +42,10 @@ from . import fake_easydita
 
 TESTING_CACHE = "/tmp/sfdoc_testing_cache"
 SHOULD_MOCK_EASYDITA = settings.EASYDITA_USERNAME == "mock"
+if SHOULD_MOCK_EASYDITA:
+    print("=== MOCKING EASYDITA BY USING LOCAL FILES ===")
+else:
+    print("=== Not mocking easyDITA ===")
 
 
 def integration_test(cls):
@@ -214,7 +218,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         self.clearS3()
         self.clearLocalCache()
 
-        if settings.EASYDITA_USERNAME == "mock":
+        if SHOULD_MOCK_EASYDITA:
             utils.mock_easydita()
         self.fake_queue = FakeQueue()
     
