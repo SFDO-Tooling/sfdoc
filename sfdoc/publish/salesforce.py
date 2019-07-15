@@ -339,6 +339,9 @@ class SalesforceArticles:
         """Query KnowledgeArticleVersion objects."""
         return [article for article in self.article_info_cache(publish_status) if article["UrlName"] == url_name]
 
+    def find_article_by_name(self, url_name, publish_status):
+        return self.find_articles_by_name(url_name, publish_status)[0]
+
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
         ka_id = self.get_ka_id(kav_id, 'draft')
