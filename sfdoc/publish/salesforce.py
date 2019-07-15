@@ -125,6 +125,9 @@ class SalesforceArticles:
         data[settings.SALESFORCE_DOCSET_RELATION_FIELD] = self.sf_docset['Id']
         result = kav_api.create(data=data)
         kav_id = result['id']
+        self.invalidate_cache()     # I would prefer to update the cache but I
+        #                             would need to do a query to get the
+        #                             KnowledgeArticleId anyways. :(
         return kav_id
 
     def create_draft(self, ka_id):
