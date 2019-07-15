@@ -87,7 +87,7 @@ class SalesforceArticles:
         docset_id = article[self.docset_relation][settings.SALESFORCE_DOCSET_ID_FIELD]
         assert docset_id == self.docset_uuid
 
-        draft = [a for a in self.article_info_cache('draft') if a["KnowledgeArticleId"] == ka_id]
+        draft = self.article_info_cache('draft', KnowledgeArticleId=ka_id)
 
         # delete draft if it exists
         if draft:
@@ -160,7 +160,7 @@ class SalesforceArticles:
 
     def get_by_kav_id(self, kav_id, publish_status):
         try:
-            return [a for a in self.article_info_cache(publish_status) if a["Id"] == kav_id][0]
+            return self.article_info_cache(publish_status, Id=kav_id)[0]
         except IndexError:
             raise SalesforceError(
                 'KnowledgeArticleVersion {} not found'.format(kav_id)
@@ -168,21 +168,8 @@ class SalesforceArticles:
 
     def get_ka_id(self, kav_id, publish_status):
         """Get KnowledgeArticleId from KnowledgeArticleVersion Id."""
-        try:
-            kav = self.get_by_kav_id(kav_id, publish_status)
-            return kav["KnowledgeArticleId"]
-        except SalesforceError:
-            result = self.query_articles(["Id", "KnowledgeArticleId"],
-                                         {"Id": kav_id, "PublishStatus": publish_status,
-                                         "language": "en_US"},
-                                         include_wrapper=True)
-
-            if result['totalSize'] == 0:
-                raise SalesforceError(
-                    'KnowledgeArticleVersion {} not found'.format(kav_id)
-                )
-            elif result['totalSize'] == 1:  # can only be 0 or 1
-                return result['records'][0]['KnowledgeArticleId']
+        kav = self.get_by_kav_id(kav_id, publish_status)
+        return kav["KnowledgeArticleId"]
 
     def get_articles(self, publish_status):
         """Get all article versions with a given publish status."""
@@ -201,7 +188,7 @@ class SalesforceArticles:
         if filters:
             query_str += " WHERE "
 
-        query_str += ' AND '.join(f"{fieldname}='{value}'" 
+        query_str += ' AND '.join(f"{fieldname}='{value}'"
                                   for fieldname, value in filters.items())
 
         query_logger.info("QUERY: {}", query_str)
@@ -305,7 +292,7 @@ class SalesforceArticles:
     #  1. You MUST specify a publish_status in the query. Draft records go missing if you don't.
     #  2. If you don't manage it as a class variable, you could get two different out-of-sync views of the data.
     #  3. If the data changes remotely while you have an open Salesforce docset view, you're hooped, obviously.
-    def article_info_cache(self, publish_status):
+    def article_info_cache(self, publish_status, **filters):
         publish_status = publish_status.lower()
         key = (self.docset_uuid, publish_status)
         if not self._article_info_cache.get(key):
@@ -315,14 +302,18 @@ class SalesforceArticles:
                             settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
                             settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
                             self.docset_uuid_join_field]
-            filters = {"language": "en_US",
-                       "PublishStatus": publish_status}
+            where_clauses = {"language": "en_US",
+                             "PublishStatus": publish_status}
 
             if self.docset_scoped:
-                filters[self.docset_uuid_join_field] = self.docset_uuid
+                where_clauses[self.docset_uuid_join_field] = self.docset_uuid
 
-            self._article_info_cache[key] = self.query_articles(fields, filters)
-        return self._article_info_cache[key]
+            self._article_info_cache[key] = self.query_articles(fields, where_clauses)
+
+        def match(item):
+            return all(item[fieldname] == value for fieldname, value in filters.items())
+
+        return [a for a in self._article_info_cache[key] if match(a)]
 
     @classmethod
     def invalidate_cache(cls):
@@ -348,7 +339,7 @@ class SalesforceArticles:
 
     def find_articles_by_name(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
-        return [article for article in self.article_info_cache(publish_status) if article["UrlName"] == url_name]
+        return self.article_info_cache(publish_status, UrlName=url_name)
 
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
