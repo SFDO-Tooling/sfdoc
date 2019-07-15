@@ -527,3 +527,32 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         )
         assert sf.sf_docset["Id"] == result2["Id"]
         sf_docset_api.delete(result["Id"])
+
+    def test_docset_index_url_change(self):
+        with self.debugMock() as mocktempdir:
+            mocktempdir.set_subprefix("_scenario_10_")
+            bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+            tasks.publish_drafts(bundle_A_V1.pk)  # simulate publish from UI
+
+            docset = SalesforceArticles(bundle_A_V1.docset_id).sf_docset
+            index_article_id = docset[settings.SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD]
+            index_article = self.salesforce.find_article_by_name("SFDO-BundleA-Documentation", "Online")
+            assert index_article["KnowledgeArticleId"] == index_article_id
+
+            mocktempdir.set_subprefix("_scenario_11_")
+            # this new bundle has a different UrlName for the index article
+            # so it should end up with a new ID
+            # which should change the docset ("Hub_Product_Description__c") too
+            bundle_A_V6 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A_V6)
+            tasks.publish_drafts(bundle_A_V6.pk)  # simulate publish from UI
+
+            docset = SalesforceArticles(bundle_A_V1.docset_id).sf_docset
+            index_article_id2 = docset[settings.SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD]
+            assert index_article_id != index_article_id2
+            new_index_article = self.salesforce.find_article_by_name("SFDO-BundleA-Documentation-URL2", "Online")
+            assert new_index_article["KnowledgeArticleId"] == index_article_id2
+            try:
+                self.salesforce.find_article_by_name("SFDO-BundleA-Documentation", "Online")
+                assert False, "Should not get to this line of code"
+            except IndexError:
+                pass  # we're good
