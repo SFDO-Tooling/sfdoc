@@ -199,7 +199,6 @@ def _record_archivable_articles(salesforce_docset, bundle, url_map):
         if article["UrlName"].lower() not in url_map:
             Article.objects.create(
                 bundle=bundle,
-                ka_id=article["KnowledgeArticleId"],
                 kav_id=article["Id"],
                 status=Article.STATUS_DELETED,
                 title=article["Title"],
