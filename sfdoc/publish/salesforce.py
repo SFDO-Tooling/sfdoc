@@ -73,7 +73,7 @@ class SalesforceArticles:
 
     def get_docsets(self):
         query_str = f"""SELECT Id, {settings.SALESFORCE_DOCSET_ID_FIELD},
-                    {settings.SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD} 
+                    Index_Article_Id__c
                     FROM {settings.SALESFORCE_DOCSET_SOBJECT}"""
         return self.api.query(query_str)["records"]
 
