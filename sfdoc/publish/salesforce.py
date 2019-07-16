@@ -191,9 +191,9 @@ class SalesforceArticles:
         query_str += ' AND '.join(f"{fieldname}='{value}'"
                                   for fieldname, value in filters.items())
 
-        query_logger.info("QUERY: {}", query_str)
+        query_logger.info("QUERY: %s", query_str)
         result = self.api.query(query_str)
-        query_logger.info("RESULT: {}", repr(result))
+        query_logger.info("RESULT: %s", repr(result))
 
         assert result['totalSize'] == len(result['records'])
         if include_wrapper:
@@ -341,6 +341,9 @@ class SalesforceArticles:
         """Query KnowledgeArticleVersion objects."""
         return self.article_info_cache(publish_status, UrlName=url_name)
 
+    def find_article_by_name(self, url_name, publish_status):
+        return self.find_articles_by_name(url_name, publish_status)[0]
+
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
         ka_id = self.get_ka_id(kav_id, 'draft')
@@ -383,3 +386,17 @@ class SalesforceArticles:
     @property
     def docset_scoped(self):
         return self.docset_uuid != self.ALL_DOCSETS
+
+    def set_docset_index(self, local_docset_obj):
+        sf_docset_api = getattr(self.api, settings.SALESFORCE_DOCSET_SOBJECT)
+        sf_docset_id = self.sf_docset["Id"]
+
+        if not local_docset_obj.index_article_ka_id:
+            url_name = local_docset_obj.index_article_url
+            assert url_name
+            kav = [a for a in self.article_info_cache("Online") if a["UrlName"] == url_name][0]
+            ka_id = kav["KnowledgeArticleId"]
+            data = {settings.SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD: ka_id}
+            sf_docset_api.update(sf_docset_id, data)
+            local_docset_obj.index_article_ka_id = ka_id
+            local_docset_obj.save()

@@ -54,9 +54,8 @@ def _process_bundle(bundle, path):
 
     path = utils.find_bundle_root_directory(path)
 
-    # try to name docset if necessary
-    if not bundle.docset.name:
-        try_name_docset(bundle.docset, path)
+    # name docset for SFDoc UI and 
+    extract_docset_metadata_from_index_doc(bundle.docset, path)
 
     # collect paths to all HTML files
     html_files = collect_html_paths(path, logger)
@@ -64,16 +63,27 @@ def _process_bundle(bundle, path):
     create_drafts(bundle, html_files, path, salesforce_docset, s3)
 
 
-def try_name_docset(docset, path):
+def extract_docset_metadata_from_index_doc(docset, path):
     """Try to name a docset from information in an index HTML"""
+    logger = get_logger(docset)
+    logger.info("Trying to name docset: %s", docset)
     for dirpath, dirnames, filenames in os.walk(path):
         html_files = [filename for filename in filenames if ".htm" in filename]
         if html_files:
             index_file = os.path.join(dirpath, html_files[0])
             html = HTML(index_file, path)
-            docset.name = html.create_article_data()['Title']
+            article_data = html.create_article_data()
+            docset.name = article_data['Title']  # for SFDoc UI
+            if docset.index_article_url != article_data['UrlName']:
+                docset.index_article_url = article_data['UrlName']  # To find the ka_id later 4 Hub_Product_Description
+                docset.index_article_ka_id = None          # Clear this to remember to update it later
             docset.save()
+            assert docset.index_article_url, f"No UrlName found in {index_file}"
+            logger.info("Named: %s, %s", docset.name, docset.index_article_url)
+
             return
+        else:
+            raise Exception("No index file found in " + path)
 
 
 def _find_duplicate_urls(url_map):
@@ -244,6 +254,7 @@ def _publish_drafts(bundle):
         Image.STATUS_NEW,
         Image.STATUS_CHANGED,
     ])
+    salesforce_docset.set_docset_index(bundle.docset)
     N = images.count()
     for n, image in enumerate(images.all(), start=1):
         logger.info('Publishing image %d of %d: %s', n, N, image)

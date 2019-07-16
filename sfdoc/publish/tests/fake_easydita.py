@@ -45,7 +45,7 @@ ditamap_A_V2_titles = [
     "Article B2",
 ]
 
-ditamap_A_V5_titles = [
+ditamap_A_V6_titles = [
     "Article A3! Updated",
     "Article A1",
     "Test Documentation: Bundle A",
@@ -87,12 +87,22 @@ fake_webhook_body_doc_A_V4 = {
     "resource_id": "77b09a40-819a-11e9-b28c-42010af00002",
 }
 
-fake_webhook_body_doc_A_V5 = {
+fake_webhook_body_doc_A_V6 = {
     "event_id": "dita-ot-publish-complete",
     "event_data": {
         "publish-result": "success",
         "output-uuid": "3953bb10-8992-11e9-b28c-42010af00002",
         "description": "V5 no image",
+    },
+    "resource_id": "77b09a40-819a-11e9-b28c-42010af00002",
+}
+
+fake_webhook_body_doc_A_V6 = {
+    "event_id": "dita-ot-publish-complete",
+    "event_data": {
+        "publish-result": "success",
+        "output-uuid": "726c4040-a68c-11e9-b28c-42010af00002",
+        "description": "V6 - Change UrlName of bundle (and no image)",
     },
     "resource_id": "77b09a40-819a-11e9-b28c-42010af00002",
 }
