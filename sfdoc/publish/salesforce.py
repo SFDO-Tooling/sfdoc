@@ -311,7 +311,7 @@ class SalesforceArticles:
         key = (self.docset_uuid, publish_status)
         if not self._article_info_cache.get(key):
             self._article_info_cache[key] = self._cache_population_query(publish_status)
-        if settings.CACHE_VALIDATION_MODE:
+        elif settings.CACHE_VALIDATION_MODE:
             assert self._article_info_cache[key] == self._cache_population_query(publish_status)
 
         def match(item):
