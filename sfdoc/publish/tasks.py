@@ -348,13 +348,15 @@ def publish_drafts(bundle_pk):
         bundle = bundle_pk
     else:
         bundle = Bundle.objects.get(pk=bundle_pk)
+
+    logger = get_logger(bundle)
+    logger.info('Publishing drafts for %s', bundle)
+
     assert (
         bundle.status == bundle.STATUS_DRAFT
     ), f"Bundle status should not be {dict(bundle.status_names)[bundle.status]}"
     bundle.status = Bundle.STATUS_PUBLISHING
     bundle.save()
-    logger = get_logger(bundle)
-    logger.info('Publishing drafts for %s', bundle)
     try:
         _publish_drafts(bundle)
     except Exception as e:
