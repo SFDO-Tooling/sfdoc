@@ -98,39 +98,7 @@ class SalesforceArticles:
 
     @classmethod
     def _get_salesforce_api(cls):
-        """Get an instance of the Salesforce REST API."""
-        url = settings.SALESFORCE_LOGIN_URL
-        if settings.SALESFORCE_SANDBOX:
-            url = url.replace('login', 'test')
-        payload = {
-            'alg': 'RS256',
-            'iss': settings.SALESFORCE_CLIENT_ID,
-            'sub': settings.SALESFORCE_USERNAME,
-            'aud': url,
-            'exp': timegm(datetime.utcnow().utctimetuple()),
-        }
-        encoded_jwt = jwt.encode(
-            payload,
-            settings.SALESFORCE_JWT_PRIVATE_KEY,
-            algorithm='RS256',
-        )
-        data = {
-            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion': encoded_jwt,
-        }
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        auth_url = urljoin(url, 'services/oauth2/token')
-        response = requests.post(url=auth_url, data=data, headers=headers)
-        response.raise_for_status()  # maybe VPN or auth problem!
-        response_data = response.json()
-        sf = SimpleSalesforce(
-            instance_url=response_data['instance_url'],
-            session_id=response_data['access_token'],
-            sandbox=settings.SALESFORCE_SANDBOX,
-            version=settings.SALESFORCE_API_VERSION,
-            client_id='sfdoc',
-        )
-        cls.api = sf
+        cls.api = get_salesforce_api()
 
     def get_docsets(self):
         query_str = f"""SELECT Id, {settings.SALESFORCE_DOCSET_ID_FIELD},
@@ -272,25 +240,7 @@ class SalesforceArticles:
 
     def get_base_url(self):
         """ Return base URL e.g. https://powerofus.force.com """
-        o = urlparse(self.api.base_url)
-
-        domain = '{}.force.com'.format(settings.SALESFORCE_COMMUNITY)
-
-        if settings.SALESFORCE_SANDBOX:
-            parts = o.netloc.split('.')
-            instance = parts[1]
-            sandbox_name = parts[0].split('--')[1]
-
-            domain = '{}-{}.{}.force.com'.format(
-                sandbox_name,
-                settings.SALESFORCE_COMMUNITY,
-                instance
-            )
-
-        return '{}://{}'.format(
-            o.scheme,
-            domain,
-        )
+        return get_community_base_url(self.api)
 
     def get_preview_url(self, ka_id, online=False):
         """Article preview URL."""
