@@ -7,6 +7,7 @@ from django.test import override_settings
 import responses
 from test_plus.test import TestCase
 
+from ..salesforce import get_community_base_url
 from ..salesforce import SalesforceArticles
 
 
@@ -47,10 +48,13 @@ class TestSalesforceArticles(TestCase):
         )
         self.assertEqual(len(responses.calls), 1)
 
+
+class TestCommunityUrl(TestCase):
+
     @responses.activate
     @override_settings(SALESFORCE_SANDBOX=True)
     def test_get_community_loc_sandbox(self):
-
+        # determining sandbox URL *requires* auth to SFDC
         salesforce = get_salesforce_instance(
             'https://foundation--productdoc.cs70.my.salesforce.com',
             settings.SALESFORCE_SANDBOX,
@@ -62,15 +66,11 @@ class TestSalesforceArticles(TestCase):
             )
         )
 
-    @responses.activate
     @override_settings(SALESFORCE_SANDBOX=False)
     def test_get_community_loc_prod(self):
-        salesforce = get_salesforce_instance(
-            'https://foundation--productdoc.cs70.my.salesforce.com',
-            settings.SALESFORCE_SANDBOX,
-        )
+        # determining non-sandbox URL does not require request to SFDC
         self.assertEqual(
-            salesforce.get_base_url(),
+            get_community_base_url(),
             'https://{}.force.com'.format(
                 settings.SALESFORCE_COMMUNITY
             )
