@@ -55,7 +55,7 @@ def get_salesforce_api():
     )
 
 
-def get_community_base_url(api):
+def get_community_base_url(api=None):
     """ Return base URL e.g. https://powerofus.force.com """
     if api is None:
         api = get_salesforce_api()
