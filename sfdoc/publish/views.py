@@ -129,8 +129,6 @@ def review(request, pk):
         if form.is_valid():
             if form.approved():
                 logger.info('Approved %s', bundle)
-                bundle.status = Bundle.STATUS_PUBLISHING
-                bundle.save()
                 publish_drafts.delay(bundle.pk)
             else:
                 logger.info('Rejected %s', bundle)

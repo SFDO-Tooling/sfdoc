@@ -191,9 +191,9 @@ class SalesforceArticles:
         query_str += ' AND '.join(f"{fieldname}='{value}'"
                                   for fieldname, value in filters.items())
 
-        query_logger.info("QUERY: {}", query_str)
+        query_logger.info("QUERY: %s", query_str)
         result = self.api.query(query_str)
-        query_logger.info("RESULT: {}", repr(result))
+        query_logger.info("RESULT: %s", repr(result))
 
         assert result['totalSize'] == len(result['records'])
         if include_wrapper:
@@ -234,10 +234,11 @@ class SalesforceArticles:
     def get_preview_url(self, ka_id, online=False):
         """Article preview URL."""
         preview_url = (
-            '{}/apex/'
-            'Hub_KB_ProductDocArticle?id={}&preview=true&channel=APP'
+            '{}{}'
+            '?id={}&preview=true&pubstatus=d&channel=APP'
         ).format(
             self.get_base_url(),
+            settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
             ka_id[:15],  # reduce to 15 char ID
         )
         if online:
@@ -326,9 +327,7 @@ class SalesforceArticles:
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
         assert self.docset_scoped, "Need docset scoping to publish safely"
-        kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
-        kav = kav_api.get(kav_id)
-        assert kav["PublishStatus"] == 'Draft', f"Draft already published {kav['PublishStatus']}"
+        kav = self.get_by_kav_id(kav_id, "draft")
         body = kav[settings.SALESFORCE_ARTICLE_BODY_FIELD]
         body = HTML.update_links_production(body)
         assert settings.AWS_S3_DRAFT_IMG_DIR not in body
@@ -338,12 +337,16 @@ class SalesforceArticles:
         if settings.SALESFORCE_ARTICLE_TEXT_INDEX_FIELD is not False:
             data[settings.SALESFORCE_ARTICLE_TEXT_INDEX_FIELD] = body
 
+        kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         kav_api.update(kav_id, data)
         self.set_publish_status(kav_id, 'online')
 
     def find_articles_by_name(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
         return self.article_info_cache(publish_status, UrlName=url_name)
+
+    def find_article_by_name(self, url_name, publish_status):
+        return self.find_articles_by_name(url_name, publish_status)[0]
 
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
@@ -388,6 +391,19 @@ class SalesforceArticles:
     def docset_scoped(self):
         return self.docset_uuid != self.ALL_DOCSETS
 
+    def set_docset_index(self, local_docset_obj):
+        sf_docset_api = getattr(self.api, settings.SALESFORCE_DOCSET_SOBJECT)
+        sf_docset_id = self.sf_docset["Id"]
+
+        if not local_docset_obj.index_article_ka_id:
+            url_name = local_docset_obj.index_article_url
+            assert url_name
+            kav = [a for a in self.article_info_cache("Online") if a["UrlName"] == url_name][0]
+            ka_id = kav["KnowledgeArticleId"]
+            data = {settings.SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD: ka_id}
+            sf_docset_api.update(sf_docset_id, data)
+            local_docset_obj.index_article_ka_id = ka_id
+            local_docset_obj.save()
 
 if settings.CACHE_VALIDATION_MODE:
     print("!!! USING EXTREMELY SLOW CACHE VALIDATION MODE!            !!!")
