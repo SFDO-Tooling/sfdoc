@@ -116,3 +116,7 @@ WHITELIST_URL = []
 SKIP_HTML_FILES = '["index.html"]'
 
 HEROKU_APP_NAME = "sfdoc.example.com"
+
+# Make it easy to differentiate between local, staging and prod versions
+ENV_COLOR = env("ENV_COLOR", default=" #1798c1")
+ENV_NAME = env("ENV_NAME", default="")
