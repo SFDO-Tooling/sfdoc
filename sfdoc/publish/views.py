@@ -9,6 +9,8 @@ from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.conf import settings
+from django import template
 
 from .forms import PublishToProductionForm
 from .forms import RequeueBundleForm
@@ -21,6 +23,11 @@ from .tasks import process_queue
 from .tasks import process_webhook
 from .tasks import publish_drafts
 
+common_context = {
+        'env_color': settings.ENV_COLOR,
+        'env_name': settings.ENV_NAME,
+}
+
 
 @never_cache
 @staff_member_required
@@ -31,6 +38,7 @@ def bundle(request, pk):
         'bundle': bundle,
         'logs': logs,
         'ready_for_review': bundle.status == Bundle.STATUS_DRAFT,
+        **common_context,
     }
     return render(request, 'bundle.html', context=context)
 
@@ -50,7 +58,9 @@ def bundles(request):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         bundles = paginator.page(paginator.num_pages)
-    context = {'bundles': bundles}
+    context = {'bundles': bundles,
+                **common_context,
+               }
     if bundles.has_previous():
         context['link_previous'] = '?page={}&count={}'.format(
             bundles.previous_page_number(),
@@ -80,6 +90,7 @@ def index(request):
         'queued': Bundle.objects.filter(
             status=Bundle.STATUS_QUEUED,
         ).order_by('time_queued'),
+        **common_context,
     }
     return render(request, 'index.html', context=context)
 
@@ -92,6 +103,7 @@ def logs(request, pk):
     context = {
         'bundle': bundle,
         'logs': logs,
+        **common_context,
     }
     return render(request, 'logs.html', context=context)
 
@@ -102,7 +114,9 @@ def requeue(request, pk):
     bundle = get_object_or_404(Bundle, pk=pk)
     if not bundle.is_complete():
         return HttpResponseRedirect('../')
-    context = {'bundle': bundle}
+    context = {'bundle': bundle,
+                **common_context,
+               }
     if request.method == 'POST':
         form = RequeueBundleForm(request.POST)
         if form.is_valid() and request.POST['choice'] == 'Requeue':
@@ -123,7 +137,9 @@ def review(request, pk):
     logger = get_logger(bundle)
     if bundle.status != Bundle.STATUS_DRAFT:
         return HttpResponseRedirect('../')
-    context = {'bundle': bundle}
+    context = {'bundle': bundle,
+                **common_context,
+               }
     if request.method == 'POST':
         form = PublishToProductionForm(request.POST)
         if form.is_valid():
@@ -142,6 +158,7 @@ def review(request, pk):
         form = PublishToProductionForm()
     context = {
         'bundle': bundle,
+        **common_context,
         'form': form,
         'articles_new': bundle.articles.filter(
             status=Article.STATUS_NEW
