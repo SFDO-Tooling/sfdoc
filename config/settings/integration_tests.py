@@ -113,3 +113,7 @@ EASYDITA_PASSWORD = env("EASYDITA_PASSWORD")
 HEROKU_APP_NAME = "localhost:8000"
 
 RUN_INTEGRATION_TESTS = env("RUN_INTEGRATION_TESTS", default=True)
+
+# Make it easy to differentiate between local, staging and prod versions
+ENV_COLOR = env("ENV_COLOR", default=" #1798c1")
+ENV_NAME = env("ENV_NAME", default="")

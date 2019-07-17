@@ -5,8 +5,19 @@ from django.contrib import admin
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 
+
+class Home(TemplateView):
+    template_name = 'pages/home.html'
+
+    def get_context_data(self):
+        return {
+            'env_color': settings.ENV_COLOR,
+            'env_name': settings.ENV_NAME,
+        }
+
+
 urlpatterns = [
-    url(r"^$", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    url(r"^$", Home.as_view(), name="home"),
     # Django Admin, use {% url 'admin:index' %}
     url(settings.ADMIN_URL, admin.site.urls),
     # User management
