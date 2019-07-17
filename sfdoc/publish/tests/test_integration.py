@@ -227,13 +227,13 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             bundle = self.createWebhook(webhook)
 
             # creating a webhook should have queued a job to process all bundle queues
-            assert self.fake_queue.calls == [(tasks.process_bundle_queues, (), {})]
+            assert (tasks.process_bundle_queues, (), {}) in self.fake_queue.calls
 
             # do it myself
             self.fake_queue.pump()
 
             # now there should be a job to process that specific bundle
-            assert self.fake_queue.calls == [(tasks.process_bundle, (bundle.pk,), {})]
+            assert (tasks.process_bundle, (bundle.pk,), {}) in self.fake_queue.calls
             self.fake_queue.pump()
             return bundle
 
