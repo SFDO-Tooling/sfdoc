@@ -53,6 +53,34 @@ def get_salesforce_api():
         version=settings.SALESFORCE_API_VERSION,
         client_id='sfdoc',
     )
+
+
+def get_community_base_url(api):
+    """ Return base URL e.g. https://powerofus.force.com """
+    if api is None:
+        api = get_salesforce_api()
+
+    o = urlparse(api.base_url)
+
+    domain = '{}.force.com'.format(settings.SALESFORCE_COMMUNITY)
+
+    if settings.SALESFORCE_SANDBOX:
+        parts = o.netloc.split('.')
+        instance = parts[1]
+        sandbox_name = parts[0].split('--')[1]
+
+        domain = '{}-{}.{}.force.com'.format(
+            sandbox_name,
+            settings.SALESFORCE_COMMUNITY,
+            instance
+        )
+
+    return '{}://{}'.format(
+        o.scheme,
+        domain,
+    )
+
+
 class SalesforceArticles:
     """A docset-scoped or unscoped view of Salesforce Knowledge articles"""
 
