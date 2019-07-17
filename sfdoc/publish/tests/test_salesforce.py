@@ -21,6 +21,7 @@ def get_salesforce_instance(instance_url, sandbox):
         'access_token': 'abc123',
     }
     responses.add('POST', url=url, json=json)
+    SalesforceArticles.api = None
     return SalesforceArticles("pretend_UUID")
 
 
