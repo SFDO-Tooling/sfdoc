@@ -29,6 +29,15 @@
   }
 }
 
+.navbar {
+  border: none;
+  border-bottom: 3px solid;
+}
+
+.env-name {
+  color: white;
+  padding: 1px;
+}
 /* Display django-debug-toolbar.
    See https://github.com/django-debug-toolbar/django-debug-toolbar/issues/742
    and https://github.com/pydanny/cookiecutter-django/issues/317
