@@ -67,6 +67,11 @@ def find_bundle_root_directory(origpath):
     matchfile = "log.txt"
     path = origpath
 
+    # look down from origpath away from /
+    for root, dirs, files in os.walk(origpath):
+        if matchfile in files:
+            return root
+
     # look up from origpath toward /
     while len(path) > 1:
         if os.path.exists(os.path.join(path, "log.txt")):
@@ -74,11 +79,6 @@ def find_bundle_root_directory(origpath):
         oldpath = path
         path = os.path.dirname(oldpath)
         assert len(oldpath) > len(path), f"{oldpath} <= {path}"
-
-    # look down from origpath away from /
-    for root, dirs, files in os.walk(origpath):
-        if matchfile in files:
-            return root
 
     raise FileNotFoundError("Cannot find log.txt to identify root directory!")
 
