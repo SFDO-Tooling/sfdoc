@@ -242,20 +242,6 @@ class SalesforceArticles:
         """ Return base URL e.g. https://powerofus.force.com """
         return get_community_base_url(self.api)
 
-    def get_preview_url(self, ka_id, online=False):
-        """Article preview URL."""
-        preview_url = (
-            '{}{}'
-            '?id={}&preview=true&pubstatus=d&channel=APP'
-        ).format(
-            self.get_base_url(),
-            settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
-            ka_id[:15],  # reduce to 15 char ID
-        )
-        if online:
-            preview_url += '&pubstatus=o'
-        return preview_url
-
     def process_draft(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
         logger = get_logger(bundle)
@@ -362,7 +348,6 @@ class SalesforceArticles:
             bundle=bundle,
             ka_id=ka_id,
             kav_id=kav_id,
-            preview_url=self.get_preview_url(ka_id),
             status=status,
             title=html.title,
             url_name=html.url_name,

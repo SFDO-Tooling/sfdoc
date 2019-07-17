@@ -75,20 +75,3 @@ class TestSalesforceArticles(TestCase):
                 settings.SALESFORCE_COMMUNITY
             )
         )
-
-    @skip
-    @override_settings(SALESFORCE_SANDBOX=True)
-    @responses.activate
-    def test_get_preview_url(self):
-        salesforce = get_salesforce_instance(
-            'https://foundation--sb.cs70.my.salesforce.com',
-            settings.SALESFORCE_SANDBOX,
-        )
-        ka_url = salesforce.get_preview_url('123')
-        self.assertEqual(
-            ka_url,
-            'https://sb-{}.cs70.force.com{}?id=123&preview=true&pubstatus=d&channel=APP'.format(
-                settings.SALESFORCE_COMMUNITY,
-                settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX
-            ),
-        )
