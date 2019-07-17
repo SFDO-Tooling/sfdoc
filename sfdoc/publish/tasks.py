@@ -296,32 +296,28 @@ def process_bundle(bundle_pk):
             )
         except Exception as e:
             bundle.set_error(e)
-            raise
-        finally:
             process_bundle_queues.delay()
-
+            raise
     logger.info('Processed %s', bundle)
 
 
 @job
 def process_bundle_queues():
     """Process the next easyDITA bundle in the queue."""
+    if Bundle.objects.filter(
+        status__in=(
+            Bundle.STATUS_PROCESSING,
+            Bundle.STATUS_DRAFT,
+            Bundle.STATUS_PUBLISHING,
+        )
+    ):
+        return
     bundles = Bundle.objects.filter(status=Bundle.STATUS_QUEUED)
     if bundles:
-        relevant_docsets = set(bundle.easydita_resource_id for bundle in bundles)
-        print(f"Relevant docsets {relevant_docsets}")
+        relevant_docsets = set(bundle.easydita_id for bundle in bundles)
         for docset_id in relevant_docsets:
-            bundles_for_docset = bundles.filter(easydita_resource_id=docset_id)
-            print(f"bundles_for_docset {docset_id} {list(bundles_for_docset)}")
-
-            if not bundles_for_docset.filter(
-                    status__in=(
-                        Bundle.STATUS_PROCESSING,
-                        Bundle.STATUS_DRAFT,
-                        Bundle.STATUS_PUBLISHING,
-                    )):
-                print(f"about to process {bundles_for_docset.earliest('time_queued').pk}")
-                process_bundle.delay(bundles_for_docset.earliest("time_queued").pk)
+            bundles_for_docset = bundles.filter(easydita_id=docset_id)
+            process_bundle.delay(bundles_for_docset.earliest("time_queued").pk)
 
 
 @job
@@ -366,20 +362,16 @@ def publish_drafts(bundle_pk):
 
     logger = get_logger(bundle)
     logger.info('Publishing drafts for %s', bundle)
-    try:
-        logger.info('1 for %s', bundle)
-        assert (
-            bundle.status == bundle.STATUS_DRAFT
-        ), f"Bundle status should not be {dict(bundle.status_names)[bundle.status]}"
-        logger.info('2 for %s', bundle)
-        bundle.status = Bundle.STATUS_PUBLISHING
-        bundle.save()
-        logger.info('3 for %s', bundle)
 
+    assert (
+        bundle.status == bundle.STATUS_DRAFT
+    ), f"Bundle status should not be {dict(bundle.status_names)[bundle.status]}"
+    bundle.status = Bundle.STATUS_PUBLISHING
+    bundle.save()
+    try:
         _publish_drafts(bundle)
     except Exception as e:
         bundle.set_error(e)
-        logger.info(str(e))
         process_bundle_queues.delay()
         raise
     bundle.status = Bundle.STATUS_PUBLISHED
