@@ -18,6 +18,7 @@ from .logger import get_logger
 from logging import getLogger
 
 query_logger = getLogger("query_str")
+sf_api_logger = getLogger("salesforce_api")
 
 
 class SalesforceArticles:
@@ -80,6 +81,7 @@ class SalesforceArticles:
     def archive(self, kav_id):
         """Archive a published article."""
         # Ensure that this article is owned by the right docset
+        sf_api_logger.info("Archiving %s", kav_id)
         article = self.get_by_kav_id(kav_id, "online")
 
         ka_id = article["KnowledgeArticleId"]
@@ -92,6 +94,7 @@ class SalesforceArticles:
         # delete draft if it exists
         if draft:
             assert len(draft) == 1
+            sf_api_logger.info("Deleting draft %s", kav_id)
             self.delete(draft[0]['Id'])
         # archive published version
         self.set_publish_status(kav_id, 'archived')
@@ -123,6 +126,7 @@ class SalesforceArticles:
         data[settings.SALESFORCE_DOCSET_RELATION_FIELD] = self.sf_docset['Id']
         result = kav_api.create(data=data)
         kav_id = result['id']
+        sf_api_logger.info("Creating article %s %s", kav_id, data)
         self.invalidate_cache()     # I would prefer to update the cache but I
         #                             would need to do a query to get the
         #                             KnowledgeArticleId anyways. :(
@@ -143,6 +147,7 @@ class SalesforceArticles:
             ).format(ka_id))
             raise(e)
         kav_id = result.json()['id']
+        sf_api_logger.info("Created draft %s for %s with %s", kav_id, ka_id, data)
         return kav_id
 
     def delete(self, kav_id):
@@ -157,6 +162,7 @@ class SalesforceArticles:
             raise SalesforceError((
                 'Error deleting KnowledgeArticleVersion (ID={})'
             ).format(kav_id))
+        sf_api_logger.info("Deleting draft %s : %s", kav_id, url)
 
     def get_by_kav_id(self, kav_id, publish_status):
         try:
