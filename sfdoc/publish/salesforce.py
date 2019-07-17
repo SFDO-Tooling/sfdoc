@@ -168,7 +168,7 @@ class SalesforceArticles:
             return self.article_info_cache(publish_status, Id=kav_id)[0]
         except IndexError:
             raise SalesforceError(
-                'KnowledgeArticleVersion {} not found'.format(kav_id)
+                '{} KnowledgeArticleVersion {} not found'.format(publish_status, kav_id)
             )
 
     def get_ka_id(self, kav_id, publish_status):
@@ -367,6 +367,7 @@ class SalesforceArticles:
         )
 
     def set_publish_status(self, kav_id, status):
+        sf_api_logger.info("Changing publish status of %s to %s", kav_id, status)
         url = (
             self.api.base_url +
             'knowledgeManagement/articleVersions/masterVersions/{}'
