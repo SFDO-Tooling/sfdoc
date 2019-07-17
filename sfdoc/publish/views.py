@@ -140,8 +140,13 @@ def review(request, pk):
         return HttpResponseRedirect('../')
     else:
         form = PublishToProductionForm()
+    try:
+        base_url = get_community_base_url()
+    except Exception as error:
+        print(error)
+        print('Error getting base URL')
     context = {
-        'base_url': get_community_base_url(),
+        'base_url': base_url,
         'preview_url_prefix':
             settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
         'preview_url_suffix': '&preview=true&pubstatus=d&channel=APP',
