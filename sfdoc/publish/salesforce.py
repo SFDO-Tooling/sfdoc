@@ -94,7 +94,6 @@ class SalesforceArticles:
         # delete draft if it exists
         if draft:
             assert len(draft) == 1
-            sf_api_logger.info("Deleting draft %s", kav_id)
             self.delete(draft[0]['Id'])
         # archive published version
         self.set_publish_status(kav_id, 'archived')
@@ -162,7 +161,7 @@ class SalesforceArticles:
             raise SalesforceError((
                 'Error deleting KnowledgeArticleVersion (ID={})'
             ).format(kav_id))
-        sf_api_logger.info("Deleting draft %s : %s", kav_id, url)
+        sf_api_logger.info("Deleted draft %s : %s", kav_id, url)
 
     def get_by_kav_id(self, kav_id, publish_status):
         try:
