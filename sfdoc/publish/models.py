@@ -24,7 +24,6 @@ class Article(models.Model):
             (STATUS_DELETED, 'Deleted'),
         ),
     )
-    preview_url = models.CharField(max_length=255, default='')
     bundle = models.ForeignKey(
         'Bundle',
         on_delete=models.CASCADE,
