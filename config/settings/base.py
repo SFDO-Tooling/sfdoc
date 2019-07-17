@@ -267,5 +267,4 @@ RQ_QUEUES = {"default": {"URL": REDIS_URL, "AUTOCOMMIT": False}}
 SALESFORCE_LOGIN_URL = "https://login.salesforce.com"
 
 # Amazon
-AWS_S3_DRAFT_IMG_DIR = 'images/draft/'
-AWS_S3_PUBLIC_IMG_DIR = 'images/public/'
+AWS_S3_DRAFT_DIR = "draft/"
