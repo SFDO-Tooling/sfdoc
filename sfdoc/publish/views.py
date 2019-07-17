@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
@@ -17,6 +18,7 @@ from .models import Article
 from .models import Bundle
 from .models import Image
 from .models import Webhook
+from .salesforce import get_community_base_url
 from .tasks import process_bundle_queues
 from .tasks import process_webhook
 from .tasks import publish_drafts
@@ -139,6 +141,10 @@ def review(request, pk):
     else:
         form = PublishToProductionForm()
     context = {
+        'base_url': get_community_base_url(),
+        'preview_url_prefix':
+            settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
+        'preview_url_suffix': '&preview=true&pubstatus=d&channel=APP',
         'bundle': bundle,
         'form': form,
         'articles_new': bundle.articles.filter(
