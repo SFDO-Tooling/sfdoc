@@ -347,6 +347,11 @@ class SalesforceArticles:
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
         ka_id = self.get_ka_id(kav_id, 'draft')
+        logger = get_logger(bundle)
+        logger.info('URL -- base - %s', self.get_base_url())
+        logger.info('URL -- prefix - %s', settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX)
+        logger.info('URL -- id - %s', ka_id)
+        logger.info('URL -- result - %s', self.get_preview_url(ka_id))
         Article.objects.create(
             bundle=bundle,
             ka_id=ka_id,
