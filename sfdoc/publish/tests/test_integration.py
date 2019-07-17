@@ -530,7 +530,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             settings.SALESFORCE_DOCSET_ID_FIELD, uuid
         )
         assert sf.sf_docset["Id"] == result2["Id"]
-        sf_docset_api.delete(result["Id"])
+        raw_sf_docset_api.delete(result["Id"])
 
     def test_docset_index_url_change(self):
         with self.debugMock() as mocktempdir:
