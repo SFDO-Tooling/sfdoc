@@ -132,3 +132,6 @@ AWS_S3_PUBLIC_IMG_DIR = env("AWS_S3_PUBLIC_IMG_DIR", default='testimages/public/
 REDIS_URL = env("REDIS_URL", default="redis://localhost:6379")
 REDIS_URL += "/1"
 RQ_QUEUES = {"default": {"URL": REDIS_URL, "AUTOCOMMIT": False}}
+# Make it easy to differentiate between local, staging and prod versions
+ENV_COLOR = env("ENV_COLOR", default=" #1798c1")
+ENV_NAME = env("ENV_NAME", default="")
