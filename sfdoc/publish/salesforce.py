@@ -57,27 +57,25 @@ def get_salesforce_api():
 
 def get_community_base_url(api=None):
     """ Return base URL e.g. https://powerofus.force.com """
-    if api is None:
-        api = get_salesforce_api()
-
-    o = urlparse(api.base_url)
-
-    domain = '{}.force.com'.format(settings.SALESFORCE_COMMUNITY)
-
     if settings.SALESFORCE_SANDBOX:
+        # sandbox URLs vary depending on the instance they are served from
+        if api is None:
+            api = get_salesforce_api()
+
+        o = urlparse(api.base_url)
         parts = o.netloc.split('.')
         instance = parts[1]
         sandbox_name = parts[0].split('--')[1]
 
-        domain = '{}-{}.{}.force.com'.format(
+        return '{}://{}-{}.{}.force.com'.format(
+            o.scheme,
             sandbox_name,
             settings.SALESFORCE_COMMUNITY,
-            instance
+            instance,
         )
 
-    return '{}://{}'.format(
-        o.scheme,
-        domain,
+    return 'https://{}.force.com'.format(
+        settings.SALESFORCE_COMMUNITY,
     )
 
 
