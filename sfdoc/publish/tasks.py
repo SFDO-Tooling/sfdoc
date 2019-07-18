@@ -213,9 +213,6 @@ def _record_archivable_articles(salesforce_docset, bundle, url_map):
                 status=Article.STATUS_DELETED,
                 title=article["Title"],
                 url_name=article["UrlName"],
-                preview_url=salesforce_docset.get_preview_url(
-                    article["KnowledgeArticleId"], online=True
-                ),
             )
 
 

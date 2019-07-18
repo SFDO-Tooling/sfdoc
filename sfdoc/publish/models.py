@@ -24,7 +24,6 @@ class Article(models.Model):
             (STATUS_DELETED, 'Deleted'),
         ),
     )
-    preview_url = models.CharField(max_length=255, default='')
     bundle = models.ForeignKey(
         'Bundle',
         on_delete=models.CASCADE,
@@ -41,6 +40,14 @@ class Article(models.Model):
     @property
     def docset_id(self):
         return self.bundle.docset_id
+
+    @property
+    def preview_url(self):
+        return '{}?id={}{}'.format(
+            settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
+            self.ka_id,
+            '&preview=true&pubstatus=d&channel=APP'
+        )
 
 
 class Bundle(models.Model):
