@@ -35,7 +35,6 @@ class TestTasks(TestCase):
             bundle4 = BundleFactory(status=Bundle.STATUS_QUEUED, easydita_resource_id=bundle1.easydita_resource_id)
             bundle5 = BundleFactory(status=Bundle.STATUS_QUEUED, easydita_resource_id=bundle2.easydita_resource_id)
             bundle6 = BundleFactory(status=Bundle.STATUS_QUEUED, easydita_resource_id=bundle3.easydita_resource_id)
-            breakpoint()
             tasks.process_bundle_queues()
             mock_method.assert_not_called()
 
