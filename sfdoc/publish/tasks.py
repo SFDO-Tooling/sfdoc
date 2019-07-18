@@ -283,7 +283,9 @@ def process_bundle(bundle_pk):
         bundle = bundle_pk
     else:
         bundle = Bundle.objects.get(pk=bundle_pk)
-    bundle.status = Bundle.STATUS_PROCESSING
+    assert bundle.status == bundle.STATUS_PROCESSING,\
+        "Bundle should be queued before we process it, not {bundle.status}"
+
     bundle.time_processed = now()
     bundle.save()
     logger = get_logger(bundle)
@@ -296,28 +298,36 @@ def process_bundle(bundle_pk):
             )
         except Exception as e:
             bundle.set_error(e)
-            process_bundle_queues.delay()
             raise
+        finally:
+            process_bundle_queues.delay()
+
     logger.info('Processed %s', bundle)
 
 
 @job
 def process_bundle_queues():
     """Process the next easyDITA bundle in the queue."""
-    if Bundle.objects.filter(
-        status__in=(
-            Bundle.STATUS_PROCESSING,
-            Bundle.STATUS_DRAFT,
-            Bundle.STATUS_PUBLISHING,
-        )
-    ):
-        return
     bundles = Bundle.objects.filter(status=Bundle.STATUS_QUEUED)
     if bundles:
-        relevant_docsets = set(bundle.easydita_id for bundle in bundles)
+        # ordered dict instead of set to preserve order and simplify testing
+        relevant_docsets = {bundle.easydita_resource_id: bundle.easydita_resource_id for bundle in bundles}
+        relevant_docsets = relevant_docsets.keys()
         for docset_id in relevant_docsets:
-            bundles_for_docset = bundles.filter(easydita_id=docset_id)
-            process_bundle.delay(bundles_for_docset.earliest("time_queued").pk)
+            bundles_for_docset = bundles.filter(easydita_resource_id=docset_id)
+
+            docset_bundles_being_processed_already = Bundle.objects.filter(
+                    status__in=(
+                        Bundle.STATUS_PROCESSING,
+                        Bundle.STATUS_DRAFT,
+                        Bundle.STATUS_PUBLISHING,
+                    ), easydita_resource_id=docset_id)
+            if not any(docset_bundles_being_processed_already):
+                queued_bundles_for_docset = bundles_for_docset.filter(status=Bundle.STATUS_QUEUED)
+                bundle_to_process = queued_bundles_for_docset.earliest('time_queued')
+                bundle_to_process.status = Bundle.STATUS_PROCESSING
+                bundle_to_process.save()
+                process_bundle.delay(bundle_to_process.pk)
 
 
 @job
@@ -362,16 +372,17 @@ def publish_drafts(bundle_pk):
 
     logger = get_logger(bundle)
     logger.info('Publishing drafts for %s', bundle)
-
-    assert (
-        bundle.status == bundle.STATUS_DRAFT
-    ), f"Bundle status should not be {dict(bundle.status_names)[bundle.status]}"
-    bundle.status = Bundle.STATUS_PUBLISHING
-    bundle.save()
     try:
+        assert (
+            bundle.status == bundle.STATUS_DRAFT
+        ), f"Bundle status should not be {dict(bundle.status_names)[bundle.status]}"
+        bundle.status = Bundle.STATUS_PUBLISHING
+        bundle.save()
+
         _publish_drafts(bundle)
     except Exception as e:
         bundle.set_error(e)
+        logger.info(str(e))
         process_bundle_queues.delay()
         raise
     bundle.status = Bundle.STATUS_PUBLISHED
