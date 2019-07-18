@@ -41,6 +41,14 @@ class Article(models.Model):
     def docset_id(self):
         return self.bundle.docset_id
 
+    @property
+    def preview_url(self):
+        return '{}?id={}{}'.format(
+            settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
+            self.ka_id,
+            '&preview=true&pubstatus=d&channel=APP'
+        )
+
 
 class Bundle(models.Model):
     """Represents a ZIP file of HTML and images from easyDITA."""
