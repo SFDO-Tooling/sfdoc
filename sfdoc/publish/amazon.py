@@ -80,7 +80,8 @@ class S3:
     def process_image(self, filename, rootpath):
         """Upload image file to S3 if needed."""
         relative_filename = utils.bundle_relative_path(rootpath, filename)
-        key = Image.get_storage_path(self.docset_id, relative_filename, draft=True)
+        draft_key = Image.get_storage_path(self.docset_id, relative_filename, draft=True)
+        prod_key = Image.get_storage_path(self.docset_id, relative_filename, draft=False)
         with TemporaryDirectory(prefix=f"process_image_{os.path.basename(filename)}") as tempdir:
             s3localname = os.path.join(tempdir, relative_filename)
             os.makedirs(os.path.dirname(s3localname))
@@ -88,13 +89,13 @@ class S3:
                 # download image from root (production) dir for comparison
                 self.api.meta.client.download_file(
                     settings.AWS_S3_BUCKET,
-                    key,
+                    prod_key,
                     s3localname,
                 )
             except botocore.exceptions.ClientError as e:
                 if e.response['Error']['Code'] == '404':
                     # image does not exist on S3, create a new one
-                    self.upload_image(filename, key)
+                    self.upload_image(filename, draft_key)
 
                     # Keep track of the fact that we need to transfer it to prod
                     Image.objects.create(
@@ -111,7 +112,7 @@ class S3:
                 return
             else:
                 # files differ, update image
-                self.upload_image(filename, key)
+                self.upload_image(filename, draft_key)
                 Image.objects.create(
                     bundle=self.bundle,
                     filename=relative_filename,
