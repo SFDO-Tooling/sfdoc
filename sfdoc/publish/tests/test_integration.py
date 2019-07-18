@@ -242,22 +242,32 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             # 1. Import a bundle
             mocktempdir.set_subprefix("_scenario_1_")
             bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+            articles = Article.objects.filter(bundle=bundle_A_V1,
+                                              status__in=(Article.STATUS_NEW))
+            self.assertTitles(articles, fake_easydita.ditamap_A_titles)
+            self.assertTitles(self.salesforce.get_articles("draft"),
+                              fake_easydita.ditamap_A_titles)
 
             # 2. User publishes the first bundle.
             mocktempdir.set_subprefix("_scenario_2_")
             tasks.publish_drafts(bundle_A_V1.pk)  # simulate publish from UI
+            self.assertTitles(self.salesforce.get_articles("online"),
+                              fake_easydita.ditamap_A_titles)
 
             # 3. Now import a different bundle with our to-be-deleted file
             mocktempdir.set_subprefix("_scenario_3_")
             bundle_B = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_B)
+            articles = Article.objects.filter(bundle=bundle_B,
+                                              status__in=(Article.STATUS_NEW))
+            self.assertTitles(articles, fake_easydita.ditamap_B_titles)
+            self.assertTitles(self.salesforce.get_articles("draft"),
+                              fake_easydita.ditamap_B_titles)
 
-            to_be_removed_articles = ["Article 2, Bundle B"]
             # should be able to find the article we're going to delete later
-            for to_be_removed_article in to_be_removed_articles:
-                self.assertIn(
-                    to_be_removed_article,
-                    self.article_titles(self.salesforce.get_articles("draft")),
-                )
+            self.assertIn(
+                "Article 2, Bundle B",
+                self.article_titles(self.salesforce.get_articles("draft")),
+            )
 
             # 4. Publish the second bundle.
             mocktempdir.set_subprefix("_scenario_4_")
@@ -269,7 +279,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
             deleted = Article.objects.filter(bundle=bundle_B_V3, status="D")
 
-            self.assertTitles(deleted, to_be_removed_articles)
+            self.assertTitles(deleted, ["Article 2, Bundle B"])
 
             # 6. Publish the bundle and check that it disappears as public
             mocktempdir.set_subprefix("_scenario_6_")
@@ -284,11 +294,10 @@ class SFDocTestIntegration(TestCase, TstHelpers):
                 fake_easydita.ditamap_A_titles
                 + fake_easydita.ditamap_B_V3_titles
             )
-            for removed_article in to_be_removed_articles:
-                self.assertNotIn(
-                    removed_article,
-                    self.article_titles(self.salesforce.get_articles("online")),
-                )
+            self.assertNotIn(
+                "Article 2, Bundle B",
+                self.article_titles(self.salesforce.get_articles("online")),
+            )
 
             # 7. Import and publish a version of the the other bundle and ensure that the first draft doesn't reappear
             mocktempdir.set_subprefix("_scenario_7_")
@@ -300,11 +309,10 @@ class SFDocTestIntegration(TestCase, TstHelpers):
                 fake_easydita.ditamap_A_V2_titles
                 + fake_easydita.ditamap_B_V3_titles
             )
-            for removed_article in to_be_removed_articles:
-                self.assertNotIn(
-                    removed_article,
-                    self.article_titles(self.salesforce.get_articles("online")),
-                )
+            self.assertNotIn(
+                "Article 2, Bundle B",
+                self.article_titles(self.salesforce.get_articles("online")),
+            )
 
     def test_two_bundles_and_missing_articles(self):
         with self.debugMock() as mocktempdir:
