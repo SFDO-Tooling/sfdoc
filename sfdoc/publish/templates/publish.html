@@ -9,7 +9,7 @@
 <p>
   <ul>
 {% for article in articles_new %}
-    <li><a href="{{ base_url }}{{ preview_url_prefix }}?id={{ article.ka_id }}{{ preview_url_suffix }}" target="_blank">{{ article.url_name }}</a></li>
+    <li><a href="{{ article.preview_url }}" target="_blank">{{ article.url_name }}</a></li>
 {% endfor %}
   </ul>
 </p>
@@ -21,7 +21,7 @@
 <p>
   <ul>
 {% for article in articles_changed %}
-    <li><a href="{{ base_url }}{{ preview_url_prefix }}?id={{ article.ka_id }}{{ preview_url_suffix }}" target="_blank">{{ article.url_name }}</a></li>
+    <li><a href="{{ article.preview_url }}" target="_blank">{{ article.url_name }}</a></li>
 {% endfor %}
   </ul>
 </p>
@@ -33,7 +33,7 @@
 <p>
   <ul>
 {% for article in articles_deleted %}
-    <li><a href="{{ base_url }}{{ preview_url_prefix }}?id={{ article.ka_id }}{{ preview_url_suffix }}" target="_blank">{{ article.url_name }}</a></li>
+    <li><a href="{{ article.preview_url }}" target="_blank">{{ article.url_name }}</a></li>
 {% endfor %}
   </ul>
 </p>

@@ -20,7 +20,6 @@ class TestArticle(TestCase):
             easydita_resource_id='9876543210',
         )
         return Article.objects.create(
-            preview_url='',
             bundle=bundle,
             ka_id='kA0123456789012345',
             kav_id='ka9876543210987654',

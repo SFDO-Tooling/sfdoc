@@ -140,27 +140,31 @@ def review(request, pk):
         return HttpResponseRedirect('../')
     else:
         form = PublishToProductionForm()
-    try:
-        base_url = get_community_base_url()
-    except Exception as error:
-        print(error)
-        print('Error getting base URL')
+
+    base_url = get_community_base_url()
+    assert base_url is not None
+
+    def article_for_view(item):
+        return {
+            'preview_url': '{}{}'.format(base_url, item.preview_url),
+            'url_name': item.url_name,
+        }
+
+    def get_articles_for_view(collection):
+        return list(map(article_for_view, collection))
+
     context = {
-        'base_url': base_url,
-        'preview_url_prefix':
-            settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
-        'preview_url_suffix': '&preview=true&pubstatus=d&channel=APP',
         'bundle': bundle,
         'form': form,
-        'articles_new': bundle.articles.filter(
+        'articles_new': get_articles_for_view(bundle.articles.filter(
             status=Article.STATUS_NEW
-        ).order_by('url_name'),
-        'articles_changed': bundle.articles.filter(
+        ).order_by('url_name')),
+        'articles_changed': get_articles_for_view(bundle.articles.filter(
             status=Article.STATUS_CHANGED
-        ).order_by('url_name'),
-        'articles_deleted': bundle.articles.filter(
+        ).order_by('url_name')),
+        'articles_deleted': get_articles_for_view(bundle.articles.filter(
             status=Article.STATUS_DELETED
-        ).order_by('url_name'),
+        ).order_by('url_name')),
         'images_new': bundle.images.filter(
             status=Image.STATUS_NEW
         ).order_by('filename'),
