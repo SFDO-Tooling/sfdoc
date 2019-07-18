@@ -13,6 +13,8 @@ from .logger import get_logger
 
 class Article(models.Model):
     """Tracks created/updated articles per bundle."""
+    class Meta:
+        unique_together = [["bundle", "url_name"]]
     STATUS_NEW = 'N'
     STATUS_CHANGED = 'C'
     STATUS_DELETED = 'D'
