@@ -144,14 +144,11 @@ def review(request, pk):
     base_url = get_community_base_url()
     assert base_url is not None
 
-    def article_for_view(item):
-        return {
-            'preview_url': '{}{}'.format(base_url, item.preview_url),
-            'url_name': item.url_name,
-        }
-
     def get_articles_for_view(collection):
-        return list(map(article_for_view, collection))
+        return [{
+            'preview_url': f'{base_url}{article.preview_url}',
+            'url_name': article.url_name,
+        } for article in collection]
 
     context = {
         'bundle': bundle,
