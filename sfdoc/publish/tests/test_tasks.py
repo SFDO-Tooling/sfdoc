@@ -28,5 +28,15 @@ class TestTasks(TestCase):
 
             tasks.process_bundle_queues()
             call = mock.call
+            assert mock_method.call_count == 3
             mock_method.assert_has_calls([call(bundle1.pk), call(bundle2.pk), call(bundle3.pk)], any_order=True)
+
+        with mock.patch('sfdoc.publish.tasks.process_bundle.delay') as mock_method:
+            bundle4 = BundleFactory(status=Bundle.STATUS_QUEUED, easydita_resource_id=bundle1.easydita_resource_id)
+            bundle5 = BundleFactory(status=Bundle.STATUS_QUEUED, easydita_resource_id=bundle2.easydita_resource_id)
+            bundle6 = BundleFactory(status=Bundle.STATUS_QUEUED, easydita_resource_id=bundle3.easydita_resource_id)
+            breakpoint()
+            tasks.process_bundle_queues()
+            mock_method.assert_not_called()
+
             [bundle1, bundle2, bundle3, bundle4, bundle5, bundle6]  # unused vars. Shut up linter

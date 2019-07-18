@@ -129,6 +129,8 @@ class TstHelpers:  # named to avoid confusing pytest
         return self.webhook.bundle
 
     def assertTitles(self, article_list, titles):
+        if titles:
+            assert isinstance(titles[0], str)
         self.assertEqual(sorted(self.article_titles(article_list)), sorted(titles))
 
     def assertUrlResolves(self, url):
@@ -232,9 +234,8 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             # do it myself
             self.fake_queue.pump()
 
-            # now there should be a job to process that specific bundle
-            assert (tasks.process_bundle, (bundle.pk,), {}) in self.fake_queue.calls
             self.fake_queue.pump()
+            bundle.refresh_from_db()
             return bundle
 
     def test_remove_article(self):
@@ -359,7 +360,6 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
             # check that they were added to SF
             self.assertTitles(sforg_article_list, fake_easydita.ditamap_B_titles)
-            return
 
             # check that we created "NEW" status models in PG for all bundle_B
             # objects
@@ -568,3 +568,83 @@ class SFDocTestIntegration(TestCase, TstHelpers):
                 assert False, "Should not get to this line of code"
             except IndexError:
                 pass  # we're good
+
+    def test_two_bundles_interleaved(self):
+        """Test two bundles being ready for review at the same time"""
+        with self.debugMock() as mocktempdir:
+            mocktempdir.set_subprefix("_scenario_1_")
+            assert os.path.exists(TESTING_CACHE)
+
+            # 1. Import a bundle
+            bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+            assert bundle_A_V1.status == bundle_A_V1.STATUS_DRAFT
+
+            self.assertStringNotInArticles(settings.AWS_S3_PUBLIC_IMG_DIR, "DRAFT")
+            assert os.path.exists(TESTING_CACHE)
+
+            # Check that we imported articles into both local DB and SF Org
+            # compare # of database models to draft articles
+            sforg_article_list = self.salesforce.get_articles("draft")
+            self.assertEqual(len(sforg_article_list), len(Article.objects.all()))
+            self.assertTitles(
+                sforg_article_list,
+                fake_easydita.ditamap_A_titles,
+            )
+
+            # check that we created the right number of "NEW" status models in PG
+            pg_models = Article.objects.filter(bundle=bundle_A_V1)
+            self.assertEqual(len(sforg_article_list), len(pg_models))
+
+            self.assertNoImagesScheduledForDeletion()
+
+            # 2. Now import a different bundle. Check that the new articles
+            #    are drafts and the old ones are still draft also.
+            mocktempdir.set_subprefix("_scenario_2_")
+            bundle_B = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_B)
+            sforg_article_list = self.salesforce.get_articles("draft")
+
+            # check that they were added to SF
+            self.assertTitles(sforg_article_list, fake_easydita.ditamap_A_titles +
+                              fake_easydita.ditamap_B_titles)
+
+            # check that we created "NEW" status models in PG for all bundle_B
+            # objects
+            pg_models = Article.objects.filter(bundle=bundle_B, status="N")
+            self.assertTitles(pg_models, fake_easydita.ditamap_B_titles)
+
+            # check that no articles were deleted or changed.
+            other_stuff = Article.objects.filter(bundle=bundle_B).exclude(status="N")
+            assert not other_stuff
+            self.assertNoImagesScheduledForDeletion()
+
+            # 3. Add another bundle "bundle_A" and ensure that it stays queued, not processing.
+            bundle_A_V2 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A_V2)
+            assert bundle_A_V2.status == bundle_A_V2.STATUS_QUEUED
+
+            # 4. Publish the first bundle. Check that the articles are published.
+            mocktempdir.set_subprefix("_scenario_4_")
+            tasks.publish_drafts(bundle_A_V1.pk)  # simulate publish from UI
+            self.assertStringNotInArticles(settings.AWS_S3_DRAFT_IMG_DIR, "Online")
+            self.assertTitles(
+                self.salesforce.get_articles("online"),
+                fake_easydita.ditamap_A_titles,
+            )
+            self.assertNoImagesScheduledForDeletion()
+
+            # bundle B stuff should still be unpublished
+            self.assertTitles(self.salesforce.get_articles("draft"), fake_easydita.ditamap_B_titles)
+
+            # 5. Publish the second bundle. Check that both sets of articles
+            #    stay published.
+            mocktempdir.set_subprefix("_scenario_5_")
+
+            tasks.publish_drafts(bundle_B.pk)  # simulate publish from UI
+            self.assertStringNotInArticles(settings.AWS_S3_DRAFT_IMG_DIR, "Online")
+
+            self.assertTitles(
+                self.salesforce.get_articles("online"),
+                fake_easydita.ditamap_A_titles
+                + fake_easydita.ditamap_B_titles,
+            )
+            # no articles should still be in draft
+            self.assertEqual(self.salesforce.get_articles("draft"), [])
