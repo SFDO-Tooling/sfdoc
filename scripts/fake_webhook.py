@@ -1,7 +1,10 @@
 import sys
 import requests
 from pprint import pprint
+sys.path.append(".")
+from sfdoc.publish.tests import fake_easydita
 
+url = "http://localhost:8000/publish/webhook/"
 
 def jsonify(output_UUID, resource_UUID):
     return {
@@ -17,20 +20,26 @@ def jsonify(output_UUID, resource_UUID):
     }
 
 
-url = "https://sfdoc-staging.sfdc.sh/publish/webhook/"
+def call(json):
+    result = requests.post(url, json=json)
+    print(url, str(result))
+
+
 
 # Bundle A
-output_UUID = "726c4040-a68c-11e9-b28c-42010af00002"
-resource_UUID = "77b09a40-819a-11e9-b28c-42010af00002"
+call(fake_easydita.fake_webhook_body_doc_A)
 
 # Bundle B
-output_UUID = "211d8cc0-8275-11e9-b28c-42010af00002"
-resource_UUID = "bf0080a0-8270-11e9-b28c-42010af00002"
+call(fake_easydita.fake_webhook_body_doc_B)
 
-# Bundle B V3
-output_UUID = "de6045b0-8b95-11e9-b28c-42010af00002"
-resource_UUID = "bf0080a0-8270-11e9-b28c-42010af00002"
+# Bundle A
+call(fake_easydita.fake_webhook_body_doc_A_V2)
 
-result = requests.post(url, json=jsonify(output_UUID, resource_UUID))
+# Bundle B
+call(fake_easydita.fake_webhook_body_doc_b_V3)
 
-pprint(result)
+# Bundle A
+call(fake_easydita.fake_webhook_body_doc_A_V4)
+
+# Bundle B
+call(fake_easydita.fake_webhook_body_doc_B)
