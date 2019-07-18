@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
@@ -19,6 +20,7 @@ from .models import Article
 from .models import Bundle
 from .models import Image
 from .models import Webhook
+from .salesforce import get_community_base_url
 from .tasks import process_bundle_queues
 from .tasks import process_webhook
 from .tasks import publish_drafts
@@ -154,19 +156,29 @@ def review(request, pk):
         return HttpResponseRedirect('../')
     else:
         form = PublishToProductionForm()
+
+    base_url = get_community_base_url()
+    assert base_url is not None
+
+    def get_articles_for_view(collection):
+        return [{
+            'preview_url': f'{base_url}{article.preview_url}',
+            'url_name': article.url_name,
+        } for article in collection]
+
     context = {
         'bundle': bundle,
         **common_context,
         'form': form,
-        'articles_new': bundle.articles.filter(
+        'articles_new': get_articles_for_view(bundle.articles.filter(
             status=Article.STATUS_NEW
-        ).order_by('url_name'),
-        'articles_changed': bundle.articles.filter(
+        ).order_by('url_name')),
+        'articles_changed': get_articles_for_view(bundle.articles.filter(
             status=Article.STATUS_CHANGED
-        ).order_by('url_name'),
-        'articles_deleted': bundle.articles.filter(
+        ).order_by('url_name')),
+        'articles_deleted': get_articles_for_view(bundle.articles.filter(
             status=Article.STATUS_DELETED
-        ).order_by('url_name'),
+        ).order_by('url_name')),
         'images_new': bundle.images.filter(
             status=Image.STATUS_NEW
         ).order_by('filename'),

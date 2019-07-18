@@ -21,6 +21,65 @@ query_logger = getLogger("query_str")
 sf_api_logger = getLogger("salesforce_api")
 
 
+def get_salesforce_api():
+    """Get an instance of the Salesforce REST API."""
+    url = settings.SALESFORCE_LOGIN_URL
+    if settings.SALESFORCE_SANDBOX:
+        url = url.replace('login', 'test')
+    payload = {
+        'alg': 'RS256',
+        'iss': settings.SALESFORCE_CLIENT_ID,
+        'sub': settings.SALESFORCE_USERNAME,
+        'aud': url,
+        'exp': timegm(datetime.utcnow().utctimetuple()),
+    }
+    encoded_jwt = jwt.encode(
+        payload,
+        settings.SALESFORCE_JWT_PRIVATE_KEY,
+        algorithm='RS256',
+    )
+    data = {
+        'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        'assertion': encoded_jwt,
+    }
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    auth_url = urljoin(url, 'services/oauth2/token')
+    response = requests.post(url=auth_url, data=data, headers=headers)
+    response.raise_for_status()  # maybe VPN or auth problem!
+    response_data = response.json()
+    return SimpleSalesforce(
+        instance_url=response_data['instance_url'],
+        session_id=response_data['access_token'],
+        sandbox=settings.SALESFORCE_SANDBOX,
+        version=settings.SALESFORCE_API_VERSION,
+        client_id='sfdoc',
+    )
+
+
+def get_community_base_url(api=None):
+    """ Return base URL e.g. https://powerofus.force.com """
+    if settings.SALESFORCE_SANDBOX:
+        # sandbox URLs vary depending on the instance they are served from
+        if api is None:
+            api = get_salesforce_api()
+
+        o = urlparse(api.base_url)
+        parts = o.netloc.split('.')
+        instance = parts[1]
+        sandbox_name = parts[0].split('--')[1]
+
+        return '{}://{}-{}.{}.force.com'.format(
+            o.scheme,
+            sandbox_name,
+            settings.SALESFORCE_COMMUNITY,
+            instance,
+        )
+
+    return 'https://{}.force.com'.format(
+        settings.SALESFORCE_COMMUNITY,
+    )
+
+
 class SalesforceArticles:
     """A docset-scoped or unscoped view of Salesforce Knowledge articles"""
 
@@ -38,39 +97,7 @@ class SalesforceArticles:
 
     @classmethod
     def _get_salesforce_api(cls):
-        """Get an instance of the Salesforce REST API."""
-        url = settings.SALESFORCE_LOGIN_URL
-        if settings.SALESFORCE_SANDBOX:
-            url = url.replace('login', 'test')
-        payload = {
-            'alg': 'RS256',
-            'iss': settings.SALESFORCE_CLIENT_ID,
-            'sub': settings.SALESFORCE_USERNAME,
-            'aud': url,
-            'exp': timegm(datetime.utcnow().utctimetuple()),
-        }
-        encoded_jwt = jwt.encode(
-            payload,
-            settings.SALESFORCE_JWT_PRIVATE_KEY,
-            algorithm='RS256',
-        )
-        data = {
-            'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion': encoded_jwt,
-        }
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        auth_url = urljoin(url, 'services/oauth2/token')
-        response = requests.post(url=auth_url, data=data, headers=headers)
-        response.raise_for_status()  # maybe VPN or auth problem!
-        response_data = response.json()
-        sf = SimpleSalesforce(
-            instance_url=response_data['instance_url'],
-            session_id=response_data['access_token'],
-            sandbox=settings.SALESFORCE_SANDBOX,
-            version=settings.SALESFORCE_API_VERSION,
-            client_id='sfdoc',
-        )
-        cls.api = sf
+        cls.api = get_salesforce_api()
 
     def get_docsets(self):
         query_str = f"""SELECT Id, {settings.SALESFORCE_DOCSET_ID_FIELD},
@@ -217,39 +244,7 @@ class SalesforceArticles:
 
     def get_base_url(self):
         """ Return base URL e.g. https://powerofus.force.com """
-        o = urlparse(self.api.base_url)
-
-        domain = '{}.force.com'.format(settings.SALESFORCE_COMMUNITY)
-
-        if settings.SALESFORCE_SANDBOX:
-            parts = o.netloc.split('.')
-            instance = parts[1]
-            sandbox_name = parts[0].split('--')[1]
-
-            domain = '{}-{}.{}.force.com'.format(
-                sandbox_name,
-                settings.SALESFORCE_COMMUNITY,
-                instance
-            )
-
-        return '{}://{}'.format(
-            o.scheme,
-            domain,
-        )
-
-    def get_preview_url(self, ka_id, online=False):
-        """Article preview URL."""
-        preview_url = (
-            '{}{}'
-            '?id={}&preview=true&pubstatus=d&channel=APP'
-        ).format(
-            self.get_base_url(),
-            settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
-            ka_id[:15],  # reduce to 15 char ID
-        )
-        if online:
-            preview_url += '&pubstatus=o'
-        return preview_url
+        return get_community_base_url(self.api)
 
     def process_draft(self, html, bundle):
         """Create a draft KnowledgeArticleVersion."""
@@ -361,7 +356,6 @@ class SalesforceArticles:
             bundle=bundle,
             ka_id=ka_id,
             kav_id=kav_id,
-            preview_url=self.get_preview_url(ka_id),
             status=status,
             title=html.title,
             url_name=html.url_name,

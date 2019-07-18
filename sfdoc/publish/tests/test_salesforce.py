@@ -7,6 +7,7 @@ from django.test import override_settings
 import responses
 from test_plus.test import TestCase
 
+from ..salesforce import get_community_base_url
 from ..salesforce import SalesforceArticles
 
 
@@ -20,6 +21,7 @@ def get_salesforce_instance(instance_url, sandbox):
         'access_token': 'abc123',
     }
     responses.add('POST', url=url, json=json)
+    SalesforceArticles.api = None
     return SalesforceArticles("pretend_UUID")
 
 
@@ -47,10 +49,13 @@ class TestSalesforceArticles(TestCase):
         )
         self.assertEqual(len(responses.calls), 1)
 
+
+class TestCommunityUrl(TestCase):
+
     @responses.activate
     @override_settings(SALESFORCE_SANDBOX=True)
     def test_get_community_loc_sandbox(self):
-
+        # determining sandbox URL *requires* auth to SFDC
         salesforce = get_salesforce_instance(
             'https://foundation--productdoc.cs70.my.salesforce.com',
             settings.SALESFORCE_SANDBOX,
@@ -62,33 +67,12 @@ class TestSalesforceArticles(TestCase):
             )
         )
 
-    @responses.activate
     @override_settings(SALESFORCE_SANDBOX=False)
     def test_get_community_loc_prod(self):
-        salesforce = get_salesforce_instance(
-            'https://foundation--productdoc.cs70.my.salesforce.com',
-            settings.SALESFORCE_SANDBOX,
-        )
+        # determining non-sandbox URL does not require request to SFDC
         self.assertEqual(
-            salesforce.get_base_url(),
+            get_community_base_url(),
             'https://{}.force.com'.format(
                 settings.SALESFORCE_COMMUNITY
             )
-        )
-
-    @skip
-    @override_settings(SALESFORCE_SANDBOX=True)
-    @responses.activate
-    def test_get_preview_url(self):
-        salesforce = get_salesforce_instance(
-            'https://foundation--sb.cs70.my.salesforce.com',
-            settings.SALESFORCE_SANDBOX,
-        )
-        ka_url = salesforce.get_preview_url('123')
-        self.assertEqual(
-            ka_url,
-            'https://sb-{}.cs70.force.com{}?id=123&preview=true&pubstatus=d&channel=APP'.format(
-                settings.SALESFORCE_COMMUNITY,
-                settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX
-            ),
         )
