@@ -62,6 +62,8 @@ def _process_bundle(bundle, path):
 
     create_drafts(bundle, html_files, path, salesforce_docset, s3)
 
+    bundle.status = bundle.STATUS_DRAFT
+    bundle.save()
 
 def extract_docset_metadata_from_index_doc(docset, path):
     """Try to name a docset from information in an index HTML"""
@@ -199,8 +201,6 @@ def create_drafts(bundle, html_files, path, salesforce_docset, s3):
     if not bundle.articles.count() and not bundle.images.count():
         raise SfdocError('No articles or images changed')
     # finish
-    bundle.status = bundle.STATUS_DRAFT
-    bundle.save()
 
 
 def _record_archivable_articles(salesforce_docset, bundle, url_map):
