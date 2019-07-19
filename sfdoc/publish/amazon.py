@@ -5,10 +5,13 @@ from tempfile import TemporaryDirectory
 import boto3
 import botocore
 from django.conf import settings
+from logging import getLogger
 
 from .models import Image
 from . import utils
 
+
+real_logger = getLogger("awss3")
 
 class S3:
 
@@ -92,9 +95,13 @@ class S3:
                     prod_key,
                     s3localname,
                 )
+                logger.info("Downloaded image %s -> %s", prod_key, s3localname)
             except botocore.exceptions.ClientError as e:
+                logger.info("Image not found %s", prod_key)
+
                 if e.response['Error']['Code'] == '404':
                     # image does not exist on S3, create a new one
+                    logger.info("Uploading: %s", prod_key)
                     self.upload_image(filename, draft_key)
 
                     # Keep track of the fact that we need to transfer it to prod
@@ -109,9 +116,13 @@ class S3:
             # image already in production; compare it to local image
             if filecmp.cmp(filename, s3localname):
                 # files are the same, no update
+                logger.info("Images are the same: %s, %s", filename, s3localname)
+
                 return
             else:
                 # files differ, update image
+                logger.info("Upload image: %s, %s", filename, draft_key)
+
                 self.upload_image(filename, draft_key)
                 Image.objects.create(
                     bundle=self.bundle,
