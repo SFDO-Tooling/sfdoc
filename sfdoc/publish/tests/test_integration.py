@@ -437,10 +437,10 @@ class SFDocTestIntegration(TestCase, TstHelpers):
     def test_images(self):
         # 1. Import a bundle
         bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
-        new_images = list(Image.objects.filter(status=Image.STATUS_NEW))
+        new_images = list(Image.objects.filter(status=Image.STATUS_NEW, bundle=bundle_A_V1))
         assert(len(new_images) == 3)
-        assert not Image.objects.filter(status=Image.STATUS_CHANGED)
-        assert not Image.objects.filter(status=Image.STATUS_DELETED)
+        assert not Image.objects.filter(status=Image.STATUS_CHANGED, bundle=bundle_A_V1)
+        assert not Image.objects.filter(status=Image.STATUS_DELETED, bundle=bundle_A_V1)
 
         # 2. Publish the first bundle.
         tasks.publish_drafts(bundle_A_V1.pk)  # simulate publish from UI
@@ -452,7 +452,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             settings.AWS_S3_DRAFT_IMG_DIR, bundle_A_V3.docset_id + "/", testing_file
         )
         self.assertS3ObjectExists(draft_img_s3_object)
-        new_images = list(Image.objects.filter(status=Image.STATUS_NEW))
+        new_images = list(Image.objects.filter(status=Image.STATUS_NEW, bundle=bundle_A_V3))
         assert(len(new_images) == 1)
         assert not Image.objects.filter(status=Image.STATUS_CHANGED)
         assert not Image.objects.filter(status=Image.STATUS_DELETED)
@@ -496,8 +496,8 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         # now we've deleted an image, so there should be 1 and only 1 such
         # record. This is the first one we have deleted
         self.assertEqual(Image.objects.filter(status=Image.STATUS_DELETED).count(), 1)
-        self.assertEqual(Image.objects.filter(status=Image.STATUS_NEW).count(), 0)
-        self.assertEqual(Image.objects.filter(status=Image.STATUS_CHANGED).count(), 0)
+        self.assertEqual(Image.objects.filter(status=Image.STATUS_NEW, bundle=bundle_A_V4).count(), 0)
+        self.assertEqual(Image.objects.filter(status=Image.STATUS_CHANGED, bundle=bundle_A_V4).count(), 0)
 
         # should be 1 less image on S3 drafts
         numdraftimages_now = len(
