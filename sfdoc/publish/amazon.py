@@ -11,7 +11,7 @@ from .models import Image
 from . import utils
 
 
-real_logger = getLogger("awss3")
+logger = getLogger("awss3")
 
 class S3:
 
