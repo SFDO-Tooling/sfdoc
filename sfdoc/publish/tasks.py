@@ -180,12 +180,10 @@ def create_drafts(bundle, html_files, path, salesforce_docset, s3):
     # upload unchanged images for article previews
     logger.info('Checking for unchanged images used in draft articles')
     unchanged_images = set([])
-    for article in bundle.articles.filter(status__in=(
-        Article.STATUS_NEW,
-        Article.STATUS_CHANGED,
-    )):
-        for image in article_image_map[article.url_name]:
+    for image_set in article_image_map.values():
+        for image in image_set:
             relpath = utils.bundle_relative_path(path, image)
+            logger.info("Collected %s", relpath)
             if not bundle.images.filter(filename=relpath):
                 unchanged_images.add(image)
     for n, image in enumerate(unchanged_images, start=1):
