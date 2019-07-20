@@ -14,7 +14,7 @@
 {% for bundle in bundles %}
   <tr>
     <td><a href="{{ bundle.get_absolute_url}} ">{{ bundle.pk }}</a></td>
-    <td>{{ bundle.easydita_id }}</td>
+    <td>{{ bundle.easydita_zipfile_id }}</td>
     <td>{{ bundle.get_status_display }}</td>
     <td>{{ bundle.time_last_modified }}</td>
   </tr>

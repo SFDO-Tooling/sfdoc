@@ -16,7 +16,7 @@ class TestArticle(TestCase):
 
     def create_article(self):
         bundle = Bundle.objects.create(
-            easydita_id='0123456789',
+            easydita_zipfile_id='0123456789',
             easydita_resource_id='9876543210',
         )
         return Article.objects.create(
@@ -52,7 +52,7 @@ class TestImage(TestCase):
 
     def create_image(self):
         bundle = Bundle.objects.create(
-            easydita_id='0123456789',
+            easydita_zipfile_id='0123456789',
             easydita_resource_id='9876543210',
         )
         return Image.objects.create(
@@ -74,7 +74,7 @@ class TestWebhook(TestCase):
 
     def create_webhook(self):
         bundle = Bundle.objects.create(
-            easydita_id='0123456789',
+            easydita_zipfile_id='0123456789',
             easydita_resource_id='9876543210',
         )
         return Webhook.objects.create(

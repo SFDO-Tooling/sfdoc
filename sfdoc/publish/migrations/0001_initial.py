@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name='EasyditaBundle',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('easydita_id', models.CharField(max_length=255, unique=True)),
+                ('easydita_zipfile_id', models.CharField(max_length=255, unique=True)),
             ],
         ),
     ]

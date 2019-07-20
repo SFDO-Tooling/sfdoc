@@ -21,7 +21,7 @@ admin.site.register(Article, ArticleAdmin)
 class BundleAdmin(admin.ModelAdmin):
     list_display = [
         'pk',
-        'easydita_id',
+        'easydita_zipfile_id',
         'easydita_resource_id',
         'status',
     ]
