@@ -13,6 +13,7 @@ from . import utils
 
 logger = getLogger("awss3")
 
+
 class S3:
 
     def __init__(self, bundle):
@@ -117,7 +118,7 @@ class S3:
             if filecmp.cmp(filename, s3localname):
                 # files are the same, no update
                 logger.info("Images are the same: %s, %s", filename, s3localname)
-
+                self.upload_image(filename, draft_key)
                 return
             else:
                 # files differ, update image
