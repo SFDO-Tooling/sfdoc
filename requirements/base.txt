@@ -9,7 +9,7 @@ asn1crypto==0.24.0
 awesome-slugify==1.6.5
 beautifulsoup4==4.8.0
 boto3==1.9.193
-botocore==1.12.180
+botocore==1.12.193
 certifi==2019.6.16
 cffi==1.12.3
 chardet==3.0.4
