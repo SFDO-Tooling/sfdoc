@@ -47,4 +47,4 @@ simple-salesforce==0.74.3
 six==1.12.0
 Unidecode==1.1.1
 urllib3==1.25.3
-whitenoise==4.1.2
+whitenoise==4.1.3
