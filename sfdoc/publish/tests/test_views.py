@@ -39,7 +39,7 @@ class TestPublishView(BaseViewTestCase):
         self.user.save()
         self.client.login(username='u', password='12345')
         self.bundle = Bundle.objects.create(
-            easydita_zipfile_id='0123456789',
+            easydita_id='0123456789',
             easydita_resource_id='9876543210',
             status=Bundle.STATUS_DRAFT,
         )

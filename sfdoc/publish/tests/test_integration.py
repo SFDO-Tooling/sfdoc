@@ -19,7 +19,6 @@ from sfdoc.publish import tasks
 from sfdoc.publish.models import Article, Webhook, Image
 from sfdoc.publish.salesforce import SalesforceArticles
 from sfdoc.users.models import User
-from sfdoc.publish.exceptions import SfdocError
 
 from . import fake_easydita
 
@@ -660,23 +659,3 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             )
             # no articles should still be in draft
             self.assertEqual(self.salesforce.get_articles("draft"), [])
-
-    def test_same_bundle_push_and_publish_twice(self):
-        """Currently you can't pubish identical bundles back to back."""
-        bundle_A = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
-        tasks.publish_drafts(bundle_A.pk)  # simulate publish from UI
-        try:
-            bundle_A2 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
-        except SfdocError as e:  # this is okay
-            assert str(e) == 'No articles or images changed'
-        else:
-            tasks.publish_drafts(bundle_A2.pk)  # simulate publish from UI
-
-    def test_same_bundle_old_bundle(self):
-        """Should be able to revert a publish"""
-        bundle_A = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
-        tasks.publish_drafts(bundle_A.pk)  # simulate publish from UI
-        bundle_A_V2 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A_V2)
-        tasks.publish_drafts(bundle_A_V2.pk)  # simulate publish from UI
-        bundle_A = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
-        tasks.publish_drafts(bundle_A.pk)  # simulate publish from UI
