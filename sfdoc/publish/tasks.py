@@ -177,24 +177,6 @@ def create_drafts(bundle, html_files, path, salesforce_docset, s3):
             image.replace(path + os.sep, ''),
         )
         s3.process_image(image, path)
-    # upload unchanged images for article previews
-    logger.info('Checking for unchanged images used in draft articles')
-    unchanged_images = set([])
-    for image_set in article_image_map.values():
-        for image in image_set:
-            relpath = utils.bundle_relative_path(path, image)
-            logger.info("Collected %s", relpath)
-            if not bundle.images.filter(filename=relpath):
-                unchanged_images.add(image)
-    for n, image in enumerate(unchanged_images, start=1):
-        logger.info('Uploading unchanged image %d of %d: %s',
-            n,
-            len(unchanged_images),
-            image
-        )
-        relative_filename = utils.bundle_relative_path(path, image)
-        key = Image.get_storage_path(bundle.docset_id, relative_filename, draft=True)
-        s3.upload_image(image, key)
     # error if nothing changed
     if not bundle.articles.count() and not bundle.images.count():
         raise SfdocError('No articles or images changed')
