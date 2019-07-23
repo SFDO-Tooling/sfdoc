@@ -99,6 +99,7 @@ class Bundle(models.Model):
         return '/publish/bundles/{}/'.format(self.pk)
 
     def enqueue(self):
+        assert self.status == self.STATUS_NEW
         self.status = self.STATUS_QUEUED
         self.time_queued = now()
         self.save()
