@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='bundle',
             name='easydita_id',
-            field=models.CharField(max_length=255),
+            field=models.CharField(max_length=255, unique=False),
         ),
     ]
