@@ -272,3 +272,5 @@ AWS_S3_PUBLIC_IMG_DIR = 'images/public/'
 
 # this will slow things down and should only be used for testing
 CACHE_VALIDATION_MODE = False
+
+RUN_INTEGRATION_TESTS = env("RUN_INTEGRATION_TESTS", default=False)
