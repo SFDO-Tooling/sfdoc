@@ -121,6 +121,7 @@ class SalesforceArticles:
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         data = html.create_article_data()
         data[settings.SALESFORCE_DOCSET_RELATION_FIELD] = self.sf_docset['Id']
+        assert data[settings.SALESFORCE_DOCSET_RELATION_FIELD]
         result = kav_api.create(data=data)
         kav_id = result['id']
         self.invalidate_cache()     # I would prefer to update the cache but I

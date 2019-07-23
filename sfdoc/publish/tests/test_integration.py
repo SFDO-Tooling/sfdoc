@@ -56,7 +56,7 @@ def integration_test(cls):
                 decorated = responses.activate(getattr(cls, key))
                 setattr(cls, key, decorated)
     return skipUnless(
-        getattr(settings, "RUN_INTEGRATION_TESTS", False), "run integration tests"
+        settings.RUN_INTEGRATION_TESTS, "run integration tests"
     )(cls)
 
 
@@ -68,7 +68,7 @@ class TstHelpers:  # named to avoid confusing pytest
     def checkTestEnvironment():
         """Several checks of the intention of the end-user to really obliterate
            their org."""
-        assert getattr(settings, "RUN_INTEGRATION_TESTS")
+        assert settings.RUN_INTEGRATION_TESTS
         assert "test_" in connection.settings_dict["NAME"]
         assert os.environ.get("OKAY_TO_DELETE_SALESFORCE_KNOWLEDGE_ARTICLES"), (
             "Running integration tests require destructive changes to your SF instance!\n"
