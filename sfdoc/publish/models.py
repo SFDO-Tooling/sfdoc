@@ -60,7 +60,7 @@ class Bundle(models.Model):
     STATUS_PUBLISHING = 'G'     # drafts are being published
     STATUS_PUBLISHED = 'P'      # drafts have been published
     STATUS_ERROR = 'E'          # error processing bundle
-    easydita_id = models.CharField(max_length=255, unique=True)
+    easydita_id = models.CharField(max_length=255, unique=False)
     easydita_resource_id = models.CharField(max_length=255)
     description = models.CharField(max_length=255, default='(no description)')
     error_message = models.TextField(default='', blank=True)
@@ -101,12 +101,7 @@ class Bundle(models.Model):
     def enqueue(self):
         self.status = self.STATUS_QUEUED
         self.time_queued = now()
-        self.error_message = ''
         self.save()
-        for article in self.articles.all():
-            article.delete()
-        for image in self.images.all():
-            image.delete()
 
     def set_error(self, e):
         """Set error status and message."""
@@ -216,7 +211,6 @@ class Image(models.Model):
     @property
     def docset_id(self):
         return self.bundle.docset_id
-
 
 
 class Log(models.Model):

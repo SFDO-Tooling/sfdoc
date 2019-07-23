@@ -122,9 +122,14 @@ def requeue(request, pk):
     if request.method == 'POST':
         form = RequeueBundleForm(request.POST)
         if form.is_valid() and request.POST['choice'] == 'Requeue':
-            bundle.enqueue()
-            logger = get_logger(bundle)
-            logger.info('Requeued %s', bundle)
+            newbundle = Bundle.objects.create(
+                easydita_id=bundle.easydita_id,
+                easydita_resource_id=bundle.easydita_resource_id,
+            )
+
+            newbundle.enqueue()
+            logger = get_logger(newbundle)
+            logger.info('Requeued %s', newbundle)
             process_bundle_queues.delay()
         return HttpResponseRedirect('../')
     else:

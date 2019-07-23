@@ -336,20 +336,16 @@ def process_webhook(pk):
         data['event_id'] == 'dita-ot-publish-complete'
         and data['event_data']['publish-result'] == 'success'
     ):
-        bundle, created = Bundle.objects.get_or_create(
+        bundle = Bundle.objects.create(
             easydita_id=data['event_data']['output-uuid'],
-            defaults={'easydita_resource_id': data['resource_id']},
+            easydita_resource_id=data['resource_id'],
         )
         webhook.bundle = bundle
-        if created or bundle.is_complete():
-            logger.info('Webhook accepted')
-            webhook.status = Webhook.STATUS_ACCEPTED
-            webhook.save()
-            bundle.enqueue()
-            process_bundle_queues.delay()
-        else:
-            logger.info('Webhook rejected (already processing)')
-            webhook.status = Webhook.STATUS_REJECTED
+        logger.info('Webhook accepted')
+        webhook.status = Webhook.STATUS_ACCEPTED
+        webhook.save()
+        bundle.enqueue()
+        process_bundle_queues.delay()
     else:
         logger.info('Webhook rejected (not dita-ot success)')
         webhook.status = Webhook.STATUS_REJECTED
