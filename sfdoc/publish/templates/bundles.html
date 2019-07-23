@@ -7,16 +7,18 @@
 <table class="table">
   <tr>
     <th>#</th>
-    <th>easyDITA ID</th>
+    <th>Docset</th>
     <th>Status</th>
     <th>Time Last Modified</th>
+    <th>easyDITA ID</th>
   </tr>
 {% for bundle in bundles %}
   <tr>
     <td><a href="{{ bundle.get_absolute_url}} ">{{ bundle.pk }}</a></td>
-    <td>{{ bundle.easydita_id }}</td>
+    <td>{{ bundle.docset.name }}</td>
     <td>{{ bundle.get_status_display }}</td>
     <td>{{ bundle.time_last_modified }}</td>
+    <td>{{ bundle.easydita_id }}</td>
   </tr>
 {% endfor %}
 </table>
