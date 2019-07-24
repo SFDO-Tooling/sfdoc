@@ -24,7 +24,7 @@ class LogStream(object):
 
 def get_logger(model):
     """Get an instance of the logger."""
-    logger_name = 'sfdoc_{}'.format(model.__class__.__name__)
+    logger_name = f'sfdoc_{model.__class__.__name__}{model.pk}'
     logger = logging.getLogger(logger_name)
     if logger.handlers:
         # already configured
