@@ -103,9 +103,12 @@ def _find_duplicate_urls(url_map):
 
 
 def _scrub_and_analyze_html(
-    html_file, path, article_image_map, images, url_map, problems
+    bundle, html_file, path, article_image_map, images, url_map, problems
 ):
     html = HTML(html_file, path)
+    if html.docset_id and html.docset_id != bundle.docset_id:
+        problems.append(
+            f"HTML ProductMapUUID {html.docset_id} does not match bundle ID, {bundle.docset_id} in {html_file}")
 
     scrub_problems = html.scrub()
     if scrub_problems:
@@ -138,8 +141,9 @@ def create_drafts(bundle, html_files, path, salesforce_docset, s3):
             html_file.replace(path + os.sep, ''),
         )
         _scrub_and_analyze_html(
-            html_file, path, article_image_map, images, url_map, problems
+            bundle, html_file, path, article_image_map, images, url_map, problems
         )
+
 
     # check for duplicate URL names
     problems.extend(_find_duplicate_urls(url_map))
@@ -148,6 +152,8 @@ def create_drafts(bundle, html_files, path, salesforce_docset, s3):
     # give up if there are problems before we start making database
     # objects
     if problems:
+        for problem in problems:
+            logger.info("ERROR! %s", problem)
         raise SfdocError(repr(problems))
 
     _record_archivable_articles(salesforce_docset, bundle, url_map)
