@@ -65,6 +65,7 @@ def _process_bundle(bundle, path):
     bundle.status = bundle.STATUS_DRAFT
     bundle.save()
 
+
 def extract_docset_metadata_from_index_doc(docset, path):
     """Try to name a docset from information in an index HTML"""
     logger = get_logger(docset)
@@ -72,6 +73,8 @@ def extract_docset_metadata_from_index_doc(docset, path):
     for dirpath, dirnames, filenames in os.walk(path):
         html_files = [filename for filename in filenames if ".htm" in filename]
         if html_files:
+            if len(html_files) > 1:
+                raise Exception("Multiple index files found in {path}")
             index_file = os.path.join(dirpath, html_files[0])
             html = HTML(index_file, path)
             article_data = html.create_article_data()
@@ -103,9 +106,12 @@ def _find_duplicate_urls(url_map):
 
 
 def _scrub_and_analyze_html(
-    html_file, path, article_image_map, images, url_map, problems
+    bundle, html_file, path, article_image_map, images, url_map, problems
 ):
     html = HTML(html_file, path)
+    if html.docset_id and html.docset_id != bundle.docset_id:
+        problems.append(
+            f"HTML ProductMapUUID {html.docset_id} does not match bundle ID, {bundle.docset_id} in {html_file}")
 
     scrub_problems = html.scrub()
     if scrub_problems:
@@ -138,8 +144,9 @@ def create_drafts(bundle, html_files, path, salesforce_docset, s3):
             html_file.replace(path + os.sep, ''),
         )
         _scrub_and_analyze_html(
-            html_file, path, article_image_map, images, url_map, problems
+            bundle, html_file, path, article_image_map, images, url_map, problems
         )
+
 
     # check for duplicate URL names
     problems.extend(_find_duplicate_urls(url_map))
@@ -148,6 +155,8 @@ def create_drafts(bundle, html_files, path, salesforce_docset, s3):
     # give up if there are problems before we start making database
     # objects
     if problems:
+        for problem in problems:
+            logger.info("ERROR! %s", problem)
         raise SfdocError(repr(problems))
 
     _record_archivable_articles(salesforce_docset, bundle, url_map)
