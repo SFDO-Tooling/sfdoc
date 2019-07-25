@@ -65,6 +65,7 @@ def _process_bundle(bundle, path):
     bundle.status = bundle.STATUS_DRAFT
     bundle.save()
 
+
 def extract_docset_metadata_from_index_doc(docset, path):
     """Try to name a docset from information in an index HTML"""
     logger = get_logger(docset)
@@ -72,6 +73,8 @@ def extract_docset_metadata_from_index_doc(docset, path):
     for dirpath, dirnames, filenames in os.walk(path):
         html_files = [filename for filename in filenames if ".htm" in filename]
         if html_files:
+            if len(html_files) > 1:
+                raise Exception("Multiple index files found in {path}")
             index_file = os.path.join(dirpath, html_files[0])
             html = HTML(index_file, path)
             article_data = html.create_article_data()
