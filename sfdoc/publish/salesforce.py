@@ -100,6 +100,9 @@ class SalesforceArticles:
         cls.api = get_salesforce_api()
 
     def get_docsets(self):
+        # Note that this code is limited to approximately 2000 results.
+        # If there is any risk of more than 2000 document sets in an org, 
+        # rewrite this to use query_all and multiple requests.
         query_str = f"""SELECT Id, {settings.SALESFORCE_DOCSET_ID_FIELD},
                     Index_Article_Id__c
                     FROM {settings.SALESFORCE_DOCSET_SOBJECT}"""
@@ -226,6 +229,10 @@ class SalesforceArticles:
                                   for fieldname, value in filters.items())
 
         query_logger.info("QUERY: %s", query_str)
+        # Note that this code is limited to approximately 2000 results.
+        # Perhaps less for complex queries/configurations
+        # If there is any risk of  thousands of articles in an org, 
+        # rewrite this to use query_all and multiple requests.
         result = self.api.query(query_str)
         query_logger.info("RESULT: %s", repr(result))
 
