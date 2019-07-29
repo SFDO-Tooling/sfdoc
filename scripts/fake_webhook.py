@@ -24,21 +24,21 @@ def json_from_UUIDs(output_UUID, resource_UUID):
     }
 
 
-def json_from_UUIDs(json):
+def call_webhook(json):
     result = requests.post(url, json=json)
     print(url, str(result))
 
 # Example 1: Call from UUIDs:
 #
-# call(jsonify("5216ef10-ae67-11e9-b28c-42010af00002", "7b62ee90-2886-11e8-8740-42010af00002"))
+# call_webhook(json_from_UUIDs("5216ef10-ae67-11e9-b28c-42010af00002", "7b62ee90-2886-11e8-8740-42010af00002"))
 
 # Example 2: Call several from JSON
 #
 # from sfdoc.publish.tests import fake_easydita
-# call(fake_easydita.fake_webhook_body_doc_A)
-# call(fake_easydita.fake_webhook_body_doc_B)
-# call(fake_easydita.fake_webhook_body_doc_A_V2)
-# call(fake_easydita.fake_webhook_body_doc_b_V3)
-# call(fake_easydita.fake_webhook_body_doc_A_V4)
+# call_webhook(fake_easydita.fake_webhook_body_doc_A)
+# call_webhook(fake_easydita.fake_webhook_body_doc_B)
+# call_webhook(fake_easydita.fake_webhook_body_doc_A_V2)
+# call_webhook(fake_easydita.fake_webhook_body_doc_b_V3)
+# call_webhook(fake_easydita.fake_webhook_body_doc_A_V4)
 
-# call(fake_easydita.fake_webhook_body_doc_B)
+# call_webhook(fake_easydita.fake_webhook_body_doc_B)
