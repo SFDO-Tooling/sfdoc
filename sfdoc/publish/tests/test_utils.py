@@ -1,13 +1,14 @@
 import os
 from tempfile import TemporaryDirectory
 
-from django.conf import settings
 from django.test import override_settings
 from test_plus.test import TestCase
 
 from .. import utils
 from ..utils import (bundle_relative_path, find_bundle_root_directory,
-                     is_url_whitelisted, s3_key_to_relative_pathname)
+                     is_url_whitelisted)
+
+rootdir = os.path.abspath(os.path.join(__file__, "../../../.."))
 
 
 class TestIsUrlWhitelisted(TestCase):
@@ -55,17 +56,8 @@ class TestFindRootDirectory(TestCase):
         self.assertEqual(rc, "jazz/xyz.html")
 
 
-class TestS3KeyToRelativePathname(TestCase):
-    def test_s3_key_to_relative_pathname(self):
-        pathname = "490/draft/foo/restore-apex-job.png"
-        self.assertEqual(
-            s3_key_to_relative_pathname(pathname), "foo/restore-apex-job.png"
-        )
-
-
 class TestUnzip(TestCase):
     def test_basic_unzip(self):
-        rootdir = os.path.abspath(os.path.join(__file__, "../../../.."))
         tempdir = TemporaryDirectory()
         utils.unzip(os.path.join(rootdir, "testdata/matryoshka.zip"), tempdir.name)
         self.assertTrue(os.path.exists(tempdir.name + "/foo/bar/foo.zip"))

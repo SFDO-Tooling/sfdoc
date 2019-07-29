@@ -11,3 +11,6 @@ django-debug-toolbar==2.0
 
 # improved REPL
 ipdb==0.12
+
+# profiler
+pytest-profiling==1.7.0

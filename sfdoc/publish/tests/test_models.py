@@ -20,7 +20,6 @@ class TestArticle(TestCase):
             easydita_resource_id='9876543210',
         )
         return Article.objects.create(
-            preview_url='',
             bundle=bundle,
             ka_id='kA0123456789012345',
             kav_id='ka9876543210987654',
@@ -42,6 +41,7 @@ class TestBundle(TestCase):
             settings.EASYDITA_INSTANCE_URL,
             self.bundle_id,
         )
+        self.docset_id = "some-uuid"
         self.articles = [utils.gen_article(n) for n in range(1, 3)]
 
 

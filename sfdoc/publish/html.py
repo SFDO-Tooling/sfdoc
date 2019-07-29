@@ -7,14 +7,22 @@ from django.conf import settings
 from .exceptions import HtmlError
 from .utils import is_html
 from .utils import is_url_whitelisted
+from .utils import skip_html_file
+from . import utils
+from sfdoc.publish.models import Image
 
 
 class HTML:
     """Article HTML utility class."""
 
-    def __init__(self, html):
+    def __init__(self, htmlpath, rootpath):
         """Parse article fields from HTML."""
+        with open(htmlpath, "r") as f:
+            html = f.read()
         soup = BeautifulSoup(html, 'html.parser')
+
+        self.htmlpath = htmlpath
+        self.rootpath = rootpath
 
         # meta (URL name, summary, visibility settings)
         for attr, tag_name, optional in (
@@ -24,6 +32,7 @@ class HTML:
             ('is_visible_in_pkb', 'is-visible-in-pkb', False),
             ('is_visible_in_prm', 'is-visible-in-prm', False),
             ('author', settings.ARTICLE_AUTHOR, False),
+            ('docset_id', 'ProductMapUUID', True)  # Should be required but will break a lot of tests,
         ):
             tag = soup.find('meta', attrs={'name': tag_name})
             if optional and (not tag or not tag['content']):
@@ -148,13 +157,9 @@ class HTML:
         scrub_tree(soup)
         return problems
 
-    def update_links_draft(self, base_url=''):
+    def update_links_draft(self, docset_id, base_url=""):
         """Update links to draft location."""
         soup = BeautifulSoup(self.body, 'html.parser')
-        images_path = 'https://{}.s3.amazonaws.com/{}'.format(
-            settings.AWS_S3_BUCKET,
-            settings.AWS_S3_DRAFT_DIR,
-        )
 
         article_link_count = 1
 
@@ -169,7 +174,11 @@ class HTML:
                 a['href'] = self.update_href(o, base_url_prefix)
                 article_link_count += 1
         for img in soup('img'):
-            img['src'] = images_path + os.path.basename(img['src'])
+            htmldir = os.path.dirname(self.htmlpath)
+            abspath_for_img = os.path.abspath(os.path.join(htmldir, img["src"]))
+            assert os.path.exists(abspath_for_img), abspath_for_img
+            relname = utils.bundle_relative_path(self.rootpath, abspath_for_img)
+            img["src"] = Image.get_url(docset_id, relname, draft=True)
         self.body = str(soup)
 
     def update_href(self, parsed_url, base_url):
@@ -189,6 +198,25 @@ class HTML:
     def update_links_production(html):
         """Update links to production location."""
         soup = BeautifulSoup(html, 'html.parser')
+
         for img in soup('img'):
-            img['src'] = img['src'].replace(settings.AWS_S3_DRAFT_DIR, '')
+            img["src"] = Image.draft_url_or_path_to_public(img["src"])
         return str(soup)
+
+
+def collect_html_paths(path, logger):
+    """Collect the HTML files referenced by the top-level HTMLs in a directory"""
+    html_files = set()
+    for dirpath, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            filename_full = os.path.join(dirpath, filename)
+            if is_html(filename):
+                if skip_html_file(filename):
+                    logger.info(
+                        "Skipping file: %s",
+                        filename_full.replace(path + os.sep, ""),
+                    )
+                    continue
+                html_files.add(filename_full)
+
+    return html_files

@@ -82,6 +82,14 @@ $ python manage.py createsuperuser  # create a superuser
 $ python manage.py runserver        # run the app locally
 ```
 
+### Other commands
+
+```bash
+$ pytest                            # run pytest directly
+$ pytest --profile-svg              # generate a profiling diagram and other files.
+$ pytest --cov                      # generate coverage data
+$ coverage html                     # generate nice HTML files in "htmlcov" dir
+
 ## Deploy to Heroku
 
 Use this button to deploy your own instance of sfdoc to Heroku.

@@ -5,44 +5,59 @@ from tempfile import TemporaryDirectory
 import boto3
 import botocore
 from django.conf import settings
+from logging import getLogger
 
 from .models import Image
+from . import utils
+
+
+logger = getLogger("awss3")
 
 
 class S3:
 
-    def __init__(self):
+    def __init__(self, bundle):
+        """
+        Instantiate a scoped accessor for S3 appropriate to this bundle
+        """
         self.api = boto3.resource('s3')
+        self.bundle = bundle
+        if bundle:
+            self.docset_id = bundle.docset_id
+        else:
+            # There is one context where the class is created without bundle-scoping
+            # and for now it is easier to do this than to make scoped and unscoped
+            # classes...if only to keep the github PR easier to follow
+            self.docset_id = None
 
     def copy_to_production(self, filename):
         """
         Copy image from draft to production on S3.
-        Production images are located in the root of the bucket.
-        Draft images are located in a directory specified by environment
-        variable AWS_S3_BUCKET.
         """
         copy_source = {
             'Bucket': settings.AWS_S3_BUCKET,
-            'Key': settings.AWS_S3_DRAFT_DIR + filename,
+            'Key': Image.get_storage_path(self.docset_id, filename, draft=True)
         }
         self.api.meta.client.copy_object(
             ACL='public-read',
             Bucket=settings.AWS_S3_BUCKET,
             CopySource=copy_source,
-            Key=filename,
+            Key=Image.get_storage_path(self.docset_id, filename, draft=False),
         )
 
-    def delete(self, filename):
+    def delete(self, relfilename, draft):
         """Delete an image from production location."""
-        self.api.meta.client.delete_object(
+        key = Image.get_storage_path(self.docset_id, relfilename, draft)
+        rc = self.api.meta.client.delete_object(
             Bucket=settings.AWS_S3_BUCKET,
-            Key=filename,
+            Key=key,
         )
+        return rc
 
     def delete_draft_images(self):
         """Delete all draft images at once."""
         objects = []
-        for item in self.iter_objects(prefix=settings.AWS_S3_DRAFT_DIR):
+        for item in self.iter_objects(prefix=Image.get_docset_s3_path(self.docset_id, draft=True)):
             objects.append({'Key': item['Key']})
         if objects:
             self.api.meta.client.delete_objects(
@@ -66,26 +81,34 @@ class S3:
             else:
                 break
 
-    def process_image(self, filename, bundle):
+    def process_image(self, filename, rootpath):
         """Upload image file to S3 if needed."""
-        basename = os.path.basename(filename)
-        key = settings.AWS_S3_DRAFT_DIR + basename
+        relative_filename = utils.bundle_relative_path(rootpath, filename)
+        draft_key = Image.get_storage_path(self.docset_id, relative_filename, draft=True)
+        prod_key = Image.get_storage_path(self.docset_id, relative_filename, draft=False)
         with TemporaryDirectory(prefix=f"process_image_{os.path.basename(filename)}") as tempdir:
-            s3localname = os.path.join(tempdir, basename)
+            s3localname = os.path.join(tempdir, relative_filename)
+            os.makedirs(os.path.dirname(s3localname))
             try:
                 # download image from root (production) dir for comparison
                 self.api.meta.client.download_file(
                     settings.AWS_S3_BUCKET,
-                    basename,
+                    prod_key,
                     s3localname,
                 )
+                logger.info("Downloaded image %s -> %s", prod_key, s3localname)
             except botocore.exceptions.ClientError as e:
+                logger.info("Image not found %s", prod_key)
+
                 if e.response['Error']['Code'] == '404':
                     # image does not exist on S3, create a new one
-                    self.upload_image(filename, key)
+                    logger.info("Uploading: %s", prod_key)
+                    self.upload_image(filename, draft_key)
+
+                    # Keep track of the fact that we need to transfer it to prod
                     Image.objects.create(
-                        bundle=bundle,
-                        filename=basename,
+                        bundle=self.bundle,
+                        filename=relative_filename,
                         status=Image.STATUS_NEW,
                     )
                     return
@@ -94,13 +117,17 @@ class S3:
             # image already in production; compare it to local image
             if filecmp.cmp(filename, s3localname):
                 # files are the same, no update
+                logger.info("Images are the same: %s, %s", filename, s3localname)
+                self.upload_image(filename, draft_key)
                 return
             else:
                 # files differ, update image
-                self.upload_image(filename, key)
+                logger.info("Upload image: %s, %s", filename, draft_key)
+
+                self.upload_image(filename, draft_key)
                 Image.objects.create(
-                    bundle=bundle,
-                    filename=basename,
+                    bundle=self.bundle,
+                    filename=relative_filename,
                     status=Image.STATUS_CHANGED,
                 )
                 return
