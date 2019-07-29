@@ -88,7 +88,7 @@ class Bundle(models.Model):
     time_last_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return 'easyDITA bundle {} - {}'.format(self.pk, self.docset.name)
+        return 'easyDITA bundle {} - {}'.format(self.pk, self.docset.display_name)
 
     def is_complete(self):
         return self.status in (
