@@ -86,7 +86,7 @@ class SalesforceArticles:
     ALL_DOCSETS = ("#ALL",)  # token to represent a view that is not filtered by docset
     # class variables
     api = None
-    _query_articles_cached = {}
+    _article_cache = {}
 
     def __init__(self, docset_uuid):
         """Create a docset-scoped or unscoped view of Salesforce Knowledge articles"""
@@ -319,19 +319,19 @@ class SalesforceArticles:
     def query_articles_cached(self, publish_status, **filters):
         publish_status = publish_status.lower()
         key = (self.docset_uuid, publish_status)
-        if not self._query_articles_cached.get(key):
-            self._query_articles_cached[key] = self._cache_population_query(publish_status)
+        if not self._article_cache.get(key):
+            self._article_cache[key] = self._cache_population_query(publish_status)
         elif settings.CACHE_VALIDATION_MODE:
-            assert self._query_articles_cached[key] == self._cache_population_query(publish_status)
+            assert self._article_cache[key] == self._cache_population_query(publish_status)
 
         def match(item):
             return all(item[fieldname] == value for fieldname, value in filters.items())
 
-        return [a for a in self._query_articles_cached[key] if match(a)]
+        return [a for a in self._article_cache[key] if match(a)]
 
     @classmethod
     def invalidate_cache(cls):
-        cls._query_articles_cached = {}
+        cls._article_cache = {}
 
     def publish_draft(self, kav_id):
         """Publish a draft KnowledgeArticleVersion."""
