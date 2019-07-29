@@ -32,6 +32,7 @@ class HTML:
             ('is_visible_in_pkb', 'is-visible-in-pkb', False),
             ('is_visible_in_prm', 'is-visible-in-prm', False),
             ('author', settings.ARTICLE_AUTHOR, False),
+            ('docset_id', 'ProductMapUUID', True)  # Should be required but will break a lot of tests,
         ):
             tag = soup.find('meta', attrs={'name': tag_name})
             if optional and (not tag or not tag['content']):

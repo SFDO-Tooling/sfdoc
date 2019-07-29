@@ -59,6 +59,7 @@ class Bundle(models.Model):
     STATUS_PROCESSING = 'C'     # processing bundle to upload drafts
     STATUS_DRAFT = 'D'          # drafts uploaded and ready for review
     STATUS_REJECTED = 'R'       # drafts have been rejected
+    STATUS_PUBLISH_WAIT = 'W'   # drafts are waiting for a worker to publish them
     STATUS_PUBLISHING = 'G'     # drafts are being published
     STATUS_PUBLISHED = 'P'      # drafts have been published
     STATUS_ERROR = 'E'          # error processing bundle
@@ -74,6 +75,7 @@ class Bundle(models.Model):
             (STATUS_DRAFT, 'Ready for Review'),
             (STATUS_REJECTED, 'Rejected'),
             (STATUS_PUBLISHING, 'Publishing'),
+            (STATUS_PUBLISH_WAIT, 'Waiting to Publish'),
             (STATUS_PUBLISHED, 'Published'),
             (STATUS_ERROR, 'Error'),
         )
@@ -88,7 +90,7 @@ class Bundle(models.Model):
     time_last_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return 'easyDITA bundle {} - {}'.format(self.pk, self.docset.name)
+        return 'easyDITA bundle {} - {}'.format(self.pk, self.docset.display_name)
 
     def is_complete(self):
         return self.status in (
@@ -262,6 +264,10 @@ class Webhook(models.Model):
 
 
 class Docset(models.Model):
+    """Represents a persistent set of documents pubished together, such as a
+       user guide or tutorial series. Every bundle is associated with a Docset
+       in a many to one relationship. Docsets have index articles and tiles in
+       PowerOfUs Hub."""
     docset_id = models.CharField(max_length=255)
     name = models.CharField(max_length=255, default='')
     index_article_url = models.CharField(

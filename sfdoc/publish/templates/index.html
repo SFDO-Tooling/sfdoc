@@ -24,6 +24,17 @@
 </ul>
 {% endif %}
 
+{% if waiting %}
+<br>
+<h5>Waiting to be Published</h5>
+<ul>
+{% for bundle in waiting %}
+  <li><a href="{{ bundle.get_absolute_url }}">{{ bundle }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
+
 {% if publishing %}
 <br>
 <h5>Publishing</h5>

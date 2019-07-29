@@ -1,12 +1,16 @@
 import sys
 import requests
-from pprint import pprint
 sys.path.append(".")
-from sfdoc.publish.tests import fake_easydita
+
+# This little script helps you to test SFDoc by uploading
+# json. You can customize the script however it makes sense
+# for what you are trying to test. You can either pull in real
+# JSON and use the "call" function or you can synthesize JSON
+# using two UUIDs from EasyDITA by calling 
 
 url = "http://localhost:8000/publish/webhook/"
 
-def jsonify(output_UUID, resource_UUID):
+def json_from_UUIDs(output_UUID, resource_UUID):
     return {
         "event_id": "dita-ot-publish-complete",
         "event_data": {
@@ -20,26 +24,21 @@ def jsonify(output_UUID, resource_UUID):
     }
 
 
-def call(json):
+def call_webhook(json):
     result = requests.post(url, json=json)
     print(url, str(result))
 
+# Example 1: Call from UUIDs:
+#
+# call_webhook(json_from_UUIDs("5216ef10-ae67-11e9-b28c-42010af00002", "7b62ee90-2886-11e8-8740-42010af00002"))
 
+# Example 2: Call several from JSON
+#
+# from sfdoc.publish.tests import fake_easydita
+# call_webhook(fake_easydita.fake_webhook_body_doc_A)
+# call_webhook(fake_easydita.fake_webhook_body_doc_B)
+# call_webhook(fake_easydita.fake_webhook_body_doc_A_V2)
+# call_webhook(fake_easydita.fake_webhook_body_doc_b_V3)
+# call_webhook(fake_easydita.fake_webhook_body_doc_A_V4)
 
-# Bundle A
-call(fake_easydita.fake_webhook_body_doc_A)
-
-# Bundle B
-call(fake_easydita.fake_webhook_body_doc_B)
-
-# Bundle A
-call(fake_easydita.fake_webhook_body_doc_A_V2)
-
-# Bundle B
-call(fake_easydita.fake_webhook_body_doc_b_V3)
-
-# Bundle A
-call(fake_easydita.fake_webhook_body_doc_A_V4)
-
-# Bundle B
-call(fake_easydita.fake_webhook_body_doc_B)
+# call_webhook(fake_easydita.fake_webhook_body_doc_B)
