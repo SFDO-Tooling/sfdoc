@@ -48,7 +48,7 @@ def bundle(request, pk):
 @never_cache
 @staff_member_required
 def bundles(request):
-    qs = Bundle.objects.all().order_by('-pk')
+    qs = Bundle.objects.all().order_by('-time_last_modified')
     count = request.GET.get('count', 25)
     page = request.GET.get('page')
     paginator = Paginator(qs, count)
@@ -85,6 +85,9 @@ def index(request):
         ),
         'draft': Bundle.objects.filter(
             status=Bundle.STATUS_DRAFT,
+        ),
+        'waiting': Bundle.objects.filter(
+            status=Bundle.STATUS_PUBLISH_WAIT,
         ),
         'publishing': Bundle.objects.filter(
             status=Bundle.STATUS_PUBLISHING,
@@ -152,6 +155,8 @@ def review(request, pk):
         if form.is_valid():
             if form.approved():
                 logger.info('Approved %s', bundle)
+                bundle.status = Bundle.STATUS_PUBLISH_WAIT
+                bundle.save()
                 publish_drafts.delay(bundle.pk)
             else:
                 logger.info('Rejected %s', bundle)

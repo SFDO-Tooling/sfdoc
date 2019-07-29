@@ -298,6 +298,7 @@ def process_bundle_queues():
                     status__in=(
                         Bundle.STATUS_PROCESSING,
                         Bundle.STATUS_DRAFT,
+                        Bundle.STATUS_PUBLISH_WAIT,
                         Bundle.STATUS_PUBLISHING,
                     ), easydita_resource_id=docset_id)
             if not any(docset_bundles_being_processed_already):
@@ -348,7 +349,7 @@ def publish_drafts(bundle_pk):
     logger.info('Publishing drafts for %s', bundle)
     try:
         assert (
-            bundle.status == bundle.STATUS_DRAFT
+            bundle.status in (bundle.STATUS_DRAFT, bundle.STATUS_PUBLISH_WAIT)
         ), f"Bundle status should not be {dict(bundle.status_names)[bundle.status]}"
         bundle.status = Bundle.STATUS_PUBLISHING
         bundle.save()
