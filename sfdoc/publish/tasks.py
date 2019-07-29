@@ -30,14 +30,6 @@ def _download_and_unpack_easydita_bundle(bundle, path):
     zip_file = BytesIO(response.content)
     utils.unzip(zip_file, path, recursive=True, ignore_patterns=["*/assets/*"])
 
-    # with TemporaryDirectory(f"bundle_{bundle.pk}_") as tempdir:
-
-    #     rootpath = utils.find_bundle_root_directory(tempdir)
-    #     assert os.path.exists(os.path.join(rootpath, "log.txt"))
-    #     utils.sync_directories(rootpath, path)
-    #     assert os.path.exists(os.path.join(path, "log.txt"))
-
-
 def _process_bundle(bundle, path):
     logger = get_logger(bundle)
 
