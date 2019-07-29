@@ -4,6 +4,7 @@ from .models import Article
 from .models import Bundle
 from .models import Image
 from .models import Webhook
+from .models import Docset
 
 
 class ArticleAdmin(admin.ModelAdmin):
@@ -45,3 +46,11 @@ class WebhookAdmin(admin.ModelAdmin):
     ]
     list_filter = ('status',)
 admin.site.register(Webhook, WebhookAdmin)
+
+
+class DocsetAdmin(admin.ModelAdmin):
+    list_display = [
+        'docset_id',
+        'display_name'
+    ]
+admin.site.register(Docset, DocsetAdmin)

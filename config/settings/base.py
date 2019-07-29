@@ -96,7 +96,7 @@ EMAIL_BACKEND = env(
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = [("""Chris Polcyn""", "cpolcyn@salesforce.com")]
+ADMINS = [("Paul Prescod", "pprescod@salesforce.com")]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
@@ -267,4 +267,10 @@ RQ_QUEUES = {"default": {"URL": REDIS_URL, "AUTOCOMMIT": False}}
 SALESFORCE_LOGIN_URL = "https://login.salesforce.com"
 
 # Amazon
-AWS_S3_DRAFT_DIR = "draft/"
+AWS_S3_DRAFT_IMG_DIR = 'images/draft/'
+AWS_S3_PUBLIC_IMG_DIR = 'images/public/'
+
+# this will slow things down and should only be used for testing
+CACHE_VALIDATION_MODE = False
+
+RUN_INTEGRATION_TESTS = env("RUN_INTEGRATION_TESTS", default=False)

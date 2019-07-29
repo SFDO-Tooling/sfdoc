@@ -1,11 +1,20 @@
+import re
+import os
+import glob
+import time
 from http import HTTPStatus
 from io import BytesIO
 from urllib.parse import urlencode
 from urllib.parse import urljoin
 from zipfile import ZipFile
-
+from contextlib import contextmanager
+from unittest import mock
+from tempfile import TemporaryDirectory
 from django.conf import settings
 import responses
+
+
+rootdir = os.path.abspath(os.path.join(__file__, "../../../.."))
 
 
 def create_test_html(url_name, title, summary, body):
@@ -144,13 +153,78 @@ def mock_query(
 
 
 def mock_update_draft(instance_url, kav_id):
-    url = urljoin(instance_url, 'services/data/v{}/sobjects/{}/{}'.format(
-        settings.SALESFORCE_API_VERSION,
-        settings.SALESFORCE_ARTICLE_TYPE,
-        kav_id,
-    ))
-    responses.add(
-        'PATCH',
-        url=url,
-        status=HTTPStatus.NO_CONTENT,
+    url = urljoin(
+        instance_url,
+        'services/data/v{}/sobjects/{}/{}'.format(
+            settings.SALESFORCE_API_VERSION, settings.SALESFORCE_ARTICLE_TYPE, kav_id
+        ),
+    )
+    responses.add('PATCH', url=url, status=HTTPStatus.NO_CONTENT)
+
+
+ORIGINIT = TemporaryDirectory.__init__
+
+
+@contextmanager
+def makeDebugTemporaryDirectoryMock(parent_prefix="", default_dir=""):
+    """Make a "long-term temporary" directory: One that does not clean up after itself until reboot."""
+    class DebugTemporaryDirectory(TemporaryDirectory):
+        """A temporary directory that does not clean up after itself until reboot."""
+        def __init__(self, suffix=None, prefix="", dir=None):
+            full_prefix = parent_prefix
+            full_prefix += "_" + str(time.process_time()) + "_"
+            if getattr(self, "subprefix", None):
+                full_prefix += "_" + self.subprefix
+            if prefix:
+                full_prefix += "_" + prefix
+            ORIGINIT(self, prefix=full_prefix, dir=(dir or default_dir))
+
+        @classmethod
+        def set_subprefix(cls, subprefix):
+            cls.subprefix = subprefix
+
+        def cleanup(self, name="", warn_message=""):
+            pass
+
+    d = DebugTemporaryDirectory
+    with mock.patch("tempfile.TemporaryDirectory.__init__", d.__init__),\
+        mock.patch("tempfile.TemporaryDirectory.cleanup", d.cleanup),\
+        mock.patch("tempfile.TemporaryDirectory._cleanup", d.cleanup): # noqa E125
+            TemporaryDirectory.set_subprefix = classmethod(d.set_subprefix.__func__) # noqa E117
+            yield TemporaryDirectory
+
+
+def mock_easydita():
+    for filename in glob.glob(os.path.join(rootdir, "testdata/bundles/*.zip")):
+        UUID = os.path.splitext(os.path.basename(filename))[0]
+        url = f"https://salesforce.easydita.com/rest/all-files/{UUID}/bundle"
+        responses.add(responses.GET, url, body=open(filename, "rb"))
+
+    responses.add_passthru("https://test.salesforce.com")
+
+    def pass_thru(request):
+        response = responses._real_send(responses.HTTPAdapter(), request)
+        return (response.status_code, response.headers, response.raw.data)
+
+    # Pass through all calls to Salesforce because it is too complex to mock.
+    # Can't use the responses.add_passthru feature due to the ned
+    responses.add_callback(
+        method=responses.GET,
+        url=re.compile("https://.*.salesforce.com/.*"),
+        callback=pass_thru,
+    )
+    responses.add_callback(
+        method=responses.POST,
+        url=re.compile("https://.*.salesforce.com/.*"),
+        callback=pass_thru,
+    )
+    responses.add_callback(
+        method=responses.PATCH,
+        url=re.compile("https://.*.salesforce.com/.*"),
+        callback=pass_thru,
+    )
+    responses.add_callback(
+        method=responses.DELETE,
+        url=re.compile("https://.*.salesforce.com/.*"),
+        callback=pass_thru,
     )

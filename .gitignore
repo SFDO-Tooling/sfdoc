@@ -106,3 +106,6 @@ ENV/
 
 # Stellar RDB snapshotter
 stellar.yaml
+
+# profiling directory
+prof

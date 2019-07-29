@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
@@ -19,7 +20,8 @@ from .models import Article
 from .models import Bundle
 from .models import Image
 from .models import Webhook
-from .tasks import process_queue
+from .salesforce import get_community_base_url
+from .tasks import process_bundle_queues
 from .tasks import process_webhook
 from .tasks import publish_drafts
 
@@ -46,7 +48,7 @@ def bundle(request, pk):
 @never_cache
 @staff_member_required
 def bundles(request):
-    qs = Bundle.objects.all().order_by('-pk')
+    qs = Bundle.objects.all().order_by('-time_last_modified')
     count = request.GET.get('count', 25)
     page = request.GET.get('page')
     paginator = Paginator(qs, count)
@@ -84,6 +86,9 @@ def index(request):
         'draft': Bundle.objects.filter(
             status=Bundle.STATUS_DRAFT,
         ),
+        'waiting': Bundle.objects.filter(
+            status=Bundle.STATUS_PUBLISH_WAIT,
+        ),
         'publishing': Bundle.objects.filter(
             status=Bundle.STATUS_PUBLISHING,
         ),
@@ -120,10 +125,15 @@ def requeue(request, pk):
     if request.method == 'POST':
         form = RequeueBundleForm(request.POST)
         if form.is_valid() and request.POST['choice'] == 'Requeue':
-            bundle.queue()
-            logger = get_logger(bundle)
-            logger.info('Requeued %s', bundle)
-            process_queue.delay()
+            newbundle = Bundle.objects.create(
+                easydita_id=bundle.easydita_id,
+                easydita_resource_id=bundle.easydita_resource_id,
+            )
+
+            newbundle.enqueue()
+            logger = get_logger(newbundle)
+            logger.info('Requeued %s', newbundle)
+            process_bundle_queues.delay()
         return HttpResponseRedirect('../')
     else:
         form = RequeueBundleForm()
@@ -145,30 +155,40 @@ def review(request, pk):
         if form.is_valid():
             if form.approved():
                 logger.info('Approved %s', bundle)
-                bundle.status = Bundle.STATUS_PUBLISHING
+                bundle.status = Bundle.STATUS_PUBLISH_WAIT
                 bundle.save()
                 publish_drafts.delay(bundle.pk)
             else:
                 logger.info('Rejected %s', bundle)
                 bundle.status = Bundle.STATUS_REJECTED
                 bundle.save()
-                process_queue.delay()
+                process_bundle_queues.delay()
         return HttpResponseRedirect('../')
     else:
         form = PublishToProductionForm()
+
+    base_url = get_community_base_url()
+    assert base_url is not None
+
+    def get_articles_for_view(collection):
+        return [{
+            'preview_url': f'{base_url}{article.preview_url}',
+            'url_name': article.url_name,
+        } for article in collection]
+
     context = {
         'bundle': bundle,
         **common_context,
         'form': form,
-        'articles_new': bundle.articles.filter(
+        'articles_new': get_articles_for_view(bundle.articles.filter(
             status=Article.STATUS_NEW
-        ).order_by('url_name'),
-        'articles_changed': bundle.articles.filter(
+        ).order_by('url_name')),
+        'articles_changed': get_articles_for_view(bundle.articles.filter(
             status=Article.STATUS_CHANGED
-        ).order_by('url_name'),
-        'articles_deleted': bundle.articles.filter(
+        ).order_by('url_name')),
+        'articles_deleted': get_articles_for_view(bundle.articles.filter(
             status=Article.STATUS_DELETED
-        ).order_by('url_name'),
+        ).order_by('url_name')),
         'images_new': bundle.images.filter(
             status=Image.STATUS_NEW
         ).order_by('filename'),

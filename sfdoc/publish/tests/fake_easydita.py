@@ -45,7 +45,7 @@ ditamap_A_V2_titles = [
     "Article B2",
 ]
 
-ditamap_A_V5_titles = [
+ditamap_A_V6_titles = [
     "Article A3! Updated",
     "Article A1",
     "Test Documentation: Bundle A",
@@ -61,6 +61,7 @@ ditamap_B_titles = [
 ditamap_B_V3_titles = [
     "Article 1, Bundle B",
     "Test Documentation: Bundle B",
+    "Article 3, Bundle B V2"
 ]
 
 # https://salesforce.easydita.com/api/get/db/organizations/salesforce/published/77b09a40-819a-11e9-b28c-42010af00002/BundleA_2019-06-04T16-31Z.zip
@@ -86,12 +87,22 @@ fake_webhook_body_doc_A_V4 = {
     "resource_id": "77b09a40-819a-11e9-b28c-42010af00002",
 }
 
-fake_webhook_body_doc_A_V5 = {
+fake_webhook_body_doc_A_V6 = {
     "event_id": "dita-ot-publish-complete",
     "event_data": {
         "publish-result": "success",
         "output-uuid": "3953bb10-8992-11e9-b28c-42010af00002",
         "description": "V5 no image",
+    },
+    "resource_id": "77b09a40-819a-11e9-b28c-42010af00002",
+}
+
+fake_webhook_body_doc_A_V6 = {
+    "event_id": "dita-ot-publish-complete",
+    "event_data": {
+        "publish-result": "success",
+        "output-uuid": "726c4040-a68c-11e9-b28c-42010af00002",
+        "description": "V6 - Change UrlName of bundle (and no image)",
     },
     "resource_id": "77b09a40-819a-11e9-b28c-42010af00002",
 }
@@ -120,12 +131,3 @@ fake_webhook_body_doc_b_V3 = {
     },
     "resource_id": "bf0080a0-8270-11e9-b28c-42010af00002",
 }
-
-
-preloaded_article_titles = [
-    "foundationConnect Documentation",
-    "foundationConnect FAQ",
-    "foundationConnect Grantee Community Configuration Guide",
-    "foundationConnect Overview",
-    "foundationConnect Release Notes",
-]
