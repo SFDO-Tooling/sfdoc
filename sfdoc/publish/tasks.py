@@ -66,7 +66,7 @@ def extract_docset_metadata_from_index_doc(docset, path):
         html_files = [filename for filename in filenames if ".htm" in filename]
         if html_files:
             if len(html_files) > 1:
-                raise Exception("Multiple index files found in {path}")
+                raise Exception(f"Multiple index files found in {path}")
             index_file = os.path.join(dirpath, html_files[0])
             html = HTML(index_file, path)
             article_data = html.create_article_data()
