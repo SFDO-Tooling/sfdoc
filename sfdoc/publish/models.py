@@ -262,6 +262,10 @@ class Webhook(models.Model):
 
 
 class Docset(models.Model):
+    """Represents a persistent set of documents pubished together, such as a
+       user guide or tutorial series. Every bundle is associated with a Docset
+       in a many to one relationship. Docsets have index articles and tiles in
+       PowerOfUs Hub."""
     docset_id = models.CharField(max_length=255)
     name = models.CharField(max_length=255, default='')
     index_article_url = models.CharField(
