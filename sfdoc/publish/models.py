@@ -59,6 +59,7 @@ class Bundle(models.Model):
     STATUS_PROCESSING = 'C'     # processing bundle to upload drafts
     STATUS_DRAFT = 'D'          # drafts uploaded and ready for review
     STATUS_REJECTED = 'R'       # drafts have been rejected
+    STATUS_PUBLISH_WAIT = 'W'   # drafts are waiting for a worker to publish them
     STATUS_PUBLISHING = 'G'     # drafts are being published
     STATUS_PUBLISHED = 'P'      # drafts have been published
     STATUS_ERROR = 'E'          # error processing bundle
@@ -74,6 +75,7 @@ class Bundle(models.Model):
             (STATUS_DRAFT, 'Ready for Review'),
             (STATUS_REJECTED, 'Rejected'),
             (STATUS_PUBLISHING, 'Publishing'),
+            (STATUS_PUBLISH_WAIT, 'Waiting to Publish'),
             (STATUS_PUBLISHED, 'Published'),
             (STATUS_ERROR, 'Error'),
         )
