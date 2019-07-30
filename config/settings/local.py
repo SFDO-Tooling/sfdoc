@@ -10,7 +10,6 @@ Local settings
 """
 
 from .base import *  # noqa
-from .utils import process_key
 
 # DEBUG
 # ------------------------------------------------------------------------------
@@ -61,68 +60,9 @@ DEBUG_TOOLBAR_CONFIG = {
 # ------------------------------------------------------------------------------
 INSTALLED_APPS += ["django_extensions"]
 
-# TESTING
-# ------------------------------------------------------------------------------
-TEST_RUNNER = "django.test.runner.DiscoverRunner"
-
 # Your local stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
-# article related
-ARTICLE_AUTHOR = env("ARTICLE_AUTHOR")
-ARTICLE_AUTHOR_OVERRIDE = env("ARTICLE_AUTHOR_OVERRIDE")
-ARTICLE_BODY_CLASS = env("ARTICLE_BODY_CLASS")
-
-# AWS
-AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
-AWS_S3_BUCKET = env("AWS_S3_BUCKET")
-
-# Salesforce
-SALESFORCE_CLIENT_ID = env("SALESFORCE_CLIENT_ID")
-SALESFORCE_JWT_PRIVATE_KEY = process_key(env("SALESFORCE_JWT_PRIVATE_KEY"))
-SALESFORCE_SANDBOX = env.bool("SALESFORCE_SANDBOX")
-SALESFORCE_USERNAME = env("SALESFORCE_USERNAME")
-SALESFORCE_ARTICLE_AUTHOR_FIELD = env("SALESFORCE_ARTICLE_AUTHOR_FIELD")
-SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD = env(
-    "SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD"
-)
-SALESFORCE_ARTICLE_TYPE = env("SALESFORCE_ARTICLE_TYPE")
-SALESFORCE_ARTICLE_BODY_FIELD = env("SALESFORCE_ARTICLE_BODY_FIELD")
-SALESFORCE_ARTICLE_URL_PATH_PREFIX = env(
-    'SALESFORCE_ARTICLE_URL_PATH_PREFIX', default='/articles/Resource/')
-SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX = env(
-    'SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX',
-    default='/knowledge/publishing/articlePreview.apexp')
-SALESFORCE_ARTICLE_TEXT_INDEX_FIELD = env(
-    "SALESFORCE_ARTICLE_TEXT_INDEX_FIELD", default=False
-)
-SALESFORCE_ARTICLE_LINK_LIMIT = env("SALESFORCE_ARTICLE_LINK_LIMIT", default=100)
-SALESFORCE_API_VERSION = env("SALESFORCE_API_VERSION")
-SALESFORCE_COMMUNITY = env("SALESFORCE_COMMUNITY")
-
-SALESFORCE_DOCSET_SOBJECT = env("SALESFORCE_DOCSET_SOBJECT", default="Hub_Product_Description__c")
-SALESFORCE_DOCSET_ID_FIELD = env("SALESFORCE_DOCSET_ID_FIELD", default="EasyDITA_UUID__c")
-SALESFORCE_DOCSET_STATUS_FIELD = env("SALESFORCE_DOCSET_STATUS_FIELD", default="Status__c")
-SALESFORCE_DOCSET_STATUS_INACTIVE = env("SALESFORCE_DOCSET_STATUS_FIELD", default="Inactive")
-SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD = env("SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD", default="Index_Article_Id__c")
-SALESFORCE_DOCSET_RELATION_FIELD = SALESFORCE_DOCSET_SOBJECT
-
-# this will slow things down and should only be used for testing
-CACHE_VALIDATION_MODE = env("CACHE_VALIDATION_MODE", default=False)
-
-# whitelists
-WHITELIST_HTML = env.json("WHITELIST_HTML")
-WHITELIST_URL = env.json("WHITELIST_URL")
-
-SKIP_HTML_FILES = env.json("SKIP_HTML_FILES")
-
-# easyDITA
-EASYDITA_INSTANCE_URL = env("EASYDITA_INSTANCE_URL")
-EASYDITA_USERNAME = env("EASYDITA_USERNAME")
-EASYDITA_PASSWORD = env("EASYDITA_PASSWORD")
-
-HEROKU_APP_NAME = "localhost:8000"
 
 # Make it easy to differentiate between local, staging and prod versions
 ENV_COLOR = env("ENV_COLOR", default="green")
