@@ -66,9 +66,6 @@ SECRET_KEY = env(
     "DJANGO_SECRET_KEY", default="RPr%].dHP4VLcU}SW(5o4;cH(]4i7?noV.q5*.%16!@#TYO/ku"
 )
 
-# this will slow things down and should only be used for testing
-CACHE_VALIDATION_MODE = env("CACHE_VALIDATION_MODE", default=False)
-
 RUN_INTEGRATION_TESTS = env("RUN_INTEGRATION_TESTS", default=True)
 
 AWS_S3_DRAFT_IMG_DIR = env("AWS_S3_DRAFT_IMG_DIR", default='testimages/draft/')
