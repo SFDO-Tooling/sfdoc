@@ -8,6 +8,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import environ
+from .utils import process_key
 
 ROOT_DIR = environ.Path(__file__) - 3  # (sfdoc/config/settings/base.py - 3 = sfdoc/)
 APPS_DIR = ROOT_DIR.path("sfdoc")
@@ -274,3 +275,38 @@ AWS_S3_PUBLIC_IMG_DIR = 'images/public/'
 CACHE_VALIDATION_MODE = False
 
 RUN_INTEGRATION_TESTS = env("RUN_INTEGRATION_TESTS", default=False)
+
+# article related
+ARTICLE_AUTHOR = env("ARTICLE_AUTHOR", default="ArticleOwner")
+ARTICLE_AUTHOR_OVERRIDE = env(
+    "ARTICLE_AUTHOR_OVERRIDE", default="ArticleContributorOverride"
+)
+ARTICLE_BODY_CLASS = env("ARTICLE_BODY_CLASS", default="sfdo-kb__body")
+
+SALESFORCE_ARTICLE_AUTHOR_FIELD = env("SALESFORCE_ARTICLE_AUTHOR_FIELD", default="External_Username__c")
+SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD = env(
+    "SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD", default="Author_User_Id_Override__c"
+)
+SALESFORCE_ARTICLE_TYPE = env("SALESFORCE_ARTICLE_TYPE", default="Resource__kav")
+SALESFORCE_ARTICLE_BODY_FIELD = env("SALESFORCE_ARTICLE_BODY_FIELD", default="Raw_HTML__c")
+SALESFORCE_ARTICLE_URL_PATH_PREFIX = env(
+    'SALESFORCE_ARTICLE_URL_PATH_PREFIX', default='/s/article/')
+SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX = env(
+    'SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX',
+    default='/knowledge/publishing/articlePreview.apexp')
+SALESFORCE_ARTICLE_TEXT_INDEX_FIELD = env(
+    "SALESFORCE_ARTICLE_TEXT_INDEX_FIELD", default=False
+)
+SALESFORCE_ARTICLE_LINK_LIMIT = env("SALESFORCE_ARTICLE_LINK_LIMIT", default=100)
+SALESFORCE_API_VERSION = env("SALESFORCE_API_VERSION", default=41)
+SALESFORCE_COMMUNITY = env("SALESFORCE_COMMUNITY", default="powerofus")
+
+SALESFORCE_DOCSET_SOBJECT = env("SALESFORCE_DOCSET_SOBJECT", default="Hub_Product_Description__c")
+SALESFORCE_DOCSET_ID_FIELD = env("SALESFORCE_DOCSET_ID_FIELD", default="EasyDITA_UUID__c")
+SALESFORCE_DOCSET_STATUS_FIELD = env("SALESFORCE_DOCSET_STATUS_FIELD", default="Status__c")
+SALESFORCE_DOCSET_STATUS_INACTIVE = env("SALESFORCE_DOCSET_STATUS_FIELD", default="Inactive")
+SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD = env("SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD", default="Index_Article_Id__c")
+SALESFORCE_DOCSET_RELATION_FIELD = SALESFORCE_DOCSET_SOBJECT
+
+# this will slow things down and should only be used for testing
+CACHE_VALIDATION_MODE = env("CACHE_VALIDATION_MODE", default=False)

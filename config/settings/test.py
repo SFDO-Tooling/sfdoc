@@ -81,7 +81,7 @@ SALESFORCE_ARTICLE_TYPE = "Resource__kav"
 SALESFORCE_ARTICLE_BODY_FIELD = "ArticleBody__c"
 SALESFORCE_ARTICLE_TEXT_INDEX_FIELD = "ArticleText__c"
 SALESFORCE_ARTICLE_LINK_LIMIT = 100
-SALESFORCE_ARTICLE_URL_PATH_PREFIX = '/articles/'
+SALESFORCE_ARTICLE_URL_PATH_PREFIX = '/s/article/'
 SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX = '/preview'
 SALESFORCE_API_VERSION = '41.0'
 SALESFORCE_COMMUNITY = 'testcommunity'
@@ -94,7 +94,7 @@ SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD = "Index_Article_Id__c"
 SALESFORCE_DOCSET_RELATION_FIELD = SALESFORCE_DOCSET_SOBJECT
 
 # this will slow things down and should only be used for testing
-CACHE_VALIDATION_MODE = env("CACHE_VALIDATION_MODE", default=False)
+CACHE_VALIDATION_MODE = False
 
 # AWS
 AWS_ACCESS_KEY_ID = "ABC123"
@@ -128,8 +128,6 @@ WHITELIST_URL = []
 
 SKIP_HTML_FILES = '["index.html"]'
 
-HEROKU_APP_NAME = "sfdoc.example.com"
-
 # Make it easy to differentiate between local, staging and prod versions
-ENV_COLOR = env("ENV_COLOR", default="LemonChiffon")
-ENV_NAME = env("ENV_NAME", default="")
+ENV_COLOR = "LemonChiffon"
+ENV_NAME = "Test"

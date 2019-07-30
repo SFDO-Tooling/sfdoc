@@ -8,7 +8,6 @@ Integration test
 """
 
 from .base import *  # noqa
-from .utils import process_key
 
 # DEBUG
 # ------------------------------------------------------------------------------
@@ -58,12 +57,6 @@ TEST_RUNNER = "django.test.runner.DiscoverRunner"
 # Your local stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
-# article related
-ARTICLE_AUTHOR = env("ARTICLE_AUTHOR", default="ArticleOwner")
-ARTICLE_AUTHOR_OVERRIDE = env(
-    "ARTICLE_AUTHOR_OVERRIDE", default="ArticleContributorOverride"
-)
-ARTICLE_BODY_CLASS = env("ARTICLE_BODY_CLASS", default="sfdo-kb__body")
 
 # SECRET CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -73,42 +66,30 @@ SECRET_KEY = env(
     "DJANGO_SECRET_KEY", default="RPr%].dHP4VLcU}SW(5o4;cH(]4i7?noV.q5*.%16!@#TYO/ku"
 )
 
+RUN_INTEGRATION_TESTS = env("RUN_INTEGRATION_TESTS", default=True)
+
 # AWS
 AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
 AWS_S3_BUCKET = env("AWS_S3_BUCKET")
+
+AWS_S3_DRAFT_IMG_DIR = env("AWS_S3_DRAFT_IMG_DIR", default='testimages/draft/')
+AWS_S3_PUBLIC_IMG_DIR = env("AWS_S3_PUBLIC_IMG_DIR", default='testimages/public/')
 
 # Salesforce
 SALESFORCE_CLIENT_ID = env("SALESFORCE_CLIENT_ID")
 SALESFORCE_JWT_PRIVATE_KEY = process_key(env("SALESFORCE_JWT_PRIVATE_KEY"))
 SALESFORCE_SANDBOX = env.bool("SALESFORCE_SANDBOX")
 SALESFORCE_USERNAME = env("SALESFORCE_USERNAME")
-SALESFORCE_ARTICLE_AUTHOR_FIELD = env("SALESFORCE_ARTICLE_AUTHOR_FIELD")
-SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD = env(
-    "SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD"
-)
-SALESFORCE_ARTICLE_TYPE = env("SALESFORCE_ARTICLE_TYPE")
-SALESFORCE_ARTICLE_BODY_FIELD = env("SALESFORCE_ARTICLE_BODY_FIELD")
-SALESFORCE_ARTICLE_URL_PATH_PREFIX = env(
-    "SALESFORCE_ARTICLE_URL_PATH_PREFIX", default="/articles/Resource/"
-)
-SALESFORCE_ARTICLE_TEXT_INDEX_FIELD = env(
-    "SALESFORCE_ARTICLE_TEXT_INDEX_FIELD", default=False
-)
-SALESFORCE_ARTICLE_LINK_LIMIT = env("SALESFORCE_ARTICLE_LINK_LIMIT", default=100)
-SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX = '/preview'
-SALESFORCE_API_VERSION = env("SALESFORCE_API_VERSION")
-SALESFORCE_COMMUNITY = env("SALESFORCE_COMMUNITY")
 
-SALESFORCE_DOCSET_SOBJECT = env("SALESFORCE_DOCSET_SOBJECT", default="Hub_Product_Description__c")
-SALESFORCE_DOCSET_ID_FIELD = env("SALESFORCE_DOCSET_ID_FIELD", default="EasyDITA_UUID__c")
-SALESFORCE_DOCSET_STATUS_FIELD = env("SALESFORCE_DOCSET_STATUS_FIELD", default="Status__c")
-SALESFORCE_DOCSET_STATUS_INACTIVE = env("SALESFORCE_DOCSET_STATUS_FIELD", default="Inactive")
-SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD = env("SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD", default="Index_Article_Id__c")
-SALESFORCE_DOCSET_RELATION_FIELD = SALESFORCE_DOCSET_SOBJECT
+# django-rq
+REDIS_URL = env("REDIS_URL", default="redis://localhost:6379")
+REDIS_URL += "/1"
+RQ_QUEUES = {"default": {"URL": REDIS_URL, "AUTOCOMMIT": False}}
 
-# this will slow things down and should only be used for testing
-CACHE_VALIDATION_MODE = env("CACHE_VALIDATION_MODE", default=False)
+# Make it easy to differentiate between local, staging and prod versions
+ENV_COLOR = env("ENV_COLOR", default=" #1798c1")
+ENV_NAME = env("ENV_NAME", default="")
 
 # whitelists
 WHITELIST_HTML = env.json("WHITELIST_HTML")
@@ -120,19 +101,3 @@ SKIP_HTML_FILES = env.json("SKIP_HTML_FILES")
 EASYDITA_INSTANCE_URL = env("EASYDITA_INSTANCE_URL")
 EASYDITA_USERNAME = env("EASYDITA_USERNAME")
 EASYDITA_PASSWORD = env("EASYDITA_PASSWORD")
-
-HEROKU_APP_NAME = "localhost:8000"
-
-RUN_INTEGRATION_TESTS = env("RUN_INTEGRATION_TESTS", default=True)
-
-AWS_S3_DRAFT_IMG_DIR = env("AWS_S3_DRAFT_IMG_DIR", default='testimages/draft/')
-AWS_S3_PUBLIC_IMG_DIR = env("AWS_S3_PUBLIC_IMG_DIR", default='testimages/public/')
-
-# django-rq
-REDIS_URL = env("REDIS_URL", default="redis://localhost:6379")
-REDIS_URL += "/1"
-RQ_QUEUES = {"default": {"URL": REDIS_URL, "AUTOCOMMIT": False}}
-
-# Make it easy to differentiate between local, staging and prod versions
-ENV_COLOR = env("ENV_COLOR", default=" #1798c1")
-ENV_NAME = env("ENV_NAME", default="")
