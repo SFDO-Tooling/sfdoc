@@ -63,6 +63,10 @@ INSTALLED_APPS += ["django_extensions"]
 # Your local stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
+# AWS
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+AWS_S3_BUCKET = env("AWS_S3_BUCKET")
 
 # Make it easy to differentiate between local, staging and prod versions
 ENV_COLOR = env("ENV_COLOR", default="green")

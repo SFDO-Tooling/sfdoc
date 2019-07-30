@@ -119,3 +119,8 @@ DEFENDER_REDIS_NAME = "default"
 # Make it easy to differentiate between local, staging and prod versions
 ENV_COLOR = env("ENV_COLOR", default=" #1798c1")
 ENV_NAME = env("ENV_NAME", default="")
+
+# AWS
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+AWS_S3_BUCKET = env("AWS_S3_BUCKET")

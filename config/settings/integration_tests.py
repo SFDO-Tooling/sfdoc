@@ -68,6 +68,11 @@ SECRET_KEY = env(
 
 RUN_INTEGRATION_TESTS = env("RUN_INTEGRATION_TESTS", default=True)
 
+# AWS
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+AWS_S3_BUCKET = env("AWS_S3_BUCKET")
+
 AWS_S3_DRAFT_IMG_DIR = env("AWS_S3_DRAFT_IMG_DIR", default='testimages/draft/')
 AWS_S3_PUBLIC_IMG_DIR = env("AWS_S3_PUBLIC_IMG_DIR", default='testimages/public/')
 
