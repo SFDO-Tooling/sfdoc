@@ -90,29 +90,4 @@ def bundle_relative_path(bundle_root, path):
 
 
 logger = logging.getLogger("commands")
-
-
-def run_command(*args, **kwargs):
-    logger.info(" ".join(args))
-    try:
-        return subprocess.run(args, **kwargs, check=True, text=True)
-    except Exception as e:
-        logger.error("Subprocess problem! {}", repr(e))
-        print("Subprocess problem!", repr(e))
-        raise e
-
-
-def s3_sync(source, target, delete=False):
-    """Sync directory to S3 or S3 to directory"""
-    args = ["aws", "s3", "sync", source, target]
-    
-    if delete:
-        args.append("--delete")
-    run_command(*args)
-
-
-def sync_directories(source, target):
-    """Keep two directories in sync"""
-    if not source.endswith("/"):
-        source += "/"
-    run_command("rsync", "-r", source, target)
+# tools for syncing to S3 were removed after b656c3b4
