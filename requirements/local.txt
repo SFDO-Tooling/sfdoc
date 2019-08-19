@@ -10,7 +10,7 @@ Werkzeug==0.15.5
 django-debug-toolbar==2.0
 
 # improved REPL
-ipdb==0.12
+ipdb==0.12.2
 
 # profiler
 pytest-profiling==1.7.0
