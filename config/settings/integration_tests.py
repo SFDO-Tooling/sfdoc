@@ -75,7 +75,7 @@ import sys
 sys.stderr.write(r"YYYXXXXX - SALESFORCE_SANDBOX: {env('SALESFORCE_SANDBOX')} Bool: {env.bool('SALESFORCE_SANDBOX')} ")
 assert SALESFORCE_SANDBOX
 SALESFORCE_USERNAME = env("SALESFORCE_USERNAME")
-
+assert False
 # django-rq
 REDIS_URL = env("REDIS_URL", default="redis://localhost:6379")
 REDIS_URL += "/1"
