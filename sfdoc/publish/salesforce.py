@@ -45,6 +45,8 @@ def get_salesforce_api():
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
     auth_url = urljoin(url, 'services/oauth2/token')
     response = requests.post(url=auth_url, data=data, headers=headers)
+    from requests import get
+    PUBLIC_IP = get('https://api.ipify.org').text
     print("XXXXXXX", vars())
     response.raise_for_status()  # maybe VPN or auth problem!
     response_data = response.json()
