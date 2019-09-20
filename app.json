@@ -123,9 +123,6 @@
         "test": "pytest"
       },
       "addons": ["heroku-postgresql:in-dyno", "heroku-redis:in-dyno"],
-      "env": {
-        "DJANGO_SETTINGS_MODULE": "config.settings.test"
-      }
     }
   }
 }
