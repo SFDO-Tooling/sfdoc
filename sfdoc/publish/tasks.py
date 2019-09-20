@@ -27,6 +27,7 @@ def _download_and_unpack_easydita_bundle(bundle, path):
     assert bundle.url.startswith("https://")
     auth = (settings.EASYDITA_USERNAME, settings.EASYDITA_PASSWORD)
     response = requests.get(bundle.url, auth=auth)
+    response.raise_for_status()
     zip_file = BytesIO(response.content)
     utils.unzip(zip_file, path, recursive=True, ignore_patterns=["*/assets/*"])
 
