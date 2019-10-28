@@ -15,7 +15,7 @@ chardet==3.0.4
 click==7.0
 cryptography==2.8
 defusedxml==0.6.0
-Django==2.2.5
+Django==2.2.6
 django-allauth==0.40.0
 django-braces==1.13.0
 django-crispy-forms==1.7.2
