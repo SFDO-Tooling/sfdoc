@@ -6,7 +6,7 @@ from zipfile import ZipFile
 
 from django.conf import settings
 
-from sfdoc.publish.models import WhitelistedLinkset
+from sfdoc.publish.models import AllowedLinkset
 
 
 def is_html(filename):
@@ -22,7 +22,7 @@ def is_url_whitelisted(url):
     if not urlparse(url).scheme:
         # not an external link, implicitly whitelisted
         return True
-    for wl_item in WhitelistedLinkset.all_urls():
+    for wl_item in AllowedLinkset.all_urls():
         if fnmatch.fnmatch(url, wl_item):
             return True
     return False

@@ -7,7 +7,7 @@ from test_plus.test import TestCase
 from .. import utils
 from ..utils import (bundle_relative_path, find_bundle_root_directory,
                      is_url_whitelisted)
-from sfdoc.publish.models import WhitelistedLinkset
+from sfdoc.publish.models import AllowedLinkset
 
 rootdir = os.path.abspath(os.path.join(__file__, "../../../.."))
 
@@ -18,14 +18,14 @@ class TestIsUrlWhitelisted(TestCase):
         urls = """http://xyzzy.com
                 http://www.example.com
                 http://xyzzy.example.com""".replace(" ", "")
-        WhitelistedLinkset.objects.create(name="foo", urls=urls)
+        AllowedLinkset.objects.create(name="foo", urls=urls)
         self.assertTrue(is_url_whitelisted("http://www.example.com"))
         self.assertTrue(is_url_whitelisted("foo"))
         self.assertFalse(is_url_whitelisted("http://youtube.com"))
         self.assertFalse(is_url_whitelisted("http://xyzzy.com/abcdefg"))
 
     def test_url_whitelist_wildcard(self):
-        WhitelistedLinkset.objects.create(name="foo", urls="*.example.com/*")
+        AllowedLinkset.objects.create(name="foo", urls="*.example.com/*")
         self.assertTrue(is_url_whitelisted("http://www.example.com/a"))
         self.assertTrue(is_url_whitelisted("foo"))
         self.assertFalse(is_url_whitelisted("http://youtube.com"))

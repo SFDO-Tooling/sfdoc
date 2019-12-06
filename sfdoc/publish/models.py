@@ -289,7 +289,7 @@ class Docset(models.Model):
         return self.name or self.docset_id
 
 
-class WhitelistedLinkset(models.Model):
+class AllowedLinkset(models.Model):
     name = models.CharField(max_length=100, unique=True, null=True)
     urls = models.TextField()
 

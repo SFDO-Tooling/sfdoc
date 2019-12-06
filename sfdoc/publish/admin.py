@@ -5,7 +5,7 @@ from .models import Bundle
 from .models import Image
 from .models import Webhook
 from .models import Docset
-from .models import WhitelistedLinkset
+from .models import AllowedLinkset
 from django.utils.html import format_html_join, mark_safe
 
 
@@ -66,7 +66,7 @@ def formatted_urls(whitelistset):
             )
 
 
-class WhitelistedLinksetAdmin(admin.ModelAdmin):
+class AllowedLinksetAdmin(admin.ModelAdmin):
     list_display = [
          'name',
          'id',
@@ -74,4 +74,4 @@ class WhitelistedLinksetAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(WhitelistedLinkset, WhitelistedLinksetAdmin)
+admin.site.register(AllowedLinkset, AllowedLinksetAdmin)

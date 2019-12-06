@@ -5,11 +5,11 @@ from django.conf import settings
 
 
 def ImportEnvVar(apps, schema_editor):
-    WhitelistedLinkset = apps.get_model('publish', 'WhitelistedLinkset')
+    AllowedLinkset = apps.get_model('publish', 'AllowedLinkset')
     old_whitelist = getattr(settings, "WHITELIST_URL", None)
     if old_whitelist:
         env_vars = "\n".join(old_whitelist)   
-        WhitelistedLinkset.objects.create(name="IMPORTED URLS", urls=env_vars)
+        AllowedLinkset.objects.create(name="IMPORTED URLS", urls=env_vars)
 
 class Migration(migrations.Migration):
 
@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='WhitelistedLinkset',
+            name='AllowedLinkset',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('urls', models.TextField()),
