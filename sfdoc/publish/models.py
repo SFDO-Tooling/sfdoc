@@ -287,3 +287,20 @@ class Docset(models.Model):
     @property
     def display_name(self):
         return self.name or self.docset_id
+
+
+class AllowedLinkset(models.Model):
+    name = models.CharField(max_length=100, unique=True, null=True)
+    urls = models.TextField()
+
+    @classmethod
+    def all_urls(cls):
+        all_urls = []
+        for obj in cls.objects.all():
+            for u in obj.urls.split("\n"):
+                all_urls.append(u.strip())
+        return all_urls
+
+    @property
+    def urllist(self):
+        return self.urls.split("\n")
