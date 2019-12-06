@@ -290,17 +290,19 @@ class Docset(models.Model):
 
 
 class AllowedLinkset(models.Model):
+    """Each model is a newline-separated list of allowed links in flat or regexp format."""
     name = models.CharField(max_length=100, unique=True, null=True)
     urls = models.TextField()
 
     @classmethod
     def all_urls(cls):
+        """Every URL from every LinkSet"""
         all_urls = []
         for obj in cls.objects.all():
-            for u in obj.urls.split("\n"):
-                all_urls.append(u.strip())
+            all_urls.extend(obj.urllist)
         return all_urls
 
     @property
     def urllist(self):
+        """Urls as a list instead of a string"""
         return self.urls.split("\n")
