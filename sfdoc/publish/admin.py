@@ -5,6 +5,8 @@ from .models import Bundle
 from .models import Image
 from .models import Webhook
 from .models import Docset
+from .models import WhitelistedLinkset
+from django.utils.html import format_html_join, mark_safe
 
 
 class ArticleAdmin(admin.ModelAdmin):
@@ -54,3 +56,22 @@ class DocsetAdmin(admin.ModelAdmin):
         'display_name'
     ]
 admin.site.register(Docset, DocsetAdmin)
+
+
+def formatted_urls(whitelistset):
+    return format_html_join(
+            mark_safe('<br>'),
+            '{}',
+            ((line,) for line in whitelistset.urllist)
+            )
+
+
+class WhitelistedLinksetAdmin(admin.ModelAdmin):
+    list_display = [
+         'name',
+         'id',
+         formatted_urls,
+    ]
+
+
+admin.site.register(WhitelistedLinkset, WhitelistedLinksetAdmin)
