@@ -24,7 +24,7 @@ class HTML:
         self.htmlpath = htmlpath
         self.rootpath = rootpath
 
-        # meta (URL name, summary, visibility settings)
+        # meta (Python attrname, HTML Name, Required or not)
         for attr, tag_name, optional in (
             ('url_name', 'UrlName', False),
             ('summary', 'description', True),
@@ -32,7 +32,9 @@ class HTML:
             ('is_visible_in_pkb', 'is-visible-in-pkb', False),
             ('is_visible_in_prm', 'is-visible-in-prm', False),
             ('author', settings.ARTICLE_AUTHOR, False),
-            ('docset_id', 'ProductMapUUID', True)  # Should be required but will break a lot of tests,
+            ('docset_id', 'ProductMapUUID', True),  # Should be required but will break a lot of tests,
+            ('Topics__c', "HubTopics", True),
+            ('Article_Type__c', "ArticleType", True),
         ):
             tag = soup.find('meta', attrs={'name': tag_name})
             if optional and (not tag or not tag['content']):
@@ -83,6 +85,8 @@ class HTML:
             'IsVisibleInCsp': self.is_visible_in_csp,
             'IsVisibleInPkb': self.is_visible_in_pkb,
             'IsVisibleInPrm': self.is_visible_in_prm,
+            "Article_Type__c": self.Article_Type__c,
+            "Topics__c": self.Topics__c,
             settings.SALESFORCE_ARTICLE_BODY_FIELD: self.body,
             settings.SALESFORCE_ARTICLE_AUTHOR_FIELD: self.author,
             settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD: self.author_override,

@@ -293,6 +293,7 @@ class SalesforceArticles:
     def _cache_population_query(self, publish_status):
         fields = ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
                         "IsVisibleInPkb", "IsVisibleInPrm", "UrlName", "PublishStatus",
+                        "Topics__c", "Article_Type__c",
                         settings.SALESFORCE_ARTICLE_BODY_FIELD,
                         settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
                         settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
@@ -340,6 +341,8 @@ class SalesforceArticles:
             data[settings.SALESFORCE_ARTICLE_TEXT_INDEX_FIELD] = body
 
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
+        # to debug an sfdoc->WLMA problem
+        sf_api_logger.info("Updating %s to have %s", kav_id, str(data))  
         kav_api.update(kav_id, data)
         self.set_publish_status(kav_id, 'online')
 
