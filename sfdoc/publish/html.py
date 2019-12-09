@@ -24,7 +24,7 @@ class HTML:
         self.htmlpath = htmlpath
         self.rootpath = rootpath
 
-        # meta (Python attrname, HTML Name, Required or not)
+        # meta (Python attrname, HTML Name, Optional or not)
         for attr, tag_name, optional in (
             ('url_name', 'UrlName', False),
             ('summary', 'description', True),
