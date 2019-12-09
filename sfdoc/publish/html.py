@@ -146,13 +146,14 @@ class HTML:
                 if hasattr(child, 'contents'):
                     if child.name not in settings.WHITELIST_HTML:
                         problems.append('Tag "{}" not in whitelist'.format(child.name))
-                    for attr in child.attrs:
-                        if attr not in settings.WHITELIST_HTML[child.name]:
-                            problems.append('Tag "{}" attribute "{}" not in whitelist'.format(child.name, attr))
-                        if attr in ('href', 'src'):
-                            if not is_url_whitelisted(child[attr]):
-                                problems.append('URL {} not whitelisted'.format(child[attr]))
-                    scrub_tree(child)
+                    else:
+                        for attr in child.attrs:
+                            if attr not in settings.WHITELIST_HTML[child.name]:
+                                problems.append('Tag "{}" attribute "{}" not in whitelist'.format(child.name, attr))
+                            if attr in ('href', 'src'):
+                                if not is_url_whitelisted(child[attr]):
+                                    problems.append('URL {} not whitelisted'.format(child[attr]))
+                        scrub_tree(child)
         soup = BeautifulSoup(self.body, 'html.parser')
         scrub_tree(soup)
         return problems
