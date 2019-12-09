@@ -240,32 +240,6 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             return bundle
 
     def test_remove_article(self):
-        import logging
-
-        logging.basicConfig(level=logging.DEBUG)
-        log = logging.getLogger('urllib3')  # works
-
-        log.setLevel(logging.DEBUG)  # needed
-        fh = logging.FileHandler("requests.log")
-        log.addHandler(fh)
-
-        def debug_requests_on():
-            '''Switches on logging of the requests module.'''
-            from http.client import HTTPConnection
-            HTTPConnection.debuglevel = 2
-
-            logging.basicConfig()
-            logging.getLogger().setLevel(logging.DEBUG)
-            requests_log = logging.getLogger("urllib3")
-            requests_log.setLevel(logging.DEBUG)
-            requests_log.propagate = True
-
-            requests_log = logging.getLogger("requests.packages.urllib3")
-            requests_log.setLevel(logging.DEBUG)
-            requests_log.propagate = True
-
-        debug_requests_on()
-
         with self.debugMock() as mocktempdir:
             # 1. Import a bundle
             mocktempdir.set_subprefix("_scenario_1_")
