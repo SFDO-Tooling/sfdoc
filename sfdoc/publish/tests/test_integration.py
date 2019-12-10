@@ -66,7 +66,7 @@ class TstHelpers:  # named to avoid confusing pytest
         super().__init__(self)
         self.checkTestEnvironment()
 
-    def checkTestEnvironment():
+    def checkTestEnvironment(self):
         """Several checks of the intention of the end-user to really obliterate
            their org."""
         assert settings.RUN_INTEGRATION_TESTS
@@ -282,6 +282,10 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             deleted = Article.objects.filter(bundle=bundle_B_V3, status="D")
 
             self.assertTitles(deleted, ["Article 2, Bundle B"])
+
+            articles = self.salesforce.get_articles("draft")
+            assert "Product Documentation" in (article["Article_Type__c"] for article in articles)
+            assert "End Users;IT/Developers;LGBTQIA+" in (article["Topics__c"] for article in articles)
 
             # 6. Publish the bundle and check that it disappears as public
             mocktempdir.set_subprefix("_scenario_6_")
