@@ -310,3 +310,7 @@ SALESFORCE_DOCSET_RELATION_FIELD = SALESFORCE_DOCSET_SOBJECT
 
 # this will slow things down and should only be used for testing
 CACHE_VALIDATION_MODE = env("CACHE_VALIDATION_MODE", default=False)
+
+# sometimes you need to re-publish unchanged articles because the 
+# publishing process itself has changed (e.g. new SF-side metadata)
+REPUBLISH_UNCHANGED_ARTICLES = env("REPUBLISH_UNCHANGED_ARTICLES", default=False)

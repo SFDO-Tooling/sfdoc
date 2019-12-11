@@ -10,6 +10,7 @@ from . import utils
 
 import boto3
 from django.conf import settings
+from django.test import override_settings
 from django.db import connection
 from test_plus.test import TestCase
 import responses
@@ -665,7 +666,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             self.assertEqual(self.salesforce.get_articles("draft"), [])
 
     def test_same_bundle_push_and_publish_twice(self):
-        """Currently you can't pubish identical bundles back to back."""
+        """You can't publish identical bundles back to back usually."""
         bundle_A = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
         tasks.publish_drafts(bundle_A.pk)  # simulate publish from UI
         try:
@@ -674,6 +675,14 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             assert str(e) == 'No articles or images changed'
         else:
             tasks.publish_drafts(bundle_A2.pk)  # simulate publish from UI
+
+    @override_settings(REPUBLISH_UNCHANGED_ARTICLES='True')
+    def test_same_bundle_force_republish(self):
+        """Allow publishing identical bundle twice in a row if settings allow."""
+        bundle_A = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+        tasks.publish_drafts(bundle_A.pk)  # simulate publish from UI
+        bundle_A2 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+        tasks.publish_drafts(bundle_A2.pk)  # simulate publish from UI
 
     def test_same_bundle_old_bundle(self):
         """Should be able to revert a publish"""

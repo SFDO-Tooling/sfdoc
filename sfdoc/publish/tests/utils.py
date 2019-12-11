@@ -198,7 +198,8 @@ def mock_easydita():
     for filename in glob.glob(os.path.join(rootdir, "testdata/bundles/*.zip")):
         UUID = os.path.splitext(os.path.basename(filename))[0]
         url = f"https://salesforce.easydita.com/rest/all-files/{UUID}/bundle"
-        responses.add(responses.GET, url, body=open(filename, "rb"))
+        with open(filename, "rb") as f:
+            responses.add(responses.GET, url, body=f.read())
 
     responses.add_passthru("https://test.salesforce.com")
 

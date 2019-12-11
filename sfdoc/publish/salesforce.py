@@ -278,7 +278,7 @@ class SalesforceArticles:
             # new draft of existing article
             record = result_online[0]
             # check for changes in article fields
-            if html.same_as_record(record):
+            if html.same_as_record(record) and not settings.REPUBLISH_UNCHANGED_ARTICLES:
                 # no update
                 logger.info("Draft did not change: skipping: %s", html.url_name)
                 return
