@@ -106,11 +106,11 @@
   "formation": {
     "web": {
       "quantity": 1,
-      "size": "free"
+      "size": "Private-S"
     },
     "worker": {
       "quantity": 1,
-      "size": "free"
+      "size": "Private-S"
     }
   },
   "scripts": {
