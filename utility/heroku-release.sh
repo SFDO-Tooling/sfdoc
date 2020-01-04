@@ -1,2 +1,2 @@
 python manage.py migrate --noinput
-python heroku-release.py
+python utility/heroku-release.py
