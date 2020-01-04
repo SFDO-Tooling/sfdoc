@@ -135,7 +135,8 @@
       "addons": ["heroku-postgresql:in-dyno", "heroku-redis:in-dyno"],
       "env": {
         "DJANGO_SETTINGS_MODULE": "config.settings.integration_tests"
-      }
+      },
+      "space": "sfdoc"
     }
   }
 }
