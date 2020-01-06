@@ -327,8 +327,10 @@ class SalesforceArticles:
     def invalidate_cache(cls):
         cls._article_cache = {}
 
-    def publish_draft(self, kav_id):
+    def publish_draft(self, kav_id, logger = None):
         """Publish a draft KnowledgeArticleVersion."""
+
+        logger = logger or sf_api_logger
         assert self.docset_scoped, "Need docset scoping to publish safely"
         kav = self.get_by_kav_id(kav_id, "draft")
         body = kav[settings.SALESFORCE_ARTICLE_BODY_FIELD]
@@ -342,7 +344,7 @@ class SalesforceArticles:
 
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         # to debug an sfdoc->WLMA problem
-        sf_api_logger.info("Updating %s to have %s", kav_id, str(data))  
+        logger.info("Updating %s to have %s", kav_id, str(data))  
         kav_api.update(kav_id, data)
         self.set_publish_status(kav_id, 'online')
 

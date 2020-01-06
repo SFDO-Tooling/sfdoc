@@ -226,7 +226,7 @@ def _publish_drafts(bundle):
     N = articles.count()
     for n, article in enumerate(articles.all(), start=1):
         logger.info('Publishing article %d of %d: %s', n, N, article)
-        salesforce_docset.publish_draft(article.kav_id)
+        salesforce_docset.publish_draft(article.kav_id, logger)
     # publish images
     images = bundle.images.filter(status__in=[
         Image.STATUS_NEW,
