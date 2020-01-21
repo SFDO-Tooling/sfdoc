@@ -20,15 +20,25 @@ class TestIsUrlWhitelisted(TestCase):
                 http://xyzzy.example.com""".replace(" ", "")
         AllowedLinkset.objects.create(name="foo", urls=urls)
         self.assertTrue(is_url_whitelisted("http://www.example.com"))
-        self.assertTrue(is_url_whitelisted("foo"))
+        self.assertTrue(is_url_whitelisted("bar"))      # relative URL
         self.assertFalse(is_url_whitelisted("http://youtube.com"))
         self.assertFalse(is_url_whitelisted("http://xyzzy.com/abcdefg"))
 
     def test_url_whitelist_wildcard(self):
         AllowedLinkset.objects.create(name="foo", urls="*.example.com/*")
         self.assertTrue(is_url_whitelisted("http://www.example.com/a"))
-        self.assertTrue(is_url_whitelisted("foo"))
+        self.assertTrue(is_url_whitelisted("bar"))      # relative URL
         self.assertFalse(is_url_whitelisted("http://youtube.com"))
+
+    def test_url_whitelist_trailing_carriage_returns(self):
+        urls = """http://xyzzy.com\r
+                http://www.example.com\r
+                http://xyzzy.example.com\r""".replace(" ", "")
+        AllowedLinkset.objects.create(name="foo", urls=urls)
+        self.assertTrue(is_url_whitelisted("http://xyzzy.com"))
+        self.assertFalse(is_url_whitelisted("http://youtube.com"))
+        self.assertFalse(is_url_whitelisted("http://xyzzy.com/abcdefg"))
+
 
 
 class TestFindRootDirectory(TestCase):
