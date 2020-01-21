@@ -305,4 +305,4 @@ class AllowedLinkset(models.Model):
     @property
     def urllist(self):
         """Urls as a list instead of a string"""
-        return self.urls.split("\n")
+        return [url.strip() for url in self.urls.split("\n")]
