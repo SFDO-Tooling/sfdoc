@@ -118,3 +118,22 @@ class TestHTML(TestCase):
         updated = HTML.update_links_production(html)
         assert "/draft/" not in updated
         assert "/public/" in updated
+
+    def test_compare(self):
+        logger = logging.getLogger("test")
+        record = utils.gen_article(1)
+        print(self.article)
+        html = self.html(self.html_s)
+        record = {"ArticleAuthor__c": html.author,
+                "ArticleAuthorOverride__c": html.author_override,
+                "IsVisibleInCsp": html.is_visible_in_csp,
+                "IsVisibleInPkb": html.is_visible_in_pkb,
+                "IsVisibleInPrm": html.is_visible_in_prm,
+                "Title": html.title,
+                "Summary": html.summary,
+                "ArticleBody__c": html.body,
+                }
+        assert html.same_as_record(record, logger)
+        record["Title"] = "Foo"
+        assert not html.same_as_record(record, logger)
+
