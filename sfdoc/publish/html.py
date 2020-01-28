@@ -100,46 +100,64 @@ class HTML:
             image_paths.add(img['src'])
         return image_paths
 
-    def same_as_record(self, record):
+    def same_as_record(self, record, logger):
         """Compare this object with an article from a Salesforce query."""
-        def same(item1, item2):
+        def compare(item1, item2, name):
             if not item1 and not item2:
                 return True
             else:
-                return item1 == item2
-        rc = same(
+                if item1 == item2:
+                    return True
+                else:
+                    item1_summary = (item1[:20] + '...') if len(item1) > 75 else item1
+                    item2_summary = (item1[:20] + '...') if len(item1) > 75 else item1
+
+                    diff = (name, item1_summary, item2_summary)
+                    differences.append(diff)
+        differences = []
+        compare(
             self.author,
             record[settings.SALESFORCE_ARTICLE_AUTHOR_FIELD],
+            "author"
         )
-        rc = rc and same(
+        compare(
             self.author_override,
             record[settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD],
+            "author_override"
         )
-        rc = rc and same(
+        compare(
             self.is_visible_in_csp,
             record['IsVisibleInCsp'],
+            "is_visible_in_csp"
         )
-        rc = rc and same(
+        compare(
             self.is_visible_in_pkb,
             record['IsVisibleInPkb'],
+            "is_visible_in_pkb"
         )
-        rc = rc and same(
+        compare(
             self.is_visible_in_prm,
             record['IsVisibleInPrm'],
+            "is_visible_in_prm"
         )
-        rc = rc and same(
+        compare(
             self.title,
             record['Title'],
+            "title"
         )
-        rc = rc and same(
+        compare(
             self.summary,
             record['Summary'],
+            "summary"
         )
-        rc = rc and same(
+        compare(
             self.update_links_production(self.body).strip(),
             record[settings.SALESFORCE_ARTICLE_BODY_FIELD].strip(),
+            "body"
         )
-        return rc
+        if differences:
+            logger.info("Article updated:\n {}", repr(differences))
+        return not differences
 
     def scrub(self):
         """Scrub article body using whitelists for tags/attributes and links."""
