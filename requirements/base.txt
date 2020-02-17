@@ -45,5 +45,5 @@ s3transfer==0.3.3
 simple-salesforce==0.74.3
 six==1.14.0
 Unidecode==1.1.1
-urllib3==1.25.5
+urllib3==1.25.8
 whitenoise==4.1.3
