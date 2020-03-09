@@ -36,7 +36,7 @@ PyJWT==1.7.1
 python-dateutil==2.8.1
 python3-openid==3.1.0
 pytz==2019.3
-redis==3.3.8
+redis==3.4.1
 regex==2019.08.19
 requests==2.22.0
 requests-oauthlib==1.2.0
