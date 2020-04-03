@@ -109,8 +109,8 @@ class HTML:
                 if item1 == item2:
                     return True
                 else:
-                    item1_summary = (item1[:20] + '...') if len(item1) > 75 else item1
-                    item2_summary = (item1[:20] + '...') if len(item1) > 75 else item1
+                    item1_summary = (item1[:20] + '...') if item1 and len(item1) > 75 else item1
+                    item2_summary = (item2[:20] + '...') if item2 and len(item2) > 75 else item2
 
                     diff = (name, item1_summary, item2_summary)
                     differences.append(diff)
