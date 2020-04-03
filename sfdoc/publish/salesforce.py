@@ -50,7 +50,7 @@ def get_salesforce_api():
     return SimpleSalesforce(
         instance_url=response_data['instance_url'],
         session_id=response_data['access_token'],
-        sandbox=settings.SALESFORCE_SANDBOX,
+        domain="test" if settings.SALESFORCE_SANDBOX else None,
         version=settings.SALESFORCE_API_VERSION,
         client_id='sfdoc',
     )
