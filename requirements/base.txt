@@ -2,7 +2,7 @@
 # like Pillow and psycopg2
 # See http://bitly.com/wheel-building-fails-CPython-35
 # Verified bug on Python 3.5.1
-wheel==0.33.6
+wheel==0.34.2
 argon2-cffi==19.1.0
 asn1crypto==0.24.0
 awesome-slugify==1.6.5
