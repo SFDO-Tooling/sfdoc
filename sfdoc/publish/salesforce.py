@@ -8,7 +8,7 @@ from django.conf import settings
 import jwt
 import requests
 from simple_salesforce import Salesforce as SimpleSalesforce
-from simple_salesforce import exceptions as SimpleSalesforceExceptions
+from simple_salesforce import exceptions as SimpleSalesforceExceptions, SalesforceMalformedRequest
 
 from .exceptions import SalesforceError
 from .html import HTML
@@ -152,7 +152,18 @@ class SalesforceArticles:
         data = html.create_article_data()
         data[settings.SALESFORCE_DOCSET_RELATION_FIELD] = self.sf_docset['Id']
         assert data[settings.SALESFORCE_DOCSET_RELATION_FIELD]
-        result = kav_api.create(data=data)
+        try:
+            result = kav_api.create(data=data)
+        except SimpleSalesforceExceptions.SalesforceMalformedRequest:
+            sf_api_logger.error(f"Error publishing {data['UrlName']}")
+            art = Article.objects.filter(url_name=data['UrlName']).last()
+            old, new = art.docset_id, self.sf_docset['Id']
+            if old!=new:
+                sf_api_logger.error(f"Perhaps the article moved between docsets?")
+                sf_api_logger.error(f"Old Docset: {old}")
+                sf_api_logger.error(f"New Docset: {new}")
+            raise
+
         kav_id = result['id']
         sf_api_logger.info("Creating article %s %s", kav_id, data)
         self.invalidate_cache()     # I would prefer to update the cache but I

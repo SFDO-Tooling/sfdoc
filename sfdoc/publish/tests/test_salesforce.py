@@ -1,15 +1,23 @@
 from urllib.parse import urljoin
 
-from unittest import skip
+from unittest import skip, mock
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from django.conf import settings
 from django.test import override_settings
 import responses
 from test_plus.test import TestCase
+import pytest
 
 from ..salesforce import get_community_base_url
 from ..salesforce import SalesforceArticles
+from .utils import create_test_html
+from simple_salesforce import exceptions as SimpleSalesforceExceptions
 
+
+from sfdoc.publish.html import HTML
+from sfdoc.publish.models import Article, Bundle
 
 def get_salesforce_instance(instance_url, sandbox):
     """Get an instance of the Salesforce object."""
@@ -48,6 +56,34 @@ class TestSalesforceArticles(TestCase):
             settings.SALESFORCE_SANDBOX,
         )
         self.assertEqual(len(responses.calls), 1)
+
+    @responses.activate
+    @override_settings(SALESFORCE_SANDBOX=False)
+    def test_exception_handling(self):
+        SalesforceArticles.api = None  # clear connection cache
+        salesforce_instance = get_salesforce_instance(
+            'https://testinstance.salesforce.com',
+            settings.SALESFORCE_SANDBOX,
+        )
+        with TemporaryDirectory() as t:
+            html_file = Path(t) / "temp.html"
+            markup = create_test_html("TheUrlName","bar","baz", "jazz")
+            html_file.write_text(markup)
+            html = HTML(str(html_file), t)
+        bundle = Bundle()
+        bundle.easydita_resource_id = "OldDocsetId"
+        bundle.save()
+        Article.objects.create( bundle=bundle,
+                kav_id="kav_id",
+                status=Article.STATUS_DELETED,
+                title="Title",
+                url_name="TheUrlName",
+)
+        with mock.patch.object(type(salesforce_instance), "sf_docset", {"Id": "FakeUUID"}
+            ),mock.patch.object(salesforce_instance.api, settings.SALESFORCE_ARTICLE_TYPE) as kav_api:
+            kav_api.create.side_effect = SimpleSalesforceExceptions.SalesforceMalformedRequest("","","","")
+            with pytest.raises(SimpleSalesforceExceptions.SalesforceMalformedRequest):
+                salesforce_instance.create_article(html)
 
 
 class TestCommunityUrl(TestCase):
