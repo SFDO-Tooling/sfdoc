@@ -10,8 +10,7 @@ import responses
 from test_plus.test import TestCase
 import pytest
 
-from ..salesforce import get_community_base_url
-from ..salesforce import SalesforceArticles
+from ..salesforce import SalesforceArticles, sf_api_logger, get_community_base_url
 from .utils import create_test_html
 from simple_salesforce import exceptions as SimpleSalesforceExceptions
 
@@ -80,11 +79,16 @@ class TestSalesforceArticles(TestCase):
                 url_name="TheUrlName",
 )
         with mock.patch.object(type(salesforce_instance), "sf_docset", {"Id": "FakeUUID"}
-            ),mock.patch.object(salesforce_instance.api, settings.SALESFORCE_ARTICLE_TYPE) as kav_api:
+            ),mock.patch.object(salesforce_instance.api, settings.SALESFORCE_ARTICLE_TYPE) as kav_api, mock.patch.object(
+                sf_api_logger, "error"
+            ) as error_logger:
             kav_api.create.side_effect = SimpleSalesforceExceptions.SalesforceMalformedRequest("","","","")
             with pytest.raises(SimpleSalesforceExceptions.SalesforceMalformedRequest):
                 salesforce_instance.create_article(html)
-
+            assert "TheUrlName" in error_logger.mock_calls[0][1][0]
+            assert "Perhaps the article moved between docsets?" in error_logger.mock_calls[1][1][0]
+            assert "OldDocsetId" in error_logger.mock_calls[2][1][0]
+            assert "FakeUUID" in error_logger.mock_calls[3][1][0]
 
 class TestCommunityUrl(TestCase):
 
