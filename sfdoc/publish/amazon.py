@@ -15,12 +15,11 @@ logger = getLogger("awss3")
 
 
 class S3:
-
     def __init__(self, bundle):
         """
         Instantiate a scoped accessor for S3 appropriate to this bundle
         """
-        self.api = boto3.resource('s3')
+        self.api = boto3.resource("s3")
         self.bundle = bundle
         if bundle:
             self.docset_id = bundle.docset_id
@@ -35,11 +34,11 @@ class S3:
         Copy image from draft to production on S3.
         """
         copy_source = {
-            'Bucket': settings.AWS_S3_BUCKET,
-            'Key': Image.get_storage_path(self.docset_id, filename, draft=True)
+            "Bucket": settings.AWS_S3_BUCKET,
+            "Key": Image.get_storage_path(self.docset_id, filename, draft=True),
         }
         self.api.meta.client.copy_object(
-            ACL='public-read',
+            ACL="public-read",
             Bucket=settings.AWS_S3_BUCKET,
             CopySource=copy_source,
             Key=Image.get_storage_path(self.docset_id, filename, draft=False),
@@ -57,36 +56,44 @@ class S3:
     def delete_draft_images(self):
         """Delete all draft images at once."""
         objects = []
-        for item in self.iter_objects(prefix=Image.get_docset_s3_path(self.docset_id, draft=True)):
-            objects.append({'Key': item['Key']})
+        for item in self.iter_objects(
+            prefix=Image.get_docset_s3_path(self.docset_id, draft=True)
+        ):
+            objects.append({"Key": item["Key"]})
         if objects:
             self.api.meta.client.delete_objects(
                 Bucket=settings.AWS_S3_BUCKET,
-                Delete={'Objects': objects},
+                Delete={"Objects": objects},
             )
 
     def iter_objects(self, prefix=None):
         """Iterate over all objects in the bucket."""
-        kwargs = {'Bucket': settings.AWS_S3_BUCKET}
+        kwargs = {"Bucket": settings.AWS_S3_BUCKET}
         if prefix:
-            kwargs['Prefix'] = prefix
+            kwargs["Prefix"] = prefix
         while True:
             response = self.api.meta.client.list_objects_v2(**kwargs)
-            if 'Contents' not in response:
+            if "Contents" not in response:
                 break
-            for item in response['Contents']:
+            for item in response["Contents"]:
                 yield item
-            if response['IsTruncated']:
-                kwargs['ContinuationToken'] = response['NextContinuationToken']
+            if response["IsTruncated"]:
+                kwargs["ContinuationToken"] = response["NextContinuationToken"]
             else:
                 break
 
     def process_image(self, filename, rootpath):
         """Upload image file to S3 if needed."""
         relative_filename = utils.bundle_relative_path(rootpath, filename)
-        draft_key = Image.get_storage_path(self.docset_id, relative_filename, draft=True)
-        prod_key = Image.get_storage_path(self.docset_id, relative_filename, draft=False)
-        with TemporaryDirectory(prefix=f"process_image_{os.path.basename(filename)}") as tempdir:
+        draft_key = Image.get_storage_path(
+            self.docset_id, relative_filename, draft=True
+        )
+        prod_key = Image.get_storage_path(
+            self.docset_id, relative_filename, draft=False
+        )
+        with TemporaryDirectory(
+            prefix=f"process_image_{os.path.basename(filename)}"
+        ) as tempdir:
             s3localname = os.path.join(tempdir, relative_filename)
             os.makedirs(os.path.dirname(s3localname))
             try:
@@ -100,7 +107,7 @@ class S3:
             except botocore.exceptions.ClientError as e:
                 logger.info("Image not found %s", prod_key)
 
-                if e.response['Error']['Code'] == '404':
+                if e.response["Error"]["Code"] == "404":
                     # image does not exist on S3, create a new one
                     logger.info("Uploading: %s", prod_key)
                     self.upload_image(filename, draft_key)
@@ -133,9 +140,9 @@ class S3:
                 return
 
     def upload_image(self, filename, key):
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             self.api.meta.client.put_object(
-                ACL='public-read',
+                ACL="public-read",
                 Body=f,
                 Bucket=settings.AWS_S3_BUCKET,
                 Key=key,

@@ -8,14 +8,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0018_auto_20180208_2359'),
+        ("publish", "0018_auto_20180208_2359"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='easyditabundle',
-            name='easydita_resource_id',
-            field=models.CharField(default='', max_length=255),
+            model_name="easyditabundle",
+            name="easydita_resource_id",
+            field=models.CharField(default="", max_length=255),
             preserve_default=False,
         ),
     ]

@@ -9,16 +9,31 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0004_auto_20180116_0110'),
+        ("publish", "0004_auto_20180116_0110"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Image',
+            name="Image",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('filename', models.CharField(max_length=255, unique=True)),
-                ('easydita_bundle', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='publish.EasyditaBundle')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("filename", models.CharField(max_length=255, unique=True)),
+                (
+                    "easydita_bundle",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="images",
+                        to="publish.EasyditaBundle",
+                    ),
+                ),
             ],
         ),
     ]

@@ -5,16 +5,15 @@ from ..forms import PublishToProductionForm
 
 
 class TestPublishToProductionForm(TestCase):
-
     def setUp(self):
         self.factory = RequestFactory()
 
     def test_approve(self):
         request = self.factory.post(
-            '/bundles/1',
+            "/bundles/1",
             {
-                'choice': PublishToProductionForm.APPROVE,
-                'confirm': True,
+                "choice": PublishToProductionForm.APPROVE,
+                "confirm": True,
             },
         )
         form = PublishToProductionForm(request.POST)
@@ -23,10 +22,10 @@ class TestPublishToProductionForm(TestCase):
 
     def test_reject(self):
         request = self.factory.post(
-            '/bundles/1',
+            "/bundles/1",
             {
-                'choice': PublishToProductionForm.REJECT,
-                'confirm': True,
+                "choice": PublishToProductionForm.REJECT,
+                "confirm": True,
             },
         )
         form = PublishToProductionForm(request.POST)

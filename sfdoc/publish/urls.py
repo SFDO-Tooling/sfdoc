@@ -6,38 +6,38 @@ app_name = "publish"
 
 urlpatterns = [
     url(
-        regex=r'^$',
+        regex=r"^$",
         view=views.index,
-        name='index',
+        name="index",
     ),
     url(
-        regex=r'^bundles/$',
+        regex=r"^bundles/$",
         view=views.bundles,
-        name='bundles',
+        name="bundles",
     ),
     url(
-        regex=r'^bundles/(?P<pk>\d+)/$',
+        regex=r"^bundles/(?P<pk>\d+)/$",
         view=views.bundle,
-        name='bundle',
+        name="bundle",
     ),
     url(
-        regex=r'^bundles/(?P<pk>\d+)/logs/$',
+        regex=r"^bundles/(?P<pk>\d+)/logs/$",
         view=views.logs,
-        name='logs',
+        name="logs",
     ),
     url(
-        regex=r'^bundles/(?P<pk>\d+)/requeue/$',
+        regex=r"^bundles/(?P<pk>\d+)/requeue/$",
         view=views.requeue,
-        name='requeue',
+        name="requeue",
     ),
     url(
-        regex=r'^bundles/(?P<pk>\d+)/review/$',
+        regex=r"^bundles/(?P<pk>\d+)/review/$",
         view=views.review,
-        name='review',
+        name="review",
     ),
     url(
-        regex=r'^webhook/$',
+        regex=r"^webhook/$",
         view=views.webhook,
-        name='webhook',
+        name="webhook",
     ),
 ]

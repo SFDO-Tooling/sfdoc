@@ -8,7 +8,7 @@ class LogStream(object):
 
     def __init__(self, model):
         self.model = model
-        self.message_buffer = ''
+        self.message_buffer = ""
 
     def flush(self, force=False):
         if self.message_buffer:
@@ -16,7 +16,7 @@ class LogStream(object):
                 content_object=self.model,
                 message=self.message_buffer.strip(),
             )
-            self.message_buffer = ''
+            self.message_buffer = ""
 
     def write(self, message):
         self.message_buffer += message
@@ -24,7 +24,7 @@ class LogStream(object):
 
 def get_logger(model):
     """Get an instance of the logger."""
-    logger_name = f'sfdoc_{model.__class__.__name__}{model.pk}'
+    logger_name = f"sfdoc_{model.__class__.__name__}{model.pk}"
     logger = logging.getLogger(logger_name)
     if logger.handlers:
         # already configured
@@ -37,7 +37,7 @@ def get_logger(model):
     handler.setLevel(logging.INFO)
     handler_console.setLevel(logging.ERROR)
     # set format
-    formatter = logging.Formatter('[%(levelname)s] %(message)s')
+    formatter = logging.Formatter("[%(levelname)s] %(message)s")
     handler.setFormatter(formatter)
     handler_console.setFormatter(formatter)
     # add handlers to logger

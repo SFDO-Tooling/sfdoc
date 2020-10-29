@@ -5,40 +5,41 @@ from django.test import override_settings
 from test_plus.test import TestCase
 
 from .. import utils
-from ..utils import (bundle_relative_path, find_bundle_root_directory,
-                     is_url_whitelisted)
+from ..utils import bundle_relative_path, find_bundle_root_directory, is_url_whitelisted
 from sfdoc.publish.models import AllowedLinkset
 
 rootdir = os.path.abspath(os.path.join(__file__, "../../../.."))
 
 
 class TestIsUrlWhitelisted(TestCase):
-
     def test_url_whitelist_exact(self):
         urls = """http://xyzzy.com
                 http://www.example.com
-                http://xyzzy.example.com""".replace(" ", "")
+                http://xyzzy.example.com""".replace(
+            " ", ""
+        )
         AllowedLinkset.objects.create(name="foo", urls=urls)
         self.assertTrue(is_url_whitelisted("http://www.example.com"))
-        self.assertTrue(is_url_whitelisted("bar"))      # relative URL
+        self.assertTrue(is_url_whitelisted("bar"))  # relative URL
         self.assertFalse(is_url_whitelisted("http://youtube.com"))
         self.assertFalse(is_url_whitelisted("http://xyzzy.com/abcdefg"))
 
     def test_url_whitelist_wildcard(self):
         AllowedLinkset.objects.create(name="foo", urls="*.example.com/*")
         self.assertTrue(is_url_whitelisted("http://www.example.com/a"))
-        self.assertTrue(is_url_whitelisted("bar"))      # relative URL
+        self.assertTrue(is_url_whitelisted("bar"))  # relative URL
         self.assertFalse(is_url_whitelisted("http://youtube.com"))
 
     def test_url_whitelist_trailing_carriage_returns(self):
         urls = """http://xyzzy.com\r
                 http://www.example.com\r
-                http://xyzzy.example.com\r""".replace(" ", "")
+                http://xyzzy.example.com\r""".replace(
+            " ", ""
+        )
         AllowedLinkset.objects.create(name="foo", urls=urls)
         self.assertTrue(is_url_whitelisted("http://xyzzy.com"))
         self.assertFalse(is_url_whitelisted("http://youtube.com"))
         self.assertFalse(is_url_whitelisted("http://xyzzy.com/abcdefg"))
-
 
 
 class TestFindRootDirectory(TestCase):

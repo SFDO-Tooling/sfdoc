@@ -1,4 +1,3 @@
-
 class SfdocError(Exception):
     pass
 

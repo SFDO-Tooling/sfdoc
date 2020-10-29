@@ -13,31 +13,35 @@ from .logger import get_logger
 
 class Article(models.Model):
     """Tracks created/updated articles per bundle."""
+
     class Meta:
         unique_together = [["bundle", "url_name"]]
-    STATUS_NEW = 'N'
-    STATUS_CHANGED = 'C'
-    STATUS_DELETED = 'D'
+
+    STATUS_NEW = "N"
+    STATUS_CHANGED = "C"
+    STATUS_DELETED = "D"
     status = models.CharField(
         max_length=1,
         choices=(
-            (STATUS_NEW, 'New'),
-            (STATUS_CHANGED, 'Changed'),
-            (STATUS_DELETED, 'Deleted'),
+            (STATUS_NEW, "New"),
+            (STATUS_CHANGED, "Changed"),
+            (STATUS_DELETED, "Deleted"),
         ),
     )
     bundle = models.ForeignKey(
-        'Bundle',
+        "Bundle",
         on_delete=models.CASCADE,
-        related_name='articles',
+        related_name="articles",
     )
     ka_id = models.CharField(max_length=18)
     kav_id = models.CharField(max_length=18)
-    title = models.CharField(max_length=255, default='')
-    url_name = models.CharField(max_length=255, default='')
+    title = models.CharField(max_length=255, default="")
+    url_name = models.CharField(max_length=255, default="")
 
     def __str__(self):
-        return '{} ({}) - {} : {}'.format(self.title, self.url_name, self.status, self.bundle)
+        return "{} ({}) - {} : {}".format(
+            self.title, self.url_name, self.status, self.bundle
+        )
 
     @property
     def docset_id(self):
@@ -45,40 +49,41 @@ class Article(models.Model):
 
     @property
     def preview_url(self):
-        return '{}?id={}{}'.format(
+        return "{}?id={}{}".format(
             settings.SALESFORCE_ARTICLE_PREVIEW_URL_PATH_PREFIX,
             self.ka_id,
-            '&preview=true&pubstatus=d&channel=APP'
+            "&preview=true&pubstatus=d&channel=APP",
         )
 
 
 class Bundle(models.Model):
     """Represents a ZIP file of HTML and images from easyDITA."""
-    STATUS_NEW = 'N'            # newly received webhook from easyDITA
-    STATUS_QUEUED = 'Q'         # added to processing queue
-    STATUS_PROCESSING = 'C'     # processing bundle to upload drafts
-    STATUS_DRAFT = 'D'          # drafts uploaded and ready for review
-    STATUS_REJECTED = 'R'       # drafts have been rejected
-    STATUS_PUBLISH_WAIT = 'W'   # drafts are waiting for a worker to publish them
-    STATUS_PUBLISHING = 'G'     # drafts are being published
-    STATUS_PUBLISHED = 'P'      # drafts have been published
-    STATUS_ERROR = 'E'          # error processing bundle
+
+    STATUS_NEW = "N"  # newly received webhook from easyDITA
+    STATUS_QUEUED = "Q"  # added to processing queue
+    STATUS_PROCESSING = "C"  # processing bundle to upload drafts
+    STATUS_DRAFT = "D"  # drafts uploaded and ready for review
+    STATUS_REJECTED = "R"  # drafts have been rejected
+    STATUS_PUBLISH_WAIT = "W"  # drafts are waiting for a worker to publish them
+    STATUS_PUBLISHING = "G"  # drafts are being published
+    STATUS_PUBLISHED = "P"  # drafts have been published
+    STATUS_ERROR = "E"  # error processing bundle
     easydita_id = models.CharField(max_length=255, unique=False)
     easydita_resource_id = models.CharField(max_length=255)
-    description = models.CharField(max_length=255, default='(no description)')
-    error_message = models.TextField(default='', blank=True)
-    logs = GenericRelation('Log')
+    description = models.CharField(max_length=255, default="(no description)")
+    error_message = models.TextField(default="", blank=True)
+    logs = GenericRelation("Log")
     status_names = (
-            (STATUS_NEW, 'New'),
-            (STATUS_QUEUED, 'Queued'),
-            (STATUS_PROCESSING, 'Processing'),
-            (STATUS_DRAFT, 'Ready for Review'),
-            (STATUS_REJECTED, 'Rejected'),
-            (STATUS_PUBLISHING, 'Publishing'),
-            (STATUS_PUBLISH_WAIT, 'Waiting to Publish'),
-            (STATUS_PUBLISHED, 'Published'),
-            (STATUS_ERROR, 'Error'),
-        )
+        (STATUS_NEW, "New"),
+        (STATUS_QUEUED, "Queued"),
+        (STATUS_PROCESSING, "Processing"),
+        (STATUS_DRAFT, "Ready for Review"),
+        (STATUS_REJECTED, "Rejected"),
+        (STATUS_PUBLISHING, "Publishing"),
+        (STATUS_PUBLISH_WAIT, "Waiting to Publish"),
+        (STATUS_PUBLISHED, "Published"),
+        (STATUS_ERROR, "Error"),
+    )
     status = models.CharField(
         max_length=1,
         choices=status_names,
@@ -90,7 +95,7 @@ class Bundle(models.Model):
     time_last_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return 'easyDITA bundle {} - {}'.format(self.pk, self.docset.display_name)
+        return "easyDITA bundle {} - {}".format(self.pk, self.docset.display_name)
 
     def is_complete(self):
         return self.status in (
@@ -100,7 +105,7 @@ class Bundle(models.Model):
         )
 
     def get_absolute_url(self):
-        return '/publish/bundles/{}/'.format(self.pk)
+        return "/publish/bundles/{}/".format(self.pk)
 
     def enqueue(self):
         assert self.status == self.STATUS_NEW
@@ -111,7 +116,7 @@ class Bundle(models.Model):
     def set_error(self, e):
         """Set error status and message."""
         tb_list = format_exception(None, e, e.__traceback__)
-        self.error_message = ''.join(tb_list)
+        self.error_message = "".join(tb_list)
         self.status = self.STATUS_ERROR
         self.save()
         logger = get_logger(self)
@@ -120,7 +125,7 @@ class Bundle(models.Model):
     @property
     def url(self):
         """The easyDITA URL for the bundle."""
-        return '{}/rest/all-files/{}/bundle'.format(
+        return "{}/rest/all-files/{}/bundle".format(
             settings.EASYDITA_INSTANCE_URL,
             self.easydita_id,
         )
@@ -135,26 +140,26 @@ class Bundle(models.Model):
 
 
 class Image(models.Model):
-    STATUS_NEW = 'N'
-    STATUS_CHANGED = 'C'
-    STATUS_DELETED = 'D'
+    STATUS_NEW = "N"
+    STATUS_CHANGED = "C"
+    STATUS_DELETED = "D"
     status = models.CharField(
         max_length=1,
         choices=(
-            (STATUS_NEW, 'New'),
-            (STATUS_CHANGED, 'Changed'),
-            (STATUS_DELETED, 'Deleted'),
+            (STATUS_NEW, "New"),
+            (STATUS_CHANGED, "Changed"),
+            (STATUS_DELETED, "Deleted"),
         ),
     )
     bundle = models.ForeignKey(
-        'Bundle',
+        "Bundle",
         on_delete=models.CASCADE,
-        related_name='images',
+        related_name="images",
     )
     filename = models.CharField(max_length=255)
 
     def __str__(self):
-        return 'Image {}: {}'.format(self.pk, self.filename)
+        return "Image {}: {}".format(self.pk, self.filename)
 
     @staticmethod
     def get_docset_s3_path(docset_id, draft):
@@ -176,23 +181,27 @@ class Image(models.Model):
 
     @staticmethod
     def get_url(docset_id, imagepath, draft):
-        images_root_url = 'https://{}.s3.amazonaws.com/'.format(
+        images_root_url = "https://{}.s3.amazonaws.com/".format(
             settings.AWS_S3_BUCKET,
         )
 
-        return f"{images_root_url}{(Image.get_storage_path(docset_id, imagepath, draft))}"
+        return (
+            f"{images_root_url}{(Image.get_storage_path(docset_id, imagepath, draft))}"
+        )
 
     # Draft images are located in settings.AWS_S3_DRAFT_IMG_DIR
     # Production images are located in settings.AWS_S3_PUBLIC_IMG_DIR
     @staticmethod
     def draft_url_or_path_to_public(draft_storage_path):
-        return draft_storage_path.replace(settings.AWS_S3_DRAFT_IMG_DIR,
-                                          settings.AWS_S3_PUBLIC_IMG_DIR)
+        return draft_storage_path.replace(
+            settings.AWS_S3_DRAFT_IMG_DIR, settings.AWS_S3_PUBLIC_IMG_DIR
+        )
 
     @staticmethod
     def public_url_or_path_to_draft(draft_storage_path):
-        return draft_storage_path.replace(settings.AWS_S3_PUBLIC_IMG_DIR,
-                                          settings.AWS_S3_DRAFT_IMG_DIR)
+        return draft_storage_path.replace(
+            settings.AWS_S3_PUBLIC_IMG_DIR, settings.AWS_S3_DRAFT_IMG_DIR
+        )
 
     def _get_url(self, draft):
         return Image.get_url(self.docset_id, self.filename, draft)
@@ -219,44 +228,44 @@ class Image(models.Model):
 
 
 class Log(models.Model):
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     message = models.TextField()
     object_id = models.PositiveIntegerField()
     time = models.DateTimeField(auto_now_add=True)
 
     def get_message(self):
-        return '{} {}'.format(
-            self.time.strftime('%Y-%m-%dT%H:%M:%S'),
+        return "{} {}".format(
+            self.time.strftime("%Y-%m-%dT%H:%M:%S"),
             self.message,
         )
 
 
 class Webhook(models.Model):
-    STATUS_NEW = 'N'        # not yet processed
-    STATUS_ACCEPTED = 'A'   # webhook added bundle to processing queue
-    STATUS_REJECTED = 'R'   # bundle already processing or queued
+    STATUS_NEW = "N"  # not yet processed
+    STATUS_ACCEPTED = "A"  # webhook added bundle to processing queue
+    STATUS_REJECTED = "R"  # bundle already processing or queued
     body = models.TextField()
     bundle = models.ForeignKey(
-        'Bundle',
+        "Bundle",
         on_delete=models.CASCADE,
-        related_name='webhooks',
+        related_name="webhooks",
         null=True,
         blank=True,
     )
     status = models.CharField(
         max_length=1,
         choices=(
-            (STATUS_NEW, 'New'),
-            (STATUS_ACCEPTED, 'Accepted'),
-            (STATUS_REJECTED, 'Rejected'),
+            (STATUS_NEW, "New"),
+            (STATUS_ACCEPTED, "Accepted"),
+            (STATUS_REJECTED, "Rejected"),
         ),
         default=STATUS_NEW,
     )
     time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return 'Webhook {}'.format(self.pk)
+        return "Webhook {}".format(self.pk)
 
     @property
     def docset_id(self):
@@ -265,11 +274,12 @@ class Webhook(models.Model):
 
 class Docset(models.Model):
     """Represents a persistent set of documents pubished together, such as a
-       user guide or tutorial series. Every bundle is associated with a Docset
-       in a many to one relationship. Docsets have index articles and tiles in
-       PowerOfUs Hub."""
+    user guide or tutorial series. Every bundle is associated with a Docset
+    in a many to one relationship. Docsets have index articles and tiles in
+    PowerOfUs Hub."""
+
     docset_id = models.CharField(max_length=255)
-    name = models.CharField(max_length=255, default='')
+    name = models.CharField(max_length=255, default="")
     index_article_url = models.CharField(
         max_length=255,
         null=True,
@@ -291,6 +301,7 @@ class Docset(models.Model):
 
 class AllowedLinkset(models.Model):
     """Each model is a newline-separated list of allowed links in flat or regexp format."""
+
     name = models.CharField(max_length=100, unique=True, null=True)
     urls = models.TextField()
 

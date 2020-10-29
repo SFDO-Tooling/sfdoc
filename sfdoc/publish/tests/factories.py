@@ -13,6 +13,7 @@ random.seed(0xDEADBEEF)
 class BundleFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Bundle
-    easydita_id = factory.Faker('first_name')
-    easydita_resource_id = factory.Faker('last_name')
+
+    easydita_id = factory.Faker("first_name")
+    easydita_resource_id = factory.Faker("last_name")
     time_queued = factory.LazyFunction(timezone.now)

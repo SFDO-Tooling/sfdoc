@@ -9,30 +9,42 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0003_auto_20171227_1959'),
+        ("publish", "0003_auto_20171227_1959"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Article',
+            name="Article",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('kav_id', models.CharField(max_length=18, unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("kav_id", models.CharField(max_length=18, unique=True)),
             ],
         ),
         migrations.RenameField(
-            model_name='easyditabundle',
-            old_name='complete_review',
-            new_name='complete_draft',
+            model_name="easyditabundle",
+            old_name="complete_review",
+            new_name="complete_draft",
         ),
         migrations.RenameField(
-            model_name='easyditabundle',
-            old_name='complete_production',
-            new_name='complete_publish',
+            model_name="easyditabundle",
+            old_name="complete_production",
+            new_name="complete_publish",
         ),
         migrations.AddField(
-            model_name='article',
-            name='easydita_bundle',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='articles', to='publish.EasyditaBundle'),
+            model_name="article",
+            name="easydita_bundle",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="articles",
+                to="publish.EasyditaBundle",
+            ),
         ),
     ]

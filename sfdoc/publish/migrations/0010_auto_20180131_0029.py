@@ -9,27 +9,58 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0009_auto_20180126_2355'),
+        ("publish", "0009_auto_20180126_2355"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Webhook',
+            name="Webhook",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('body', models.TextField()),
-                ('status', models.CharField(choices=[('N', 'New'), ('A', 'Accepted'), ('R', 'Rejected')], default='N', max_length=1)),
-                ('time', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("body", models.TextField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("N", "New"), ("A", "Accepted"), ("R", "Rejected")],
+                        default="N",
+                        max_length=1,
+                    ),
+                ),
+                ("time", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.AlterField(
-            model_name='easyditabundle',
-            name='status',
-            field=models.CharField(choices=[('N', 'New'), ('Q', 'Queued'), ('C', 'Processing'), ('D', 'Draft'), ('R', 'Rejected'), ('G', 'Publishing'), ('P', 'Published')], default='N', max_length=1),
+            model_name="easyditabundle",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("N", "New"),
+                    ("Q", "Queued"),
+                    ("C", "Processing"),
+                    ("D", "Draft"),
+                    ("R", "Rejected"),
+                    ("G", "Publishing"),
+                    ("P", "Published"),
+                ],
+                default="N",
+                max_length=1,
+            ),
         ),
         migrations.AddField(
-            model_name='webhook',
-            name='easydita_bundle',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='webhooks', to='publish.EasyditaBundle'),
+            model_name="webhook",
+            name="easydita_bundle",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="webhooks",
+                to="publish.EasyditaBundle",
+            ),
         ),
     ]

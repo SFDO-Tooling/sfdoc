@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0013_auto_20180131_2145'),
+        ("publish", "0013_auto_20180131_2145"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='draft_preview_url',
-            field=models.CharField(default='', max_length=255, unique=True),
+            model_name="article",
+            name="draft_preview_url",
+            field=models.CharField(default="", max_length=255, unique=True),
         ),
     ]

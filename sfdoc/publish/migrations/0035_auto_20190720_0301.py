@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0034_remove_article_preview_url'),
+        ("publish", "0034_remove_article_preview_url"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='bundle',
-            name='easydita_id',
+            model_name="bundle",
+            name="easydita_id",
             field=models.CharField(max_length=255, unique=False),
         ),
     ]

@@ -9,13 +9,13 @@ class TestPublishURLs(TestCase):
     def test_webhook_resolve(self):
         """/publish/webhook/ should resolve to publish:webhook."""
         self.assertEqual(
-            resolve('/publish/webhook/').view_name,
-            'publish:webhook',
+            resolve("/publish/webhook/").view_name,
+            "publish:webhook",
         )
 
     def test_webhook_reverse(self):
         """publish:webhook should reverse to /publish/webhook/."""
         self.assertEqual(
-            reverse('publish:webhook'),
-            '/publish/webhook/',
+            reverse("publish:webhook"),
+            "/publish/webhook/",
         )

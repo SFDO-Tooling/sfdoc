@@ -8,21 +8,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0005_image'),
+        ("publish", "0005_image"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='easyditabundle',
-            name='complete_draft',
+            model_name="easyditabundle",
+            name="complete_draft",
         ),
         migrations.RemoveField(
-            model_name='easyditabundle',
-            name='complete_publish',
+            model_name="easyditabundle",
+            name="complete_publish",
         ),
         migrations.AddField(
-            model_name='easyditabundle',
-            name='status',
-            field=models.CharField(choices=[('N', 'New'), ('D', 'Draft'), ('P', 'Published')], default='N', max_length=1),
+            model_name="easyditabundle",
+            name="status",
+            field=models.CharField(
+                choices=[("N", "New"), ("D", "Draft"), ("P", "Published")],
+                default="N",
+                max_length=1,
+            ),
         ),
     ]

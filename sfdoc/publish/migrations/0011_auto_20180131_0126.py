@@ -9,26 +9,31 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0010_auto_20180131_0029'),
+        ("publish", "0010_auto_20180131_0029"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='easyditabundle',
-            name='time_created',
+            model_name="easyditabundle",
+            name="time_created",
         ),
         migrations.RemoveField(
-            model_name='easyditabundle',
-            name='time_last_received',
+            model_name="easyditabundle",
+            name="time_last_received",
         ),
         migrations.AddField(
-            model_name='easyditabundle',
-            name='time_queued',
+            model_name="easyditabundle",
+            name="time_queued",
             field=models.DateTimeField(null=True),
         ),
         migrations.AlterField(
-            model_name='webhook',
-            name='easydita_bundle',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='webhooks', to='publish.EasyditaBundle'),
+            model_name="webhook",
+            name="easydita_bundle",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="webhooks",
+                to="publish.EasyditaBundle",
+            ),
         ),
     ]

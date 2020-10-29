@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0030_auto_20180313_1948'),
+        ("publish", "0030_auto_20180313_1948"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='bundle',
-            name='description',
-            field=models.CharField(default='(no description)', max_length=255),
+            model_name="bundle",
+            name="description",
+            field=models.CharField(default="(no description)", max_length=255),
         ),
     ]

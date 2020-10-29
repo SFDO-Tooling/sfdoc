@@ -8,18 +8,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0017_easyditabundle_time_processed'),
+        ("publish", "0017_easyditabundle_time_processed"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='easyditabundle',
-            name='error_message',
-            field=models.TextField(default=''),
+            model_name="easyditabundle",
+            name="error_message",
+            field=models.TextField(default=""),
         ),
         migrations.AlterField(
-            model_name='easyditabundle',
-            name='status',
-            field=models.CharField(choices=[('N', 'New'), ('Q', 'Queued'), ('C', 'Processing'), ('D', 'Draft'), ('R', 'Rejected'), ('G', 'Publishing'), ('P', 'Published'), ('E', 'Error')], default='N', max_length=1),
+            model_name="easyditabundle",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("N", "New"),
+                    ("Q", "Queued"),
+                    ("C", "Processing"),
+                    ("D", "Draft"),
+                    ("R", "Rejected"),
+                    ("G", "Publishing"),
+                    ("P", "Published"),
+                    ("E", "Error"),
+                ],
+                default="N",
+                max_length=1,
+            ),
         ),
     ]

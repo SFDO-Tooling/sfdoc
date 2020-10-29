@@ -6,7 +6,6 @@ from .factories import BundleFactory
 
 
 class TestS3(TestCase):
-
     @responses.activate
     def test_init(self):
         bundle = BundleFactory()

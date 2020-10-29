@@ -8,7 +8,10 @@ from django.conf import settings
 import jwt
 import requests
 from simple_salesforce import Salesforce as SimpleSalesforce
-from simple_salesforce import exceptions as SimpleSalesforceExceptions, SalesforceMalformedRequest
+from simple_salesforce import (
+    exceptions as SimpleSalesforceExceptions,
+    SalesforceMalformedRequest,
+)
 
 from .exceptions import SalesforceError
 from .html import HTML
@@ -25,34 +28,34 @@ def get_salesforce_api():
     """Get an instance of the Salesforce REST API."""
     url = settings.SALESFORCE_LOGIN_URL
     if settings.SALESFORCE_SANDBOX:
-        url = url.replace('login', 'test')
+        url = url.replace("login", "test")
     payload = {
-        'alg': 'RS256',
-        'iss': settings.SALESFORCE_CLIENT_ID,
-        'sub': settings.SALESFORCE_USERNAME,
-        'aud': url,
-        'exp': timegm(datetime.utcnow().utctimetuple()),
+        "alg": "RS256",
+        "iss": settings.SALESFORCE_CLIENT_ID,
+        "sub": settings.SALESFORCE_USERNAME,
+        "aud": url,
+        "exp": timegm(datetime.utcnow().utctimetuple()),
     }
     encoded_jwt = jwt.encode(
         payload,
         settings.SALESFORCE_JWT_PRIVATE_KEY,
-        algorithm='RS256',
+        algorithm="RS256",
     )
     data = {
-        'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        'assertion': encoded_jwt,
+        "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        "assertion": encoded_jwt,
     }
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    auth_url = urljoin(url, 'services/oauth2/token')
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    auth_url = urljoin(url, "services/oauth2/token")
     response = requests.post(url=auth_url, data=data, headers=headers)
     response.raise_for_status()  # maybe VPN or auth problem!
     response_data = response.json()
     return SimpleSalesforce(
-        instance_url=response_data['instance_url'],
-        session_id=response_data['access_token'],
+        instance_url=response_data["instance_url"],
+        session_id=response_data["access_token"],
         domain="test" if settings.SALESFORCE_SANDBOX else None,
         version=settings.SALESFORCE_API_VERSION,
-        client_id='sfdoc',
+        client_id="sfdoc",
     )
 
 
@@ -64,18 +67,18 @@ def get_community_base_url(api=None):
             api = get_salesforce_api()
 
         o = urlparse(api.base_url)
-        parts = o.netloc.split('.')
+        parts = o.netloc.split(".")
         instance = parts[1]
-        sandbox_name = parts[0].split('--')[1]
+        sandbox_name = parts[0].split("--")[1]
 
-        return '{}://{}-{}.{}.force.com'.format(
+        return "{}://{}-{}.{}.force.com".format(
             o.scheme,
             sandbox_name,
             settings.SALESFORCE_COMMUNITY,
             instance,
         )
 
-    return 'https://{}.force.com'.format(
+    return "https://{}.force.com".format(
         settings.SALESFORCE_COMMUNITY,
     )
 
@@ -116,27 +119,32 @@ class SalesforceArticles:
         docset_id = article[self.docset_relation][settings.SALESFORCE_DOCSET_ID_FIELD]
         assert docset_id == self.docset_uuid
 
-        draft = self.query_articles_cached('draft', KnowledgeArticleId=ka_id)
+        draft = self.query_articles_cached("draft", KnowledgeArticleId=ka_id)
 
         # delete draft if it exists
         if draft:
             assert len(draft) == 1
             sf_api_logger.info("Deleting draft %s", kav_id)
-            self.delete(draft[0]['Id'])
+            self.delete(draft[0]["Id"])
         # archive published version
-        self.set_publish_status(kav_id, 'archived')
+        self.set_publish_status(kav_id, "archived")
 
     def _ensure_sf_docset_object_exists(self):
         sf_docset_api = getattr(self.api, settings.SALESFORCE_DOCSET_SOBJECT)
 
         try:
-            self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_uuid)
+            self._sf_docset = sf_docset_api.get_by_custom_id(
+                settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_uuid
+            )
         except SimpleSalesforceExceptions.SalesforceResourceNotFound:
-            data = {settings.SALESFORCE_DOCSET_ID_FIELD: self.docset_uuid,
-                    settings.SALESFORCE_DOCSET_STATUS_FIELD: settings.SALESFORCE_DOCSET_STATUS_INACTIVE
-                    }
+            data = {
+                settings.SALESFORCE_DOCSET_ID_FIELD: self.docset_uuid,
+                settings.SALESFORCE_DOCSET_STATUS_FIELD: settings.SALESFORCE_DOCSET_STATUS_INACTIVE,
+            }
             sf_docset_api.create(data)
-            self._sf_docset = sf_docset_api.get_by_custom_id(settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_uuid)
+            self._sf_docset = sf_docset_api.get_by_custom_id(
+                settings.SALESFORCE_DOCSET_ID_FIELD, self.docset_uuid
+            )
         return self._sf_docset
 
     @property
@@ -150,23 +158,23 @@ class SalesforceArticles:
         """Create a new article in draft state."""
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         data = html.create_article_data()
-        data[settings.SALESFORCE_DOCSET_RELATION_FIELD] = self.sf_docset['Id']
+        data[settings.SALESFORCE_DOCSET_RELATION_FIELD] = self.sf_docset["Id"]
         assert data[settings.SALESFORCE_DOCSET_RELATION_FIELD]
         try:
             result = kav_api.create(data=data)
         except SimpleSalesforceExceptions.SalesforceMalformedRequest:
             sf_api_logger.error(f"Error publishing {data['UrlName']}")
-            art = Article.objects.filter(url_name=data['UrlName']).last()
-            old, new = art.docset_id, self.sf_docset['Id']
-            if old!=new:
+            art = Article.objects.filter(url_name=data["UrlName"]).last()
+            old, new = art.docset_id, self.sf_docset["Id"]
+            if old != new:
                 sf_api_logger.error(f"Perhaps the article moved between docsets?")
                 sf_api_logger.error(f"Old Docset: {old}")
                 sf_api_logger.error(f"New Docset: {new}")
             raise
 
-        kav_id = result['id']
+        kav_id = result["id"]
         sf_api_logger.info("Creating article %s %s", kav_id, data)
-        self.invalidate_cache()     # I would prefer to update the cache but I
+        self.invalidate_cache()  # I would prefer to update the cache but I
         #                             would need to do a query to get the
         #                             KnowledgeArticleId anyways. :(
         return kav_id
@@ -174,18 +182,15 @@ class SalesforceArticles:
     def create_draft(self, ka_id):
         """Create a draft copy of a published article."""
         self.invalidate_cache()
-        url = (
-            self.api.base_url +
-            'knowledgeManagement/articleVersions/masterVersions'
-        )
-        data = {'articleId': ka_id}
-        result = self.api._call_salesforce('POST', url, json=data)
+        url = self.api.base_url + "knowledgeManagement/articleVersions/masterVersions"
+        data = {"articleId": ka_id}
+        result = self.api._call_salesforce("POST", url, json=data)
         if result.status_code != HTTPStatus.CREATED:
-            e = SalesforceError((
-                'Error creating new draft for KnowlegeArticle (ID={})'
-            ).format(ka_id))
-            raise(e)
-        kav_id = result.json()['id']
+            e = SalesforceError(
+                ("Error creating new draft for KnowlegeArticle (ID={})").format(ka_id)
+            )
+            raise (e)
+        kav_id = result.json()["id"]
         sf_api_logger.info("Created draft %s for %s with %s", kav_id, ka_id, data)
         return kav_id
 
@@ -193,14 +198,13 @@ class SalesforceArticles:
         """Delete a KnowledgeArticleVersion."""
         self.invalidate_cache()
         url = (
-            self.api.base_url +
-            'knowledgeManagement/articleVersions/masterVersions/{}'
+            self.api.base_url + "knowledgeManagement/articleVersions/masterVersions/{}"
         ).format(kav_id)
-        result = self.api._call_salesforce('DELETE', url)
+        result = self.api._call_salesforce("DELETE", url)
         if result.status_code != HTTPStatus.NO_CONTENT:
-            raise SalesforceError((
-                'Error deleting KnowledgeArticleVersion (ID={})'
-            ).format(kav_id))
+            raise SalesforceError(
+                ("Error deleting KnowledgeArticleVersion (ID={})").format(kav_id)
+            )
         sf_api_logger.info("Deleted draft %s : %s", kav_id, url)
 
     def get_by_kav_id(self, kav_id, publish_status):
@@ -208,7 +212,7 @@ class SalesforceArticles:
             return self.query_articles_cached(publish_status, Id=kav_id)[0]
         except IndexError:
             raise SalesforceError(
-                '{} KnowledgeArticleVersion {} not found'.format(publish_status, kav_id)
+                "{} KnowledgeArticleVersion {} not found".format(publish_status, kav_id)
             )
 
     def get_ka_id(self, kav_id, publish_status):
@@ -220,8 +224,14 @@ class SalesforceArticles:
         """Get all article versions with a given publish status."""
         return self.query_articles_cached(publish_status)
 
-    def query_articles(self, fields, filters={}, *, include_wrapper=False,
-                       object_type=settings.SALESFORCE_ARTICLE_TYPE):
+    def query_articles(
+        self,
+        fields,
+        filters={},
+        *,
+        include_wrapper=False,
+        object_type=settings.SALESFORCE_ARTICLE_TYPE,
+    ):
         query_str = "SELECT "
         query_str += ",".join(fields)
         query_str += " FROM "
@@ -233,18 +243,19 @@ class SalesforceArticles:
         if filters:
             query_str += " WHERE "
 
-        query_str += ' AND '.join(f"{fieldname}='{value}'"
-                                  for fieldname, value in filters.items())
+        query_str += " AND ".join(
+            f"{fieldname}='{value}'" for fieldname, value in filters.items()
+        )
 
         query_logger.info("QUERY: %s", query_str)
         result = self.api.query_all(query_str)
         query_logger.info("RESULT: %s", repr(result))
 
-        assert result['totalSize'] == len(result['records'])
+        assert result["totalSize"] == len(result["records"])
         if include_wrapper:
             return result
         else:
-            return result['records']
+            return result["records"]
 
     @property
     def docset_relation(self):
@@ -266,12 +277,12 @@ class SalesforceArticles:
         html.update_links_draft(bundle.docset_id, self.get_base_url())
 
         # query for existing article
-        result_draft = self.find_articles_by_name(html.url_name, 'draft')
-        result_online = self.find_articles_by_name(html.url_name, 'online')
+        result_draft = self.find_articles_by_name(html.url_name, "draft")
+        result_online = self.find_articles_by_name(html.url_name, "online")
 
         if len(result_draft) == 1:
             # draft exists, update fields
-            kav_id = result_draft[0]['Id']
+            kav_id = result_draft[0]["Id"]
             self.update_draft(kav_id, html)
             if len(result_online) == 1:
                 # published version exists
@@ -289,28 +300,42 @@ class SalesforceArticles:
             # new draft of existing article
             record = result_online[0]
             # check for changes in article fields
-            if html.same_as_record(record, logger) and not settings.REPUBLISH_UNCHANGED_ARTICLES:
+            if (
+                html.same_as_record(record, logger)
+                and not settings.REPUBLISH_UNCHANGED_ARTICLES
+            ):
                 # no update
                 logger.info("Draft did not change: skipping: %s", html.url_name)
                 return
             # create draft copy of published article
-            kav_id = self.create_draft(record['KnowledgeArticleId'])
+            kav_id = self.create_draft(record["KnowledgeArticleId"])
             self.update_draft(kav_id, html)
             status = Article.STATUS_CHANGED
-            logger.info("New draft of published article, status %s, %s", status, html.url_name)
+            logger.info(
+                "New draft of published article, status %s, %s", status, html.url_name
+            )
 
         self.save_article(kav_id, html, bundle, status)
 
     def _cache_population_query(self, publish_status):
-        fields = ["Id", "KnowledgeArticleId", "Title", "Summary", "IsVisibleInCsp",
-                        "IsVisibleInPkb", "IsVisibleInPrm", "UrlName", "PublishStatus",
-                        "Topics__c", "Article_Type__c",
-                        settings.SALESFORCE_ARTICLE_BODY_FIELD,
-                        settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
-                        settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
-                        self.docset_uuid_join_field]
-        where_clauses = {"language": "en_US",
-                         "PublishStatus": publish_status}
+        fields = [
+            "Id",
+            "KnowledgeArticleId",
+            "Title",
+            "Summary",
+            "IsVisibleInCsp",
+            "IsVisibleInPkb",
+            "IsVisibleInPrm",
+            "UrlName",
+            "PublishStatus",
+            "Topics__c",
+            "Article_Type__c",
+            settings.SALESFORCE_ARTICLE_BODY_FIELD,
+            settings.SALESFORCE_ARTICLE_AUTHOR_FIELD,
+            settings.SALESFORCE_ARTICLE_AUTHOR_OVERRIDE_FIELD,
+            self.docset_uuid_join_field,
+        ]
+        where_clauses = {"language": "en_US", "PublishStatus": publish_status}
         if self.docset_scoped:
             where_clauses[self.docset_uuid_join_field] = self.docset_uuid
 
@@ -327,7 +352,9 @@ class SalesforceArticles:
         if not self._article_cache.get(key):
             self._article_cache[key] = self._cache_population_query(publish_status)
         elif settings.CACHE_VALIDATION_MODE:
-            assert self._article_cache[key] == self._cache_population_query(publish_status)
+            assert self._article_cache[key] == self._cache_population_query(
+                publish_status
+            )
 
         def match(item):
             return all(item[fieldname] == value for fieldname, value in filters.items())
@@ -338,7 +365,7 @@ class SalesforceArticles:
     def invalidate_cache(cls):
         cls._article_cache = {}
 
-    def publish_draft(self, kav_id, logger = None):
+    def publish_draft(self, kav_id, logger=None):
         """Publish a draft KnowledgeArticleVersion."""
 
         logger = logger or sf_api_logger
@@ -355,7 +382,7 @@ class SalesforceArticles:
 
         kav_api = getattr(self.api, settings.SALESFORCE_ARTICLE_TYPE)
         kav_api.update(kav_id, data)
-        self.set_publish_status(kav_id, 'online')
+        self.set_publish_status(kav_id, "online")
 
     def find_articles_by_name(self, url_name, publish_status):
         """Query KnowledgeArticleVersion objects."""
@@ -366,7 +393,7 @@ class SalesforceArticles:
 
     def save_article(self, kav_id, html, bundle, status):
         """Create an Article object from parsed HTML."""
-        ka_id = self.get_ka_id(kav_id, 'draft')
+        ka_id = self.get_ka_id(kav_id, "draft")
         Article.objects.create(
             bundle=bundle,
             ka_id=ka_id,
@@ -379,16 +406,17 @@ class SalesforceArticles:
     def set_publish_status(self, kav_id, status):
         sf_api_logger.info("Changing publish status of %s to %s", kav_id, status)
         url = (
-            self.api.base_url +
-            'knowledgeManagement/articleVersions/masterVersions/{}'
+            self.api.base_url + "knowledgeManagement/articleVersions/masterVersions/{}"
         ).format(kav_id)
-        data = {'publishStatus': status}
+        data = {"publishStatus": status}
         self.invalidate_cache()
-        result = self.api._call_salesforce('PATCH', url, json=data)
+        result = self.api._call_salesforce("PATCH", url, json=data)
         if result.status_code != HTTPStatus.NO_CONTENT:
-            raise SalesforceError((
-                'Error setting status={} for KnowledgeArticleVersion (ID={})'
-            ).format(status, kav_id))
+            raise SalesforceError(
+                ("Error setting status={} for KnowledgeArticleVersion (ID={})").format(
+                    status, kav_id
+                )
+            )
 
     def update_draft(self, kav_id, html):
         """Update the fields of an existing draft."""
@@ -398,9 +426,9 @@ class SalesforceArticles:
         data = html.create_article_data()
         result = kav_api.update(kav_id, data)
         if result != HTTPStatus.NO_CONTENT:
-            raise SalesforceError((
-                'Error updating draft KnowledgeArticleVersion (ID={})'
-            ).format(kav_id))
+            raise SalesforceError(
+                ("Error updating draft KnowledgeArticleVersion (ID={})").format(kav_id)
+            )
         return result
 
     @property
@@ -414,7 +442,11 @@ class SalesforceArticles:
         if not local_docset_obj.index_article_ka_id:
             url_name = local_docset_obj.index_article_url
             assert url_name
-            kav = [a for a in self.query_articles_cached("Online") if a["UrlName"] == url_name][0]
+            kav = [
+                a
+                for a in self.query_articles_cached("Online")
+                if a["UrlName"] == url_name
+            ][0]
             ka_id = kav["KnowledgeArticleId"]
             data = {settings.SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD: ka_id}
             sf_docset_api.update(sf_docset_id, data)

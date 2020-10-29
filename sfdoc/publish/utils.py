@@ -59,7 +59,7 @@ def unzip(zipfile, path, recursive=False, ignore_patterns=None):
                         os.path.join(dirpath, filename),
                         os.path.join(dirpath, root),
                         recursive,
-                        ignore_patterns
+                        ignore_patterns,
                     )
 
 

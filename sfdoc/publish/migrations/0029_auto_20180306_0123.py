@@ -8,13 +8,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0028_auto_20180305_2118'),
+        ("publish", "0028_auto_20180305_2118"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='article',
-            old_name='draft_preview_url',
-            new_name='preview_url',
+            model_name="article",
+            old_name="draft_preview_url",
+            new_name="preview_url",
         ),
     ]

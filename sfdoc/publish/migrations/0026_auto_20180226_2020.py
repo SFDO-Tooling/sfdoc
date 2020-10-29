@@ -8,27 +8,27 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0025_auto_20180226_1857'),
+        ("publish", "0025_auto_20180226_1857"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='EasyditaBundle',
-            new_name='Bundle',
+            old_name="EasyditaBundle",
+            new_name="Bundle",
         ),
         migrations.RenameField(
-            model_name='article',
-            old_name='easydita_bundle',
-            new_name='bundle',
+            model_name="article",
+            old_name="easydita_bundle",
+            new_name="bundle",
         ),
         migrations.RenameField(
-            model_name='image',
-            old_name='easydita_bundle',
-            new_name='bundle',
+            model_name="image",
+            old_name="easydita_bundle",
+            new_name="bundle",
         ),
         migrations.RenameField(
-            model_name='webhook',
-            old_name='easydita_bundle',
-            new_name='bundle',
+            model_name="webhook",
+            old_name="easydita_bundle",
+            new_name="bundle",
         ),
     ]

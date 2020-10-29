@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0022_article_ka_id'),
+        ("publish", "0022_article_ka_id"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='easyditabundle',
-            name='time_published',
+            model_name="easyditabundle",
+            name="time_published",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

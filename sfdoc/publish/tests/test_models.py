@@ -10,21 +10,20 @@ from . import utils
 
 
 class TestArticle(TestCase):
-
     def setUp(self):
         self.article = self.create_article()
 
     def create_article(self):
         bundle = Bundle.objects.create(
-            easydita_id='0123456789',
-            easydita_resource_id='9876543210',
+            easydita_id="0123456789",
+            easydita_resource_id="9876543210",
         )
         return Article.objects.create(
             bundle=bundle,
-            ka_id='kA0123456789012345',
-            kav_id='ka9876543210987654',
-            title='Test Article',
-            url_name='Test-Article',
+            ka_id="kA0123456789012345",
+            kav_id="ka9876543210987654",
+            title="Test Article",
+            url_name="Test-Article",
         )
 
     def test_article_str(self):
@@ -34,10 +33,9 @@ class TestArticle(TestCase):
 
 
 class TestBundle(TestCase):
-
     def setUp(self):
         self.bundle_id = 1
-        self.bundle_url = '{}/rest/all-files/{}/bundle'.format(
+        self.bundle_url = "{}/rest/all-files/{}/bundle".format(
             settings.EASYDITA_INSTANCE_URL,
             self.bundle_id,
         )
@@ -46,44 +44,42 @@ class TestBundle(TestCase):
 
 
 class TestImage(TestCase):
-
     def setUp(self):
         self.image = self.create_image()
 
     def create_image(self):
         bundle = Bundle.objects.create(
-            easydita_id='0123456789',
-            easydita_resource_id='9876543210',
+            easydita_id="0123456789",
+            easydita_resource_id="9876543210",
         )
         return Image.objects.create(
             bundle=bundle,
-            filename='test.png',
+            filename="test.png",
         )
 
     def test_image_str(self):
         self.assertEqual(
             str(self.image),
-            'Image {}: {}'.format(self.image.pk, self.image.filename),
+            "Image {}: {}".format(self.image.pk, self.image.filename),
         )
 
 
 class TestWebhook(TestCase):
-
     def setUp(self):
         self.webhook = self.create_webhook()
 
     def create_webhook(self):
         bundle = Bundle.objects.create(
-            easydita_id='0123456789',
-            easydita_resource_id='9876543210',
+            easydita_id="0123456789",
+            easydita_resource_id="9876543210",
         )
         return Webhook.objects.create(
-            body=r'{}',
+            body=r"{}",
             bundle=bundle,
         )
 
     def test_webhook_str(self):
         self.assertEqual(
             str(self.webhook),
-            'Webhook {}'.format(self.webhook.pk),
+            "Webhook {}".format(self.webhook.pk),
         )

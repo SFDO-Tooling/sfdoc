@@ -8,13 +8,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0006_auto_20180125_2332'),
+        ("publish", "0006_auto_20180125_2332"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='easyditabundle',
-            name='status',
-            field=models.CharField(choices=[('N', 'New'), ('D', 'Draft'), ('G', 'Publishing'), ('P', 'Published')], default='N', max_length=1),
+            model_name="easyditabundle",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("N", "New"),
+                    ("D", "Draft"),
+                    ("G", "Publishing"),
+                    ("P", "Published"),
+                ],
+                default="N",
+                max_length=1,
+            ),
         ),
     ]

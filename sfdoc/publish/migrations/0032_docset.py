@@ -6,16 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0031_bundle_description'),
+        ("publish", "0031_bundle_description"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Docset',
+            name="Docset",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('docset_id', models.CharField(max_length=255)),
-                ('name', models.CharField(default='', max_length=255)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("docset_id", models.CharField(max_length=255)),
+                ("name", models.CharField(default="", max_length=255)),
             ],
         ),
     ]

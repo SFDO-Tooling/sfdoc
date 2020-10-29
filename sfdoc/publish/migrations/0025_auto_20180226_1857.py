@@ -8,20 +8,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0024_log'),
+        ("publish", "0024_log"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='status',
-            field=models.CharField(choices=[('N', 'New'), ('C', 'Changed')], default='C', max_length=1),
+            model_name="article",
+            name="status",
+            field=models.CharField(
+                choices=[("N", "New"), ("C", "Changed")], default="C", max_length=1
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='image',
-            name='status',
-            field=models.CharField(choices=[('N', 'New'), ('C', 'Changed')], default='C', max_length=1),
+            model_name="image",
+            name="status",
+            field=models.CharField(
+                choices=[("N", "New"), ("C", "Changed")], default="C", max_length=1
+            ),
             preserve_default=False,
         ),
     ]

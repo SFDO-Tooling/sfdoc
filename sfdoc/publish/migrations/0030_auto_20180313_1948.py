@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0029_auto_20180306_0123'),
+        ("publish", "0029_auto_20180306_0123"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='bundle',
-            name='error_message',
-            field=models.TextField(blank=True, default=''),
+            model_name="bundle",
+            name="error_message",
+            field=models.TextField(blank=True, default=""),
         ),
     ]

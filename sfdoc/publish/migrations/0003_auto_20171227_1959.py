@@ -8,18 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0002_auto_20171215_1920'),
+        ("publish", "0002_auto_20171215_1920"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='easyditabundle',
-            name='complete_production',
+            model_name="easyditabundle",
+            name="complete_production",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='easyditabundle',
-            name='complete_review',
+            model_name="easyditabundle",
+            name="complete_review",
             field=models.BooleanField(default=False),
         ),
     ]

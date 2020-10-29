@@ -9,19 +9,21 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0001_initial'),
+        ("publish", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='easyditabundle',
-            name='time_created',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="easyditabundle",
+            name="time_created",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='easyditabundle',
-            name='time_last_received',
+            model_name="easyditabundle",
+            name="time_last_received",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]

@@ -8,18 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publish', '0014_article_draft_preview_url'),
+        ("publish", "0014_article_draft_preview_url"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='article',
-            name='title',
-            field=models.CharField(default='', max_length=255),
+            model_name="article",
+            name="title",
+            field=models.CharField(default="", max_length=255),
         ),
         migrations.AddField(
-            model_name='article',
-            name='url_name',
-            field=models.CharField(default='', max_length=255),
+            model_name="article",
+            name="url_name",
+            field=models.CharField(default="", max_length=255),
         ),
     ]

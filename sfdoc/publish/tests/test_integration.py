@@ -57,9 +57,7 @@ def integration_test(cls):
             if key.startswith("test_"):
                 decorated = responses.activate(getattr(cls, key))
                 setattr(cls, key, decorated)
-    return skipUnless(
-        settings.RUN_INTEGRATION_TESTS, "run integration tests"
-    )(cls)
+    return skipUnless(settings.RUN_INTEGRATION_TESTS, "run integration tests")(cls)
 
 
 class TstHelpers:  # named to avoid confusing pytest
@@ -69,7 +67,7 @@ class TstHelpers:  # named to avoid confusing pytest
 
     def checkTestEnvironment(self):
         """Several checks of the intention of the end-user to really obliterate
-           their org."""
+        their org."""
         assert settings.RUN_INTEGRATION_TESTS
         assert "test_" in connection.settings_dict["NAME"]
         assert os.environ.get("OKAY_TO_DELETE_SALESFORCE_KNOWLEDGE_ARTICLES"), (
@@ -83,8 +81,12 @@ class TstHelpers:  # named to avoid confusing pytest
         all_articles = self.salesforce.get_articles("Online")
         sfapis = {}
         for article in all_articles:
-            docset_id = article[self.salesforce.docset_relation][settings.SALESFORCE_DOCSET_ID_FIELD]
-            sfapi = sfapis.get(docset_id) or sfapis.setdefault(docset_id, SalesforceArticles(docset_id))
+            docset_id = article[self.salesforce.docset_relation][
+                settings.SALESFORCE_DOCSET_ID_FIELD
+            ]
+            sfapi = sfapis.get(docset_id) or sfapis.setdefault(
+                docset_id, SalesforceArticles(docset_id)
+            )
 
             sfapi.archive(article["Id"])
 
@@ -92,7 +94,9 @@ class TstHelpers:  # named to avoid confusing pytest
         for article in all_articles:
             self.salesforce.delete(article["Id"])
 
-        raw_sf_docset_api = getattr(self.salesforce.api, settings.SALESFORCE_DOCSET_SOBJECT)
+        raw_sf_docset_api = getattr(
+            self.salesforce.api, settings.SALESFORCE_DOCSET_SOBJECT
+        )
         for docset in self.salesforce.get_docsets():
             raw_sf_docset_api.delete(docset["Id"])
 
@@ -225,7 +229,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         if SHOULD_MOCK_EASYDITA:
             utils.mock_easydita()
         self.fake_queue = FakeQueue()
-    
+
     def process_bundle_from_webhook(self, webhook):
         with patch("rq.queue.Queue.enqueue_call", self.fake_queue.enqueue_call):
             bundle = self.createWebhook(webhook)
@@ -244,27 +248,36 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         with self.debugMock() as mocktempdir:
             # 1. Import a bundle
             mocktempdir.set_subprefix("_scenario_1_")
-            bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
-            articles = Article.objects.filter(bundle=bundle_A_V1,
-                                              status__in=(Article.STATUS_NEW))
+            bundle_A_V1 = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_A
+            )
+            articles = Article.objects.filter(
+                bundle=bundle_A_V1, status__in=(Article.STATUS_NEW)
+            )
             self.assertTitles(articles, fake_easydita.ditamap_A_titles)
-            self.assertTitles(self.salesforce.get_articles("draft"),
-                              fake_easydita.ditamap_A_titles)
+            self.assertTitles(
+                self.salesforce.get_articles("draft"), fake_easydita.ditamap_A_titles
+            )
 
             # 2. User publishes the first bundle.
             mocktempdir.set_subprefix("_scenario_2_")
             tasks.publish_drafts(bundle_A_V1.pk)  # simulate publish from UI
-            self.assertTitles(self.salesforce.get_articles("online"),
-                              fake_easydita.ditamap_A_titles)
+            self.assertTitles(
+                self.salesforce.get_articles("online"), fake_easydita.ditamap_A_titles
+            )
 
             # 3. Now import a different bundle with our to-be-deleted file
             mocktempdir.set_subprefix("_scenario_3_")
-            bundle_B = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_B)
-            articles = Article.objects.filter(bundle=bundle_B,
-                                              status__in=(Article.STATUS_NEW))
+            bundle_B = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_B
+            )
+            articles = Article.objects.filter(
+                bundle=bundle_B, status__in=(Article.STATUS_NEW)
+            )
             self.assertTitles(articles, fake_easydita.ditamap_B_titles)
-            self.assertTitles(self.salesforce.get_articles("draft"),
-                              fake_easydita.ditamap_B_titles)
+            self.assertTitles(
+                self.salesforce.get_articles("draft"), fake_easydita.ditamap_B_titles
+            )
 
             # should be able to find the article we're going to delete later
             self.assertIn(
@@ -278,28 +291,32 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
             # 5. Import a bundle with a single missing article and check that it disappears as a draft
             mocktempdir.set_subprefix("_scenario_5_")
-            bundle_B_V3 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_b_V3)
+            bundle_B_V3 = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_b_V3
+            )
 
             deleted = Article.objects.filter(bundle=bundle_B_V3, status="D")
 
             self.assertTitles(deleted, ["Article 2, Bundle B"])
 
             articles = self.salesforce.get_articles("draft")
-            assert "Product Documentation" in (article["Article_Type__c"] for article in articles)
-            assert "End Users;IT/Developers;LGBTQIA+" in (article["Topics__c"] for article in articles)
+            assert "Product Documentation" in (
+                article["Article_Type__c"] for article in articles
+            )
+            assert "End Users;IT/Developers;LGBTQIA+" in (
+                article["Topics__c"] for article in articles
+            )
 
             # 6. Publish the bundle and check that it disappears as public
             mocktempdir.set_subprefix("_scenario_6_")
             self.assertTitles(
                 self.salesforce.get_articles("online"),
-                fake_easydita.ditamap_A_titles
-                + fake_easydita.ditamap_B_titles
+                fake_easydita.ditamap_A_titles + fake_easydita.ditamap_B_titles,
             )
             tasks.publish_drafts(bundle_B_V3.pk)  # simulate publish from UI
             self.assertTitles(
                 self.salesforce.get_articles("online"),
-                fake_easydita.ditamap_A_titles
-                + fake_easydita.ditamap_B_V3_titles
+                fake_easydita.ditamap_A_titles + fake_easydita.ditamap_B_V3_titles,
             )
             self.assertNotIn(
                 "Article 2, Bundle B",
@@ -308,13 +325,14 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
             # 7. Import and publish a version of the the other bundle and ensure that the first draft doesn't reappear
             mocktempdir.set_subprefix("_scenario_7_")
-            bundle_A_V2 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A_V2)
+            bundle_A_V2 = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_A_V2
+            )
             tasks.publish_drafts(bundle_A_V2.pk)  # simulate publish from UI
 
             self.assertTitles(
                 self.salesforce.get_articles("online"),
-                fake_easydita.ditamap_A_V2_titles
-                + fake_easydita.ditamap_B_V3_titles
+                fake_easydita.ditamap_A_V2_titles + fake_easydita.ditamap_B_V3_titles,
             )
             self.assertNotIn(
                 "Article 2, Bundle B",
@@ -327,7 +345,9 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             assert os.path.exists(TESTING_CACHE)
 
             # 1. Import a bundle
-            bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+            bundle_A_V1 = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_A
+            )
             self.assertStringNotInArticles(settings.AWS_S3_PUBLIC_IMG_DIR, "DRAFT")
             assert os.path.exists(TESTING_CACHE)
 
@@ -361,7 +381,9 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             # 3. Now import a different bundle. Check that the new articles
             #    are drafts and the old ones are still online.
             mocktempdir.set_subprefix("_scenario_3_")
-            bundle_B = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_B)
+            bundle_B = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_B
+            )
             sforg_article_list = self.salesforce.get_articles("draft")
 
             # check that they were added to SF
@@ -393,21 +415,24 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
             self.assertTitles(
                 self.salesforce.get_articles("online"),
-                fake_easydita.ditamap_A_titles
-                + fake_easydita.ditamap_B_titles,
+                fake_easydita.ditamap_A_titles + fake_easydita.ditamap_B_titles,
             )
             # no articles should still be in draft
             self.assertEqual(self.salesforce.get_articles("draft"), [])
 
     def test_changes(self):
         # 1. Import a bundle
-        bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+        bundle_A_V1 = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A
+        )
         self.assertStringNotInArticles(settings.AWS_S3_DRAFT_IMG_DIR, "Online")
 
         # 2. Publish the first bundle.
         tasks.publish_drafts(bundle_A_V1.pk)  # simulate publish from UI
         # 3. Now import a different bundle.
-        bundle_B = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_B)
+        bundle_B = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_B
+        )
         # 4. Publish the second bundle.
         tasks.publish_drafts(bundle_B.pk)  # simulate publish from UI
 
@@ -415,7 +440,9 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         #    Change an article's title. Check that it updates.
         #    Change another article's summary. Check that it updates.
         #    Check that all articles from the second bundle are included still. (TBD)
-        bundle_A_V2 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A_V2)
+        bundle_A_V2 = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A_V2
+        )
         self.assertIn(
             "Article A3! Updated",
             self.article_titles(self.salesforce.get_articles("draft")),
@@ -433,8 +460,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
         public_articles = self.salesforce.get_articles("online")
         expected_articles = (
-            fake_easydita.ditamap_A_V2_titles
-            + fake_easydita.ditamap_B_titles
+            fake_easydita.ditamap_A_V2_titles + fake_easydita.ditamap_B_titles
         )
 
         self.assertTitles(public_articles, expected_articles)
@@ -442,9 +468,13 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
     def test_images(self):
         # 1. Import a bundle
-        bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
-        new_images = list(Image.objects.filter(status=Image.STATUS_NEW, bundle=bundle_A_V1))
-        assert(len(new_images) == 3)
+        bundle_A_V1 = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A
+        )
+        new_images = list(
+            Image.objects.filter(status=Image.STATUS_NEW, bundle=bundle_A_V1)
+        )
+        assert len(new_images) == 3
         assert not Image.objects.filter(status=Image.STATUS_CHANGED, bundle=bundle_A_V1)
         assert not Image.objects.filter(status=Image.STATUS_DELETED, bundle=bundle_A_V1)
 
@@ -452,14 +482,18 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         tasks.publish_drafts(bundle_A_V1.pk)  # simulate publish from UI
 
         # 3. Add an image. Check that it ends up on S3.
-        bundle_A_V3 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A_V3)
+        bundle_A_V3 = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A_V3
+        )
         testing_file = "Testing/Paul_test/bundleA/CategoryA/Article1/images/small.png"
         draft_img_s3_object = os.path.join(
             settings.AWS_S3_DRAFT_IMG_DIR, bundle_A_V3.docset_id + "/", testing_file
         )
         self.assertS3ObjectExists(draft_img_s3_object)
-        new_images = list(Image.objects.filter(status=Image.STATUS_NEW, bundle=bundle_A_V3))
-        assert(len(new_images) == 1)
+        new_images = list(
+            Image.objects.filter(status=Image.STATUS_NEW, bundle=bundle_A_V3)
+        )
+        assert len(new_images) == 1
         assert not Image.objects.filter(status=Image.STATUS_CHANGED)
         assert not Image.objects.filter(status=Image.STATUS_DELETED)
 
@@ -496,14 +530,23 @@ class SFDocTestIntegration(TestCase, TstHelpers):
         )
         self.assertTrue(numpubimages, "Should be public images!")
 
-        bundle_A_V4 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A_V4)
+        bundle_A_V4 = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A_V4
+        )
         kav = self.get_article("Article A1", "draft")
 
         # now we've deleted an image, so there should be 1 and only 1 such
         # record. This is the first one we have deleted
         self.assertEqual(Image.objects.filter(status=Image.STATUS_DELETED).count(), 1)
-        self.assertEqual(Image.objects.filter(status=Image.STATUS_NEW, bundle=bundle_A_V4).count(), 0)
-        self.assertEqual(Image.objects.filter(status=Image.STATUS_CHANGED, bundle=bundle_A_V4).count(), 0)
+        self.assertEqual(
+            Image.objects.filter(status=Image.STATUS_NEW, bundle=bundle_A_V4).count(), 0
+        )
+        self.assertEqual(
+            Image.objects.filter(
+                status=Image.STATUS_CHANGED, bundle=bundle_A_V4
+            ).count(),
+            0,
+        )
 
         # should be 1 less image on S3 drafts
         numdraftimages_now = len(
@@ -548,7 +591,10 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
         sf = SalesforceArticles(uuid)
         result = sf.sf_docset
-        assert result[settings.SALESFORCE_DOCSET_STATUS_FIELD] == settings.SALESFORCE_DOCSET_STATUS_INACTIVE
+        assert (
+            result[settings.SALESFORCE_DOCSET_STATUS_FIELD]
+            == settings.SALESFORCE_DOCSET_STATUS_INACTIVE
+        )
 
         result2 = raw_sf_docset_api.get_by_custom_id(
             settings.SALESFORCE_DOCSET_ID_FIELD, uuid
@@ -559,28 +605,38 @@ class SFDocTestIntegration(TestCase, TstHelpers):
     def test_docset_index_url_change(self):
         with self.debugMock() as mocktempdir:
             mocktempdir.set_subprefix("_scenario_10_")
-            bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+            bundle_A_V1 = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_A
+            )
             tasks.publish_drafts(bundle_A_V1.pk)  # simulate publish from UI
 
             docset = SalesforceArticles(bundle_A_V1.docset_id).sf_docset
             index_article_id = docset[settings.SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD]
-            index_article = self.salesforce.find_article_by_name("SFDO-BundleA-Documentation", "Online")
+            index_article = self.salesforce.find_article_by_name(
+                "SFDO-BundleA-Documentation", "Online"
+            )
             assert index_article["KnowledgeArticleId"] == index_article_id
 
             mocktempdir.set_subprefix("_scenario_11_")
             # this new bundle has a different UrlName for the index article
             # so it should end up with a new ID
             # which should change the docset ("Hub_Product_Description__c") too
-            bundle_A_V6 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A_V6)
+            bundle_A_V6 = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_A_V6
+            )
             tasks.publish_drafts(bundle_A_V6.pk)  # simulate publish from UI
 
             docset = SalesforceArticles(bundle_A_V1.docset_id).sf_docset
             index_article_id2 = docset[settings.SALESFORCE_DOCSET_INDEX_REFERENCE_FIELD]
             assert index_article_id != index_article_id2
-            new_index_article = self.salesforce.find_article_by_name("SFDO-BundleA-Documentation-URL2", "Online")
+            new_index_article = self.salesforce.find_article_by_name(
+                "SFDO-BundleA-Documentation-URL2", "Online"
+            )
             assert new_index_article["KnowledgeArticleId"] == index_article_id2
             try:
-                self.salesforce.find_article_by_name("SFDO-BundleA-Documentation", "Online")
+                self.salesforce.find_article_by_name(
+                    "SFDO-BundleA-Documentation", "Online"
+                )
                 assert False, "Should not get to this line of code"
             except IndexError:
                 pass  # we're good
@@ -592,7 +648,9 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             assert os.path.exists(TESTING_CACHE)
 
             # 1. Import a bundle
-            bundle_A_V1 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+            bundle_A_V1 = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_A
+            )
             assert bundle_A_V1.status == bundle_A_V1.STATUS_DRAFT
 
             self.assertStringNotInArticles(settings.AWS_S3_PUBLIC_IMG_DIR, "DRAFT")
@@ -616,12 +674,16 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             # 2. Now import a different bundle. Check that the new articles
             #    are drafts and the old ones are still draft also.
             mocktempdir.set_subprefix("_scenario_2_")
-            bundle_B = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_B)
+            bundle_B = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_B
+            )
             sforg_article_list = self.salesforce.get_articles("draft")
 
             # check that they were added to SF
-            self.assertTitles(sforg_article_list, fake_easydita.ditamap_A_titles +
-                              fake_easydita.ditamap_B_titles)
+            self.assertTitles(
+                sforg_article_list,
+                fake_easydita.ditamap_A_titles + fake_easydita.ditamap_B_titles,
+            )
 
             # check that we created "NEW" status models in PG for all bundle_B
             # objects
@@ -634,7 +696,9 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             self.assertNoImagesScheduledForDeletion()
 
             # 3. Add another bundle "bundle_A" and ensure that it stays queued, not processing.
-            bundle_A_V2 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A_V2)
+            bundle_A_V2 = self.process_bundle_from_webhook(
+                fake_easydita.fake_webhook_body_doc_A_V2
+            )
             assert bundle_A_V2.status == bundle_A_V2.STATUS_QUEUED
 
             # 4. Publish the first bundle. Check that the articles are published.
@@ -648,7 +712,9 @@ class SFDocTestIntegration(TestCase, TstHelpers):
             self.assertNoImagesScheduledForDeletion()
 
             # bundle B stuff should still be unpublished
-            self.assertTitles(self.salesforce.get_articles("draft"), fake_easydita.ditamap_B_titles)
+            self.assertTitles(
+                self.salesforce.get_articles("draft"), fake_easydita.ditamap_B_titles
+            )
 
             # 5. Publish the second bundle. Check that both sets of articles
             #    stay published.
@@ -659,8 +725,7 @@ class SFDocTestIntegration(TestCase, TstHelpers):
 
             self.assertTitles(
                 self.salesforce.get_articles("online"),
-                fake_easydita.ditamap_A_titles
-                + fake_easydita.ditamap_B_titles,
+                fake_easydita.ditamap_A_titles + fake_easydita.ditamap_B_titles,
             )
             # no articles should still be in draft
             self.assertEqual(self.salesforce.get_articles("draft"), [])
@@ -668,28 +733,40 @@ class SFDocTestIntegration(TestCase, TstHelpers):
     @override_settings(REPUBLISH_UNCHANGED_ARTICLES=False)
     def test_same_bundle_push_and_publish_twice(self):
         """You can't publish identical bundles back to back usually."""
-        bundle_A = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+        bundle_A = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A
+        )
         tasks.publish_drafts(bundle_A.pk)  # simulate publish from UI
         with self.assertRaises(SfdocError) as e:
             self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
-        
-        assert str(e.exception) == 'No articles or images changed'
+
+        assert str(e.exception) == "No articles or images changed"
 
     @override_settings(REPUBLISH_UNCHANGED_ARTICLES=True)
     def test_same_bundle_force_republish(self):
         """Allow publishing identical bundle twice in a row if settings allow."""
-        bundle_A = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+        bundle_A = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A
+        )
         tasks.publish_drafts(bundle_A.pk)  # simulate publish from UI
         # if the setting did not do what it is supposed to do, the next line
         # would throw an exception, as it does in test_same_bundle_push_and_publish_twice
-        bundle_A2 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+        bundle_A2 = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A
+        )
         tasks.publish_drafts(bundle_A2.pk)  # simulate publish from UI
 
     def test_same_bundle_old_bundle(self):
         """Should be able to revert a publish"""
-        bundle_A = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+        bundle_A = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A
+        )
         tasks.publish_drafts(bundle_A.pk)  # simulate publish from UI
-        bundle_A_V2 = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A_V2)
+        bundle_A_V2 = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A_V2
+        )
         tasks.publish_drafts(bundle_A_V2.pk)  # simulate publish from UI
-        bundle_A = self.process_bundle_from_webhook(fake_easydita.fake_webhook_body_doc_A)
+        bundle_A = self.process_bundle_from_webhook(
+            fake_easydita.fake_webhook_body_doc_A
+        )
         tasks.publish_drafts(bundle_A.pk)  # simulate publish from UI
