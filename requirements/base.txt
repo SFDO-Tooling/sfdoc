@@ -11,7 +11,7 @@ boto3==1.16.43
 botocore==1.19.43
 certifi==2020.12.5
 cffi==1.14.4
-chardet==3.0.4
+chardet==4.0.0
 click==7.1.2
 cryptography==3.2.1
 defusedxml==0.6.0
