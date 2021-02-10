@@ -34,17 +34,7 @@ CACHES = {
     }
 }
 
-# django-debug-toolbar
-# ------------------------------------------------------------------------------
-MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
-INSTALLED_APPS += ["debug_toolbar"]
-
 INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
-
-DEBUG_TOOLBAR_CONFIG = {
-    "DISABLE_PANELS": ["debug_toolbar.panels.redirects.RedirectsPanel"],
-    "SHOW_TEMPLATE_CONTEXT": True,
-}
 
 # django-extensions
 # ------------------------------------------------------------------------------
@@ -79,9 +69,13 @@ AWS_S3_PUBLIC_IMG_DIR = env("AWS_S3_PUBLIC_IMG_DIR", default='testimages/public/
 # Salesforce
 SALESFORCE_CLIENT_ID = env("SALESFORCE_CLIENT_ID")
 SALESFORCE_JWT_PRIVATE_KEY = process_key(env("SALESFORCE_JWT_PRIVATE_KEY"))
-SALESFORCE_SANDBOX = env.bool("SALESFORCE_SANDBOX")
+print(r"YYYXXXXX - SALESFORCE_SANDBOX: {env('SALESFORCE_SANDBOX')} Bool: {env.bool('SALESFORCE_SANDBOX')} " )
+SALESFORCE_SANDBOX = env.bool("SALESFORCE_SANDBOX", True)
+import sys
+sys.stderr.write(r"YYYXXXXX - SALESFORCE_SANDBOX: {env('SALESFORCE_SANDBOX')} Bool: {env.bool('SALESFORCE_SANDBOX')} ")
+assert SALESFORCE_SANDBOX
 SALESFORCE_USERNAME = env("SALESFORCE_USERNAME")
-
+assert False
 # django-rq
 REDIS_URL = env("REDIS_URL", default="redis://localhost:6379")
 REDIS_URL += "/1"
