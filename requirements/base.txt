@@ -14,7 +14,7 @@ cffi==1.14.5
 chardet==4.0.0
 click==7.1.2
 cryptography==3.4.6
-defusedxml==0.6.0
+defusedxml==0.7.0
 Django==2.2.16
 django-allauth==0.43.0
 django-braces==1.14.0
