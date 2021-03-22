@@ -22,7 +22,7 @@ django-crispy-forms==1.11.2
 django-environ==0.4.5
 django-model-utils==4.1.1
 django-redis==4.12.1
-django-rq==2.3.2
+django-rq==2.4.0
 docutils==0.16
 greenlet==0.4.17
 idna==2.10
