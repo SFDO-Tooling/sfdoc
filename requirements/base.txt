@@ -25,7 +25,7 @@ django-redis==4.12.1
 django-rq==2.4.1
 docutils==0.17
 greenlet==1.0.0
-idna==2.10
+idna==3.1
 jmespath==0.10.0
 oauthlib==3.1.0
 olefile==0.46
