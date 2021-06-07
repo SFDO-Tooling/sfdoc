@@ -18,7 +18,7 @@ defusedxml==0.7.1
 Django==3.2.4
 django-allauth==0.44.0
 django-braces==1.14.0
-django-crispy-forms==1.9.2
+django-crispy-forms==1.11.2
 django-environ==0.4.5
 django-model-utils==4.0.0
 django-redis==4.12.1
