@@ -10,7 +10,7 @@ beautifulsoup4==4.9.3
 boto3==1.17.105
 botocore==1.20.105
 certifi==2021.5.30
-cffi==1.14.3
+cffi==1.14.5
 chardet==3.0.4
 click==7.1.2
 cryptography==3.3.2
