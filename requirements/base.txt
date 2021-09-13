@@ -23,7 +23,7 @@ django-environ==0.7.0
 django-model-utils==4.1.1
 django-redis==5.0.0
 django-rq==2.4.1
-docutils==0.16
+docutils==0.17.1
 greenlet==0.4.17
 idna==2.10
 jmespath==0.10.0
