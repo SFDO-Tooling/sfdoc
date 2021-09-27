@@ -30,7 +30,7 @@ jmespath==0.10.0
 oauthlib==3.1.1
 psycopg2-binary==2.9.1
 pycparser==2.20
-PyJWT==1.7.1
+PyJWT==2.1.0
 python-dateutil==2.8.1
 python3-openid==3.1.0
 pytz==2020.1
