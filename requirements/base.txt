@@ -9,7 +9,7 @@ awesome-slugify==1.6.5
 beautifulsoup4==4.10.0
 boto3==1.18.58
 botocore==1.21.58
-certifi==2020.6.20
+certifi==2021.10.8
 cffi==1.14.3
 chardet==3.0.4
 click==7.1.2
