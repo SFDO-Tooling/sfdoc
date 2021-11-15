@@ -27,7 +27,7 @@ docutils==0.18
 greenlet==1.1.2
 idna==3.3
 jmespath==0.10.0
-oauthlib==3.1.0
+oauthlib==3.1.1
 psycopg2-binary==2.8.6
 pycparser==2.20
 PyJWT==1.7.1
