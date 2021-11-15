@@ -5,7 +5,7 @@
 
 coverage==6.1.2
 flake8==4.0.1
-django-test-plus==1.4.0
+django-test-plus==2.2.0
 factory-boy==3.1.0
 
 # pytest
