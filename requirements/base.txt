@@ -16,7 +16,7 @@ click==8.0.3
 cryptography==36.0.1
 defusedxml==0.7.1
 Django==4.0
-django-allauth==0.43.0
+django-allauth==0.47.0
 django-braces==1.14.0
 django-crispy-forms==1.9.2
 django-environ==0.4.5
