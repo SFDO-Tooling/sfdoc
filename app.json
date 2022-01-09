@@ -106,11 +106,11 @@
   "formation": {
     "web": {
       "quantity": 1,
-      "size": "free"
+      "size": "Private-S"
     },
     "worker": {
       "quantity": 1,
-      "size": "free"
+      "size": "Private-S"
     }
   },
   "scripts": {
@@ -126,6 +126,17 @@
       "env": {
         "DJANGO_SETTINGS_MODULE": "config.settings.test"
       }
+    },
+    "review": {
+      "scripts": {
+        "test-setup": "pip install --upgrade -r requirements/test.txt",
+        "test": "pytest"
+      },
+      "addons": ["heroku-postgresql:in-dyno", "heroku-redis:in-dyno"],
+      "env": {
+        "DJANGO_SETTINGS_MODULE": "config.settings.integration_tests"
+      },
+      "space": "sfdoc"
     }
   }
 }
