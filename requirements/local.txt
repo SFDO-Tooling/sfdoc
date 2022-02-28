@@ -1,7 +1,7 @@
 # Local development dependencies go here
 -r test.txt
 
-django-coverage-plugin==1.8.0
+django-coverage-plugin==2.0.2
 
 Sphinx==3.2.1
 django-extensions==3.0.9
