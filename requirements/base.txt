@@ -4,7 +4,7 @@
 # Verified bug on Python 3.5.1
 wheel==0.37.1
 argon2-cffi==21.3.0
-asn1crypto==1.4.0
+asn1crypto==1.5.1
 awesome-slugify==1.6.5
 beautifulsoup4==4.9.3
 boto3==1.16.5
