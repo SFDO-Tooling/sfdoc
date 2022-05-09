@@ -8,7 +8,7 @@ asn1crypto==1.5.1
 awesome-slugify==1.6.5
 beautifulsoup4==4.11.1
 boto3==1.22.10
-botocore==1.19.5
+botocore==1.25.10
 certifi==2020.6.20
 cffi==1.14.3
 chardet==3.0.4
